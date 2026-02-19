@@ -5,9 +5,11 @@ using DTPortal.Web.ViewModel.License;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DTPortal.Web.Controllers
 {
+    [Authorize]
     public class LicenseController : Controller
     {
         private readonly ILicenseService _licenseService;
