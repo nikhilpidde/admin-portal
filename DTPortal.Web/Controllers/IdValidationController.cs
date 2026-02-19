@@ -14,6 +14,8 @@ using Newtonsoft.Json.Linq;
 
 namespace DTPortal.Web.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    [Authorize]
     public class IdValidationController : Controller
     {
         private readonly IIdValidationService _idValidatonService;
