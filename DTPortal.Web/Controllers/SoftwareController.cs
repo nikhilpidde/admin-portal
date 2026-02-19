@@ -5,6 +5,7 @@ using DTPortal.Web.Attribute;
 using DTPortal.Web.Enums;
 using DTPortal.Web.ViewModel;
 using DTPortal.Web.ViewModel.Software;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ namespace DTPortal.Web.Controllers
     [ServiceFilter(typeof(SessionValidationAttribute))]
     [RequestSizeLimit(500 * 1024 * 1024)] //500MB
     [RequestFormLimits(MultipartBodyLengthLimit = 500 * 1024 * 1024)] //500MB
+    [Authorize]
     public class SoftwareController : Controller
     {
         private readonly ISoftwareService _softwareService;
