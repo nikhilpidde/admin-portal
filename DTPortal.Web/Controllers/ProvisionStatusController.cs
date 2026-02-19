@@ -3,9 +3,11 @@ using DTPortal.Core.Domain.Services.Communication;
 using DTPortal.Core.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DTPortal.Web.Controllers
 {
+    [Authorize]
     public class ProvisionStatusController : Controller
     {
         private readonly IProvisionStatusService _provisionStatusService;
