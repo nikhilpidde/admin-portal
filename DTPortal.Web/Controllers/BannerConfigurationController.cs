@@ -7,10 +7,12 @@ using DTPortal.Core.DTOs;
 using DTPortal.Web.ViewModel.Banners;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DTPortal.Web.Controllers
 {
 
+        [Authorize]
         public class BannerConfigurationController : Controller
         {
             private readonly IBannerConfigService _bannerConfigService;
