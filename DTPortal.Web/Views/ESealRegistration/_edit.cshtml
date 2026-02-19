@@ -188,7 +188,7 @@
                             </fieldset>
                         </div>
                     </div>
-                   @*  <div class="form-row">
+                    @*  <div class="form-row">
                         <div class="form-group col-md-6" style="float: right;">
                             <h5>Legal Documents</h5>
                             <fieldset style="height: auto; overflow-x: hidden; padding:10px">
@@ -881,7 +881,7 @@
                         @*@if (!makerCheckerEnabled)
                         {*@
                         <div class="d-flex float-left" style="width:50%">
-                           @*  <div class="d-flex float-left" style="height: fit-content; padding-top: 31px;">
+                            @*  <div class="d-flex float-left" style="height: fit-content; padding-top: 31px;">
                                 <button type="button" class="btn btn-primary btn-action-outline" style="display:inline-block;" onclick="generatePdf()">Generate PDF</button>
                             </div> *@
                         </div>
@@ -993,26 +993,26 @@
 
 
     @{
-            if (!String.IsNullOrEmpty(Model.TaxNo))
-            {
-                    @:$('#TaxNo').show();
-                    @:$('input[data-id="TaxNo"]').prop("checked", true);
-            }
+                if (!String.IsNullOrEmpty(Model.TaxNo))
+                {
+                            @:$('#TaxNo').show();
+                            @:$('input[data-id="TaxNo"]').prop("checked", true);
+                }
 
-            if (!String.IsNullOrEmpty(Model.UniqueRegdNo))
-            {
-                    @:$('#UniqueRegdNo').show();
-                    @:$('input[data-id="UniqueRegdNo"]').prop("checked", true);
-            }
+                if (!String.IsNullOrEmpty(Model.UniqueRegdNo))
+                {
+                            @:$('#UniqueRegdNo').show();
+                            @:$('input[data-id="UniqueRegdNo"]').prop("checked", true);
+                }
 
-            if (Model.DirectorsEmailList != null && Model.DirectorsEmailList.Count > 0)
-            {
-                    foreach (var directorEmail in Model.DirectorsEmailList)
-                    {
-                            @:addDirectorEmail('@directorEmail');
-                    }
-                    @:$('#addDirectorFieldset').show();
-            }
+                if (Model.DirectorsEmailList != null && Model.DirectorsEmailList.Count > 0)
+                {
+                            foreach (var directorEmail in Model.DirectorsEmailList)
+                            {
+                                        @:addDirectorEmail('@directorEmail');
+                            }
+                                @:$('#addDirectorFieldset').show();
+                }
     }
 
             $("#updateBtn").click(function (e) {
@@ -1030,8 +1030,8 @@
                                     if (file == undefined || file.size < 0) {
                                         @if (@String.IsNullOrEmpty(Model.AuthorizedLetterForSignatoriesBase64))
                                         {
-                                                @:$("span[data-valmsg-for='AuthorizedLetterForSignatories']").html("Please select file");
-                                                @:isValid = false;
+                                                    @:$("span[data-valmsg-for='AuthorizedLetterForSignatories']").html("Please select file");
+                                                    @:isValid = false;
                                         }
                                     }
                                 }
@@ -1048,11 +1048,11 @@
                                         //}
                                         @if (@String.IsNullOrEmpty(Model.ResizedEsealImage))
                                         {
-                                                @:$("span[data-valmsg-for='ESealImage']").html("Please select file");
-                                                @:isValid = false;
+                                                        @:$("span[data-valmsg-for='ESealImage']").html("Please select file");
+                                                        @:isValid = false;
                                         }
-                                                            }
                                     }
+                                }
                                     break;
 
                             case "Incorporation":
@@ -1061,8 +1061,8 @@
                                     if (file == undefined || file.size < 0) {
                                         @if (@String.IsNullOrEmpty(Model.IncorporationBase64))
                                         {
-                                                @:$("span[data-valmsg-for='Incorporation']").html("Please select file");
-                                                @:isValid = false;
+                                                    @:$("span[data-valmsg-for='Incorporation']").html("Please select file");
+                                                    @:isValid = false;
                                         }
                                     }
                                 }
@@ -1074,8 +1074,8 @@
                                     if (file == undefined || file.size < 0) {
                                         @if (@String.IsNullOrEmpty(Model.TaxBase64))
                                         {
-                                                @:$("span[data-valmsg-for='Tax']").html("Please select file");
-                                                @:isValid = false;
+                                                    @:$("span[data-valmsg-for='Tax']").html("Please select file");
+                                                    @:isValid = false;
                                         }
                                     }
                                 }
@@ -1087,8 +1087,8 @@
                                     if (file == undefined || file.size < 0) {
                                         @if (@String.IsNullOrEmpty(Model.AdditionalLegalDocumentBase64))
                                         {
-                                                @:$("span[data-valmsg-for='AdditionalLegalDocument']").html("Please select file");
-                                                @:isValid = false;
+                                                    @:$("span[data-valmsg-for='AdditionalLegalDocument']").html("Please select file");
+                                                    @:isValid = false;
                                         }
                                     }
                                 }
@@ -1108,11 +1108,11 @@
 
                         @if (Model.Status.ToLower() == "active")
                         {
-                                @:verifyDocumentAndUpdateCall('@Model.OrganizationUID', '@Model.OrganizationName');
+                                    @:verifyDocumentAndUpdateCall('@Model.OrganizationUID', '@Model.OrganizationName');
                         }
                         else
                         {
-                                @:updateCall();
+                                    @:updateCall();
                         }
                     }
                 }
@@ -1962,7 +1962,7 @@
 
     function addSignatoryEmail(value, isUploaded, arr, signData, ugpassEmail) {
     @{
-            Model.OrganizationUsersList.Add(new OrganizationUser());
+                Model.OrganizationUsersList.Add(new OrganizationUser());
     }
 
 
