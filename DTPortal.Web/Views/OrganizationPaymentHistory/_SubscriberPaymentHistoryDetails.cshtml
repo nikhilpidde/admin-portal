@@ -1,0 +1,94 @@
+﻿@model PaginatedList<DTPortal.Core.DTOs.SubscriberPaymentHistoryDTO>
+@using DTPortal.Core
+
+<table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+    <thead>
+        <tr>
+            <td>Package Code</td>
+            <td>Total Amount</td>
+            <td>Total Amount Paid</td>
+            <td>Total Discount Applied</td>
+            <td>Payment Reference Number</td>
+            <td>Payment Mode</td>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Count() > 0)
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.PackageCode</td>
+                    <td>@item.TotalAmount</td>
+                    <td>@item.TotalAmountPaid</td>
+                    <td>@item.TotalDiscountApplied</td>
+                    <td>@item.PaymentRefNumber</td>
+                    <td>@item.PaymentMode</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr class="odd gradeX">
+                <td colspan="6" align="center">No records found</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    @{ var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : ""; }
+
+    <div class="row">
+        <div class="col-sm-12 col-md-5">
+            <div class="dataTables_info" style="margin-top: 1rem;" role="status" aria-live="polite">
+                @{
+                    var i = 100 - (100 - (Model.PageSize * (Model.PageIndex - 1))) + 1;
+                    var j = i + Model.Count - 1;
+                    var k = Model.TotalCount;
+                }
+                Showing @i to @j of @k
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-7 paginationStyle">
+            <div class="dataTables_paginate paging_simple_numbers" id="example4_paginate">
+                <ul class="pagination">
+                    <li class="paginate_button page-item previous @prevDisabled" id="example4_previous">
+                        <a aria-controls="example4" data-dt-idx="0" tabindex="0" class="page-link"
+                           asp-action="SearchByPage" asp-route-page="@(Model.PageIndex - 1)">Previous</a>
+                    </li>
+                    @{ int count = -2;
+                        while (count <= 2)
+                        {
+                            var index = Model.PageIndex + count;
+
+                            if (index > 0 && index < Model.TotalPages)
+                            {
+                                if (index == Model.PageIndex)
+                                {
+                                    <li class="paginate_button page-item active">
+                                        <a aria-controls="example4" data-dt-idx="1" tabindex="0" class="page-link"
+                                           asp-action="SearchByPage" asp-route-page="@index">@index</a>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="paginate_button page-item">
+                                        <a aria-controls="example4" data-dt-idx="1" tabindex="0" class="page-link"
+                                           asp-action="SearchByPage" asp-route-page="@index">@index</a>
+                                    </li>
+                                }
+                            }
+                            count++;
+                        } }
+                    <li class="paginate_button page-item next @nextDisabled" id="complex_header_next">
+                        <a aria-controls="example4" data-dt-idx="0" tabindex="0" class="page-link"
+                           asp-action="SearchByPage" asp-route-page="@(Model.PageIndex + 1)">Next</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+

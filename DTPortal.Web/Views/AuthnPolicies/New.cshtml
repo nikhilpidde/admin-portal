@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewData["Title"] = "New";
+}
+
+
+
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+            $('#digitalAuthSidebarElement').addClass('active');
+            $('#authnPoliciesSidebarElement').addClass('active');
+
+            $('#homeSubmenu').addClass('show');
+
+            $("li#digitalAuthSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Digital Authentication');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Authentication Policies Providers ');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            swal({
+                title: "I am here to Help You!",
+                text: `Choose below options, to create a new authentication policy \neither as a combination of existing ones or a fresh one.`,
+                type: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "No, Create A Fresh One!",
+                cancelButtonText: "Yes, It's A Combination!",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                     location.href = '@Url.Action("NewPrimary", "AuthnPolicies")';
+                   // location.href = "authn-policies/add/primary"
+                } else {
+                    location.href = '@Url.Action("NewMultiModel", "AuthnPolicies")';
+                  //  location.href = "authn-policies/add/multi-modal"
+                }
+            });
+        });
+
+    </script>
+}

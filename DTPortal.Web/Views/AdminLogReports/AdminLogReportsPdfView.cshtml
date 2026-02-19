@@ -1,0 +1,74 @@
+﻿@model DTPortal.Web.ViewModel.AdminLogReports.AdminLogReportsPdfViewModel
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    td, th {
+        border: 1px solid gray;
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    table th {
+        background-color: #AEC737;
+        color: white;
+    }
+</style>
+
+<div class="table-wrap">
+    <div class="table-responsive">
+        <table class="table display product-overview mb-30" id="support_table5">
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Operation</th>
+                    <th>Activity</th>
+                    <th>Log Message</th>
+                    <th>Status</th>
+                    <th>Timestamp</th>
+                    <th>Integrity</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.AdminLogReports.Count() > 0)
+                {
+                    @foreach (var item in Model.AdminLogReports)
+                    {
+                        <tr>
+                            <td>@item.UserName</td>
+                            <td>@item.ServiceName</td>
+                            <td>@item.ActivityName</td>
+                            <td style="width:400px">@item.LogMessage</td>
+                            <td>@item.LogMessageType</td>
+                            <td style="white-space:nowrap">@(Convert.ToDateTime(item.Timestamp).ToString("dd-MM-yyyy hh:mm:ss tt"))</td>
+                            <td>@(item.IsChecksumValid ? "Valid" : "Invalid")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" align="center" style="width:200%">No records found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,103 @@
+﻿@model IList<DTPortal.Web.ViewModel.SubscriberPaymentHistory.SubscriberPaymentInfoViewModel>
+
+<style>
+    table {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+</style>
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title s3">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    Payment Info
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <div class="table-wrap">
+                    <div class="table-responsive">
+                        <table class="table display product-overview mb-30" id="support_table5">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center">Service Name</th>
+                                    <th style="text-align:center">Rate</th>
+                                    <th style="text-align:center">Quantity</th>
+                                    <th style="text-align:center">Tax</th>
+                                    <th style="text-align:center">Discount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Count() > 0)
+                                {
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            @if (!String.IsNullOrEmpty(item.ServiceDisplayName))
+                                            {
+                                                <td style="text-align:center">@item.ServiceDisplayName</td>
+                                            }
+                                            else
+                                            {
+                                                <td style="text-align:center">N/A</td>
+                                            }
+                                            @if (item.Rate != 0)
+                                            {
+                                                <td style="text-align:center">@item.Rate</td>
+                                            }
+                                            else
+                                            {
+                                                <td style="text-align:center">N/A</td>
+                                            }
+                                            @if (item.Volume != 0)
+                                            {
+                                                <td style="text-align:center">@item.Volume</td>
+                                            }
+                                            else
+                                            {
+                                                <td style="text-align:center">N/A</td>
+                                            }
+                                            @if (item.Tax != 0)
+                                            {
+                                                <td style="text-align:center">@item.Tax</td>
+                                            }
+                                            else
+                                            {
+                                                <td style="text-align:center">N/A</td>
+                                            }
+                                            @if (item.Discount != 0)
+                                            {
+                                                <td style="text-align:center">@item.Discount</td>
+                                            }
+                                            else
+                                            {
+                                                <td style="text-align:center">N/A</td>
+                                            }
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" align="center">No records found</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>

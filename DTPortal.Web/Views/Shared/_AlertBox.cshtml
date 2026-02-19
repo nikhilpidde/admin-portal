@@ -1,0 +1,20 @@
+﻿@using Newtonsoft.Json
+@using DTPortal.Web.ViewModel
+
+@if (TempData["Alert"] != null)
+{
+    var alertBox = TempData["Alert"];
+
+<script>
+    $(document).ready(function () {
+        let alertObj = @Html.Raw(@alertBox);
+
+        if (alertObj.IsSuccess) {
+            sweetAlert({ title: "Success", text: alertObj.Message, type: "success", confirmButtonText: "Ok" });
+
+        } else {
+            sweetAlert({ title: "Failed", text: alertObj.Message, type: "error", confirmButtonText: "Dismiss" });
+        }
+    });
+</script>
+}

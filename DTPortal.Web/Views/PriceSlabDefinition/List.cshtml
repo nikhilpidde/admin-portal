@@ -1,0 +1,102 @@
+﻿@model DTPortal.Web.ViewModel.PriceSlabDefinition.PriceSlabDefinitionListViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Price Slabs";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="Add">
+                                <i class="fa fa-plus"></i>Add
+                            </a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="List">
+                                <i class="fa fa-refresh"></i>Refresh
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Stakeholder</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.PriceSlabs)
+                        {
+                            <tr class="odd gradeX">
+                                <td>@item.ServiceName</td>
+                                <td>@item.Stakeholder</td>
+                                <td class="valigntop" align="center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                            aria-expanded="false">
+                                            Actions
+                                            <i class="fa fa-angle-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu pull-left" role="menu">
+                                            <li>
+                                                <a asp-action="Edit" asp-route-serviceId="@item.ServiceId" asp-route-stakeholder="@item.Stakeholder">
+                                                    <i class="icon-pencil"></i>Edit
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--TABLE CONTENT END-->
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            $('#priceSlabDefinitionMenuItem').addClass('active');
+            $('#genericPriceSlabDefinitionSidebarElement').addClass('active');
+
+            $('#priceModel').addClass('show');
+            $('#priceSlabDefinitionSubmenu').addClass('show');
+
+            $("li#priceSlabDefinitionMenuItem a:first").attr('aria-expanded', 'true');
+            $("li#genericPriceSlabDefinitionSidebarElement a:first").attr('aria-expanded', 'true');
+
+            //if ($('#sidebar ul li.dropdown.active')) {
+            //    $('#sidebar ul li.dropdown.active ul').addClass('show');
+            //    $('#genericPriceSlabDefinitionMenuItem').addClass('active');
+            //    $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            //}
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Price Slabs');
+            $('#subMenu').addClass('breadcrumb-item active').append('Generic Price Slabs');
+            /*For Beadcrum End*/
+
+            var table = $(".table").DataTable({
+                "bLengthChange": false,
+            });
+        });
+    </script>
+}
+

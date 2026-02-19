@@ -1,0 +1,174 @@
+﻿@model DTPortal.Web.ViewModel.CertificateReports.CertificateReportsViewModel
+
+@{
+    ViewData["Title"] = "Certificate Reports";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="height: 70px;z-index:1;">
+            @*<form method="post" asp-action="ExportAllPaymentHistory">*@
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <div class="form-group col-md-12">
+                        <input asp-for="StartDate" class="form-control datepicker" type="text" placeholder="Choose start date" />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group col-md-4">
+                    <div class="form-group col-md-12">
+                        <input asp-for="EndDate" class="form-control" type="text" placeholder="Choose end date" />
+                        <span asp-validation-for="EndDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div>
+                    <input type="button" class="btn btn-primary" onclick="generatePdf()" value="Download" />
+                    &nbsp;&nbsp;
+                    <input type="button" class="btn btn-danger" value="Clear" onclick="resetFields()" />
+                </div>
+            </div>
+            @*</form>*@
+        </div>
+    </div>
+</div>
+
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+
+@section Scripts
+    {
+
+    <script src="~/assets/js/jquery-1.12.4.js"></script>
+    <script src="~/assets/js/jquery-ui.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $('#portalSettingsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#certificatesMenuItem').addClass('active');
+                $('#certificateReportsSidebarElement').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Portal Settings');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Certificate');
+            $('#subMenu').addClass('breadcrumb-item active').append('Certificate Reports');
+            /*For Beadcrum End*/
+
+            var today = new Date();
+
+            $('.datepicker').datepicker({
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                autoclose: true,
+                onSelect: function (date) {
+                    $('#EndDate').val("");
+                    var selected = new Date(date);
+                    var today = new Date();
+                    //var today = new Date().toISOString().slice(0, 10);
+                    var minDate = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
+
+                    var maxDate = new Date(selected.getFullYear(), selected.getMonth() + 1, selected.getDate() - 1);
+                    if(maxDate > today){
+                        maxDate = today;
+                    }
+                    $('#EndDate').datepicker('option', 'minDate', minDate);
+                    $('#EndDate').datepicker('option', 'maxDate', maxDate);
+
+                }
+            });
+
+            $("#EndDate").datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true,
+            });            
+        });
+
+        function resetFields() {
+            $("input:text").val("");
+            $('.text-danger').text('');
+        }
+
+        function generatePdf() {
+            var isValid = true; 
+            var startDate = $("#StartDate").val();
+            var endDate = $("#EndDate").val();
+
+            if(startDate == ""){
+                isValid = false;
+                swal({ type: 'error', title: "Error", text: "Start date cannot be null" });
+                return;
+            }
+            if (endDate == "") {
+                isValid = false;
+                swal({ type: 'error', title: "Error", text: "End date cannot be null" });
+                return;
+            }
+
+            if(isValid){
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    url: '@Url.Action("GetPDFBytes", "CertificateReports")',
+                    //data: '@Html.Raw(Json.Serialize(Model))',
+                    data: {
+                        StartDate: startDate,
+                        EndDate: endDate
+                    },
+                    //contentType: 'application/json',
+                    dataType: "json",
+                    error: ajaxErrorHandler,
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        if (data.status == "Success") {
+                            saveByteArray(startDate + "-" + endDate + "_CertificateReport", data.result)
+                        }
+                        if (data.status == "Failed") {
+                            swal({ type: 'error', title: "Error", text: data.message });
+                        }
+                    }
+                });
+            }
+        }
+
+        function saveByteArray(name, bytes) {
+            var myBytes = base64ToArrayBuffer(bytes);
+            var blob = new Blob([myBytes], { type: "application/pdf" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            let fileName = name + ".pdf";
+            link.download = fileName;
+            link.click();
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+    </script>
+}

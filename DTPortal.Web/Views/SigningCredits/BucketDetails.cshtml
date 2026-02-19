@@ -1,0 +1,100 @@
+﻿@model DTPortal.Web.ViewModel.SigningCredits.BucketDetailsViewModel
+@{
+    ViewData["Title"] = "Exclusive Apps";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Update">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="BucketId" class="col-form-label s3"></label>
+                                <input asp-for="BucketId" class="form-control" readonly />
+                                <span asp-validation-for="BucketId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="TotalDigitalSignatures" class="col-form-label s3"></label>
+                                <input asp-for="TotalDigitalSignatures" class="form-control" readonly />
+                                <span asp-validation-for="TotalDigitalSignatures" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="TotalESeal" class="col-form-label s3"></label>
+                                <input asp-for="TotalESeal" class="form-control" readonly />
+                                <span asp-validation-for="TotalESeal" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Status" class="col-form-label s3"></label>
+                                <input asp-for="Status" class="form-control" readonly />
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                            @if (Model.PaymentReceived == "true")
+                            {
+                                <div class="form-group">
+                                    <label asp-for="PaymentReceivedOn" class="col-form-label s3"></label>
+                                    <input asp-for="PaymentReceivedOn" class="form-control" readonly />
+                                    <span asp-validation-for="PaymentReceivedOn" class="text-danger"></span>
+                                </div>
+                            }
+
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="CreatedOn" class="col-form-label s3"></label>
+                                <input asp-for="CreatedOn" class="form-control" readonly />
+                                <span asp-validation-for="CreatedOn" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="LastSignatoryId" class="col-form-label s3"></label>
+                                <input asp-for="LastSignatoryId" class="form-control" readonly />
+                                <span asp-validation-for="LastSignatoryId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SponsorId" class="col-form-label s3"></label>
+                                <input asp-for="SponsorId" class="form-control" readonly />
+                                <span asp-validation-for="SponsorId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PaymentReceived" class="col-form-label s3"></label>
+                                <input asp-for="PaymentReceived" class="form-control" readonly />
+                                <span asp-validation-for="PaymentReceived" class="text-danger"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end">
+                            <a href="@Url.Action("GetDataList", "SigningCredits", new { Id = Model.BucketConfigurationId ,appName = Model.appName,Label=Model.Label})" id="cancelButton" class="btn btn-primary">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+
+        $(document).ready(function () {
+            $('#activityReportsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#signingCreditsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $('#homeMenu').addClass('breadcrumb-item').append('Exclusive Apps');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Document Details');
+            $('#subMenu').removeClass('breadcrumb-item');
+        });
+
+    </script>
+}

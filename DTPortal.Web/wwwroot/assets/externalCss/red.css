@@ -1,0 +1,282 @@
+/* ---------------------------------------------------
+    SIDEBAR jquery yellow
+----------------------------------------------------- */
+
+.list-unstyled {
+    padding-left: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+
+
+/*Hover Styling*/
+
+
+  #sidebar ul li a:hover {
+    color: red;
+  }
+
+#pageSubmenu li a:hover {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#pageSubmenu li a {
+    margin-left: 20px;
+}
+
+#homeSubmenu li a:hover {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#registrationAuthority li a {
+    margin-left: 10px;
+}
+
+#homeSubmenu li a {
+    margin-left: 10px;
+}
+
+#SessionSubmenu li a {
+    margin-left: 0px;
+}
+
+#OauthSamlSubmenu li a {
+    margin-left: 0px;
+}
+
+#AccessFilterSubmenu li a {
+    margin-left: 0px;
+}
+
+#ConfigurationSubmenu li a {
+    margin-left: 0px;
+}
+
+#electronicSignature li a {
+    margin-left: 10px;
+}
+
+#priceModel li a {
+    margin-left: 10px;
+}
+
+#activityReports li a {
+    margin-left: 10px;
+}
+
+#portalSettings li a {
+    margin-left: 10px;
+}
+#sidebar ul li a:hover i.dashboard-icon {
+    content: url(../../assets/images/dashboard_icon_red.svg)
+}
+
+#sidebar ul li a:hover i.registration-authority-icon {
+    content: url(../../assets/images/registration_authority_icon_red.svg)
+}
+
+#sidebar ul li a:hover i.digital-authentication-icon {
+    content: url(../../assets/images/digital_authentication_icon_red.svg)
+}
+
+#sidebar ul li a:hover i.electronic-signature-icon {
+    content: url(../../assets/images/electronic_signatures_icon_red.svg)
+}
+
+#sidebar ul li a:hover i.price-model-icon {
+    content: url(../../assets/images/price_model_icon_red.svg)
+}
+
+#sidebar ul li a:hover i.activity-reports-icon {
+    content: url(../../assets/images/activity_reports_icon_red.svg)
+}
+
+#sidebar ul li a:hover i.portal-settings-icon {
+    content: url(../../assets/images/settings_icon_red.svg)
+}
+
+#sidebar ul li a:hover i.eseal-registration-icon {
+    content: url(../../assets/images/esealRed.svg)
+}
+
+/*Active Styling*/
+
+  #sidebar ul li.active {
+    background: rgba(0, 0, 0, 0.5);
+    color: red;
+  }
+
+#sidebar ul.list-unstyled li.active {
+    color: red;
+    background: #00000075;
+}
+
+#pageSubmenu li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#homeSubmenu li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#electronicSig li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#reports li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#settings li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+
+
+#sidebar ul.list-unstyled li i.dashboard-icon {
+    width: 40px;
+    content: url(../../assets/images/dashboard_icon.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.dashboard-icon {
+    width: 40px;
+    content: url(../../assets/images/dashboard_icon_red.svg)
+}
+
+
+#sidebar ul.list-unstyled li i.registration-authority-icon {
+    width: 40px;
+    content: url('../../assets/images/registration_authority_icon.svg');
+}
+
+#sidebar ul.list-unstyled li.active i.registration-authority-icon {
+    width: 40px;
+    content: url(../../assets/images/registration_authority_icon_red.svg)
+}
+
+
+#sidebar ul.list-unstyled li i.digital-authentication-icon {
+    width: 40px;
+    content: url('../../assets/images/digital_authentication_icon.svg');
+}
+
+#sidebar ul.list-unstyled li.active i.digital-authentication-icon {
+    width: 40px;
+    content: url('../../assets/images/digital_authentication_icon_red.svg')
+}
+
+#sidebar ul.list-unstyled li i.electronic-signature-icon {
+    width: 40px;
+    content: url('../../assets/images/electronic_signatures_icon.svg');
+}
+
+#sidebar ul.list-unstyled li.active i.electronic-signature-icon {
+    width: 40px;
+    content: url('../../assets/images/electronic_signatures_icon_red.svg')
+}
+
+#sidebar ul.list-unstyled li i.price-model-icon {
+    width: 40px;
+    content: url('../../assets/images/price_model_icon.svg');
+}
+
+#sidebar ul.list-unstyled li.active i.price-model-icon {
+    width: 40px;
+    content: url(../../assets/images/price_model_icon_red.svg)
+}
+
+
+
+#sidebar ul.list-unstyled li i.activity-reports-icon {
+    width: 40px;
+    content: url('../../assets/images/activity_reports_icon.svg');
+}
+
+#sidebar ul.list-unstyled li.active i.activity-reports-icon {
+    width: 40px;
+    content: url(../../assets/images/activity_reports_icon_red.svg)
+}
+
+#sidebar ul.list-unstyled li i.portal-settings-icon {
+    width: 40px;
+    content: url(../../assets/images/Settings.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.portal-settings-icon {
+    width: 40px;
+    content: url(../../assets/images/settings_icon_red.svg)
+}
+
+#sidebar ul.list-unstyled li i.eseal-registration-icon {
+    width: 40px;
+    content: url(../../assets/images/eseal.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.eseal-registration-icon {
+    width: 40px;
+    content: url(../../assets/images/esealRed.svg)
+}
+
+  
+  #sidebar ul .nav-item.active {
+    background: rgba(0, 0, 0, 0);
+    color: red;
+  }
+  #sidebar ul li ul li a.active {
+    background: #000000;
+    color: red;
+  }
+  
+  #sidebar ul li ul li {
+    color: #fff;
+  }
+
+.background-image {
+    background-image: url(../../assets/images/red.jpg);
+    background-repeat: no-repeat;
+    background-size: 100% 480px;
+}
+
+.card-header:first-child {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: rgba(57, 50, 50, 1) !important;
+}
+
+.card-title {
+    margin-bottom: 0.15rem;
+    color: #ff4040eb !important;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    color: white !important;
+    border-radius: 22px;
+    border-color: #ff0000eb !important;
+    background-color: #ff0000eb !important;
+}
+
+.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+    border-color: #ff0000eb !important;
+    border-radius: 22px !important;
+}
+
+.card-buttons-custom {
+    background-color: #ff0000eb !important;
+    color: white;
+    display: flex;
+    min-width: 100px;
+    height: 42px;
+    border-radius: 26px;
+    border: none;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 14px;
+    align-items: center
+}

@@ -1,0 +1,323 @@
+﻿@model DTPortal.Web.ViewModel.Banners.BannerConfigViewModel
+
+<style>
+    /* Ugpass Theme Colors */
+    :root {
+        --ug-yellow: #ffb800;
+        --ug-blue: #2196F3;
+        --ug-red: #f44336;
+        --ug-text-dark: #333;
+    }
+
+    /* Breadcrumb style top bar */
+    .ug-breadcrumb-bar {
+        background-color: var(--ug-yellow);
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        color: #333;
+        font-weight: 500;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+        .ug-breadcrumb-bar i {
+            margin-right: 8px;
+        }
+
+    /* Card Styling */
+    .banner-text-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    .banner-header {
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        padding: 12px 20px;
+        font-weight: 600;
+        color: var(--ug-text-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Field Headings/Labels */
+    .field-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #444;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .required-star {
+        color: var(--ug-red);
+        margin-left: 3px;
+    }
+
+    /* Input Styling */
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 8px 12px;
+    }
+
+        .form-control:focus {
+            border-color: var(--ug-blue);
+            box-shadow: none;
+        }
+
+    /* Image Preview */
+    .icon-wrapper {
+        background: #fdfdfd;
+        border: 1px dashed #ccc;
+        border-radius: 8px;
+        width: 470px;
+        height: 200px;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .banner-icon-preview {
+        max-width: 150px;
+        max-height: 100px;
+        object-fit: contain;
+        margin-bottom: 10px;
+        border: 1px solid #eee;
+    }
+
+    /* Buttons */
+    .btn-ug-save {
+        background-color: var(--ug-blue);
+        color: white;
+        border: none;
+        padding: 8px 25px;
+        border-radius: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .btn-ug-clear {
+        background-color: var(--ug-red);
+        color: white;
+        border: none;
+        padding: 8px 25px;
+        border-radius: 4px;
+        font-weight: 500;
+        text-transform: uppercase;
+        margin-right: 10px;
+    }
+</style>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <div class="container-fluid">
+
+                    <div id="BannerTextContainer">
+                        @{
+                            int counter = 1;
+                        }
+                        @foreach (var item in Model.BannerTextList)
+                        {
+                            <div class="banner-text-card shadow-sm">
+                                <div class="banner-header">
+                                    <span><i class="fa fa-image mr-2"></i> Banner #@counter - @item.Name</span>
+                                   @*  <span class="badge badge-secondary">Configuration</span> *@
+                                </div>
+
+                                <div class="p-4">
+                                    <div class="row">
+                                        <!-- Left Column: Text Data -->
+                                        <div class="col-md-7">
+                                            <div class="form-group mb-3">
+                                                <label class="field-label">Banner Name <span class="required-star">*</span></label>
+                                                <input type="text" class="form-control banner-name" value="@item.Name" placeholder="Enter Internal Name" />
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label class="field-label">English Text <span class="required-star">*</span></label>
+                                                <textarea class="form-control banner-en" rows="3" placeholder="Enter English content">@item.BannerEn</textarea>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label class="field-label">Arabic Text <span class="required-star">*</span></label>
+                                                <textarea class="form-control banner-ar" rows="3" dir="rtl" placeholder="Enter Arabic content">@item.BannerAr</textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right Column: Media & Settings -->
+                                        <div class="col-md-5">
+                                            <div class="form-group mb-3">
+                                                <label class="field-label">Banner Position</label>
+                                                <select class="form-control banner-position">
+                                                    <option value="CENTRED" selected="@(item.BannerPosition == "CENTRED")">CENTRED</option>
+                                                    <option value="LEFT" selected="@(item.BannerPosition == "LEFT")">LEFT</option>
+                                                    <option value="RIGHT" selected="@(item.BannerPosition == "RIGHT")">RIGHT</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label class="field-label">Banner Image/Icon</label>
+                                                <div class="icon-wrapper">
+                                                    <img src="@item.BannerIcon" class="banner-icon-preview" onerror="this.src='/images/placeholder-banner.png'" />
+                                                    <input type="file" class="form-control-file banner-icon-input mt-2" accept="image/*" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            counter++;
+                        }
+                    </div>
+
+                    <!-- Action Footer -->
+                    <div class="d-flex justify-content-end mb-5">
+                       
+                        <button class="btn btn-ug-save" onclick="UpdateBannerTexts()">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+
+        // Activate Dashboard Menu
+        $('#dashboardMenu').addClass('active');
+
+        // Breadcrumb Setup
+        $('#homeMenu')
+            .addClass('breadcrumb-item')
+            .text('Digital Authentication');
+
+        $('#mainMenu')
+            .addClass('breadcrumb-item')
+            .text('Configuration');
+
+        $('#subMenu')
+            .addClass('breadcrumb-item')
+            .text('Banner Config');
+    });
+
+
+    // Image Preview Handler
+    $(document).on('change', '.banner-icon-input', function () {
+
+        var input = this;
+        var preview = $(this)
+            .closest('.banner-text-card')
+            .find('.banner-icon-preview');
+
+        if (input.files && input.files[0]) {
+
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                preview.attr('src', e.target.result);
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    });
+
+
+    function UpdateBannerTexts() {
+
+        var bannerList = [];
+
+        $('#BannerTextContainer .banner-text-card').each(function () {
+
+            var banner = {
+                name: $(this).find('.banner-name').val() || "",
+                bannerEn: $(this).find('.banner-en').val() || "",
+                bannerAr: $(this).find('.banner-ar').val() || "",
+                bannerPosition: $(this).find('.banner-position').val() || "",
+                bannerIcon: $(this).find('.banner-icon-preview').attr('src') || ""
+            };
+
+            bannerList.push(banner);
+        });
+
+        // Prevent Empty Submission
+        if (bannerList.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: 'No banners found to update.'
+            });
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("UpdateBannerTextConfig", "BannerConfiguration")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(bannerList),
+
+    success: function (data) {
+
+        try {
+
+            console.log("Server Response:", data);
+
+            if (!data || typeof data !== "object") {
+                throw new Error("Invalid JSON response");
+            }
+
+            if (data.success === true) {
+
+                swal({
+                    type: 'success',
+                    title: "Success",
+                    text: data.message || "Banner updated successfully."
+                });
+
+            } else {
+
+                swal({
+                    type: 'error',
+                    title: "Error",
+                    text: data.message || "Update failed."
+                });
+
+            }
+
+        } catch (err) {
+
+            console.error("Success block crashed:", err);
+
+            swal({
+                type: 'error',
+                title: "Client Error",
+                text: "Something went wrong while processing response."
+            });
+        }
+    },
+
+    error: function (xhr, status, error) {
+
+        console.error("AJAX Error:", xhr.responseText);
+
+        swal({
+            type: 'error',
+            title: "Server Error",
+            text: "Failed to update banner configuration. Please try again."
+        });
+    }
+
+        });
+    }
+</script>
+

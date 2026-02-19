@@ -1,0 +1,87 @@
+﻿@model DTPortal.Web.ViewModel.OnboardingTemplate.OnboardingTemplateDetailsViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<style>
+    label {
+        text-align: right;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group col-md-4">
+                    <label asp-for="OnboardingTemplate.TemplateName"></label>
+                    <input asp-for="OnboardingTemplate.TemplateName" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="OnboardingTemplate.TemplateMethod"></label>
+                    <input asp-for="OnboardingTemplate.TemplateMethod" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="OnboardingTemplate.PublishedStatus"></label>
+                    <input asp-for="OnboardingTemplate.PublishedStatus" class="form-control" readonly />
+                </div>
+                @*<div class="form-group col-md-4">
+                        <label asp-for="OnboardingTemplate.CreatedBy"></label>
+                        <input asp-for="OnboardingTemplate.CreatedBy" class="form-control" readonly />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label asp-for="OnboardingTemplate.UpdatedBy"></label>
+                        <input asp-for="OnboardingTemplate.UpdatedBy" class="form-control" readonly />
+                    </div>*@
+                <div>
+                    @if (Model.OnboardingTemplate.Steps.Count() > 0)
+                    {
+                        <partial name="_OnboardingStepsReadonlyChecker" model="Model.OnboardingTemplate.Steps" />
+                    }
+                </div>
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                            Approve
+                        </button>
+                        &nbsp; &nbsp;
+                        <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                            Reject
+                        </button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Approvals" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            /*For Beadcrum Start*/
+            //$('#homeMenu').addClass('breadcrumb-item').append('Details');
+            //$('#mainMenu').removeClass('breadcrumb-item');
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+            $('#subMenu').addClass('breadcrumb-item').append('Template > Details');
+
+            /*For Beadcrum End*/
+        });
+    </script>
+}
+

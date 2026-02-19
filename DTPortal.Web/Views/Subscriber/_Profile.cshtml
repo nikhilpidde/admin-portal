@@ -1,0 +1,53 @@
+﻿@model DTPortal.Core.DTOs.SubscriberDetailsDTO
+
+<style>
+    ._profile {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px;
+    }
+</style>
+
+<div class="card-body no-padding height-9" style="padding: 0px 15px;">
+    <div class="profile-userpic">
+        <div class="row">
+            @if (!String.IsNullOrEmpty(Model.Photo))
+            {
+                <img class="custom-card-image" src="@Model.SubscriberPhoto" asp-append-version="true" />
+            }
+            else
+            {
+                <img class="custom-card-image" src="~/assets/images/no-image.jpg" asp-append-version="true" />
+            }
+        </div>
+    </div>
+    <div class="profile-usertitle">
+        <div class="profile-usertitle-name">
+            <input id="customInput" asp-for="FullName" readonly />
+        </div>
+        <div class="profile-usertitle-job">
+            <input id="customInput" asp-for="Email" readonly />
+        </div>
+    </div>
+
+    <ul class="list-group list-group-unbordered">
+        <li class="_profile list-group-item">
+            <b>DOB</b>
+            <span class="pull-right">@Model.DateOfBirth</span>
+        </li>
+    </ul>
+    <ul class="list-group list-group-unbordered">
+        <li class="_profile list-group-item">
+            <b>Mobile</b>
+            <span class="pull-right">@Model.MobileNumber</span>
+        </li>
+    </ul>
+    <ul class="list-group list-group-unbordered">
+        <li class="_profile list-group-item">
+            <b>Gender</b>
+            <span class="pull-right">@Model.Gender</span>
+        </li>
+    </ul>
+</div>

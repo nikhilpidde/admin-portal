@@ -1,0 +1,521 @@
+﻿@model DTPortal.Web.ViewModel.TimeBasedAccess.TimeBasedAccessEditViewModel
+
+@{ ViewData["Title"] = "TimeBasedAccess Edit"; }
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+@{
+    var roleList = string.Join(", ", Model.RolesList.Select(x => x.Value).ToArray());
+    var applicatbleRole = Model.ApplicableRole;
+    var ischecked = (string.Equals(roleList, applicatbleRole) ? "checked" : "");
+
+}
+
+<style>
+    #timeBasedAccessEditFieldset {
+        padding: 15px 5px 15px 10px;
+        border: groove 2px;
+        margin-bottom: 15px;
+        overflow-y: auto;
+        height: auto;
+        max-height: 300px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+
+    .c-radio {
+        margin-right: 4px;
+    }
+
+
+        .c-radio * {
+            cursor: pointer;
+        }
+
+
+        .c-radio input {
+            opacity: 0;
+            position: absolute;
+            margin-left: 0 !important;
+        }
+
+
+        .c-radio span {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            text-align: center;
+        }
+
+
+            .c-radio span:before {
+                margin-left: 1px;
+            }
+
+
+        .c-radio:hover span {
+            border-color: #5d9cec;
+        }
+
+    .form-inline
+    .c-radio span {
+        margin-left: 0;
+    }
+
+    .c-checkbox.c-checkbox-rounded span, .c-checkbox.c-radio-rounded span,
+    .c-radio.c-checkbox-rounded span,
+    .c-radio.c-radio-rounded span {
+        border-radius: 500px;
+    }
+
+    /* override for radio */
+    .c-radio span {
+        border-radius: 500px;
+    }
+
+        /* the icon */
+        .c-checkbox span:before,
+        .c-radio span:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            text-align: center !important;
+            font-size: 12px;
+            line-height: 18px;
+            vertical-align: middle;
+        }
+
+    /* Checked state */
+    .c-checkbox,
+    .c-radio {
+        /* override for radio */
+        /* Disable state */
+        /* override for radio */
+    }
+
+        .c-checkbox input[type=checkbox]:checked + span:before,
+        .c-checkbox input[type=radio]:checked + span:before,
+        .c-radio input[type=checkbox]:checked + span:before,
+        .c-radio input[type=radio]:checked + span:before {
+            color: #fff;
+            opacity: 1;
+            transition: color .3s ease-out;
+        }
+
+        .c-checkbox input[type=checkbox]:checked + span,
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=checkbox]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            border-color: #5d9cec;
+            background-color: #5d9cec;
+        }
+
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            background-color: #fff;
+        }
+
+            .c-checkbox input[type=radio]:checked + span:before,
+            .c-radio input[type=radio]:checked + span:before {
+                color: #5d9cec;
+            }
+
+        .c-checkbox input[type=checkbox]:disabled + span,
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=checkbox]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            border-color: #ddd !important;
+            background-color: #ddd !important;
+        }
+
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            background-color: #fff !important;
+        }
+
+            .c-checkbox input[type=radio]:disabled + span:before,
+            .c-radio input[type=radio]:disabled + span:before {
+                color: #ddd;
+            }
+
+        .c-radio.c-radio-nofont {
+            /* override for radio */
+            /* Disable state */
+            /* override for radio */
+        }
+
+            .c-radio.c-radio-nofont span:before {
+                content: "";
+                width: 10px;
+                height: 10px;
+                top: 50%;
+                left: 50%;
+                margin-top: -5px;
+                margin-left: -5px;
+                border-radius: 500px;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                color: #fff;
+                opacity: 1;
+                transition: color .3s ease-out;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                border-color: #5d9cec;
+                background-color: #5d9cec;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                background-color: #fff;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                    background-color: #5d9cec;
+                }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                border-color: #ddd !important;
+                background-color: #ddd !important;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                background-color: #fff !important;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:disabled + span:before {
+                    background-color: #ddd;
+                }
+</style>
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <!-- <div class="card-header">
+                                <h5 class="card-title">Form row</h5>
+                                <h6 class="card-subtitle text-muted">Bootstrap column layout.</h6>
+                            </div> -->
+            <div class="card-body">
+                <form asp-action="Update">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <input asp-for="Id" class="form-control" type="hidden" />
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-form-label s3"></label>
+                                <input asp-for="Name" class="form-control" readonly/>
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description" class="col-form-label s3"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RolesList" class="col-form-label s3"></label>
+                                @*<input asp-for="Scopes" class="form-control" />*@
+                                <fieldset id="timeBasedAccessEditFieldset">
+                                    <div class="card-default c-checkbox" style="margin-left: 10px; margin-top:5px;">
+                                        <label>
+                                            <input type="checkbox" id="All" class="custom-check-box" name="RolesList" value="All" @ischecked/>
+                                            All
+                                        </label><br>
+                                        @foreach (var item in Model.RolesList)
+                                        {
+                                            <label>
+                                                <input type="checkbox" class="custom-check-box" name="RolesList" value="@item.Value" @(Model.ApplicableRole.Split(", ").Contains(item.Value) ? "checked" : "") />
+                                                @item.Text
+                                            </label><br>
+
+                                        }
+                                    </div>
+                                </fieldset>
+                                <input asp-for="ApplicableRole" class="form-control" type="hidden" />
+                                <span asp-validation-for="RolesList" class="text-danger"></span>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label">Deny Date</label>
+                                <div class="form-control" style="border:none">
+                                    <label class="c-radio">
+                                        <input id="inlineradio1" type="radio" name="attrValues" value="1" @(Model.eDate != null ? "checked" : "")>
+                                        <span class="fa fa-circle"></span> Short Term
+                                    </label>
+                                    <label class="c-radio">
+                                        <input id="inlineradio2" type="radio" name="attrValues" value="0" @(Model.eDate == null ? "checked" : "") />
+                                        <span class="fa fa-circle"></span> Permanent
+                                    </label>
+                                    <!-- <div id="gender-errors"></div> -->
+                                </div>
+                                <div class="abc row" style='@(Model.eDate == null?"display:none":"display:contents")'>
+                                    @*<div class="row">*@
+                                    <div class="form-group">
+                                        <label asp-for="sDate" class="col-form-label s3"></label>
+                                        <input asp-for="sDate" class="form-control datepicker" type="text" onkeydown="event.preventDefault()"/>
+                                        <span asp-validation-for="sDate" id="sDateValidation" class="text-danger"></span>
+                                    </div>
+                                    @*</div>
+                                        <br>
+                                        <div class="row">*@
+                                    <div class="form-group">
+                                        <label asp-for="eDate" class="col-form-label s3"></label>
+                                        <input asp-for="eDate" class="form-control datepicker" type="text" onkeydown="event.preventDefault()"/>
+                                        <span asp-validation-for="eDate" id="eDateValidation" class="text-danger"></span>
+                                    </div>
+                                    @*</div>*@
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="sTime" class="col-form-label s3"></label>
+                                <input asp-for="sTime" class="form-control" type="time" />
+                                <span asp-validation-for="sTime" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="eTime" class="col-form-label s3"></label>
+                                <input asp-for="eTime" class="form-control" type="time" />
+                                <span asp-validation-for="eTime" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="isActive" class="col-form-label s3"></label>
+                                <div class="form-control" style="border:none">
+                                    <label class="c-radio">
+                                        <input asp-for="isActive" type="radio" value=1 />
+                                        <span class="fa fa-check"></span> Yes
+                                    </label>
+                                    <label class="c-radio">
+                                        <input asp-for="isActive" type="radio" value=0 />
+                                        <span class="fa fa-times"></span> No
+                                    </label>
+                                    <span asp-validation-for="isActive" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+
+                            <button class="btn btn-primary" type="submit" onclick="DateValidationFunction()">
+                                Update
+                            </button>
+                            @*@if (!User.IsInRole("Users Checker"))
+                                {
+                                    <button class="btn btn-primary" type="submit">
+                                        Submit
+                                    </button>
+                                }
+                                else
+                                {
+
+                                    <a class="btn btn-primary js-delete" href="" onclick="ChangeStatus('@Url.Action("UpdateStatus", "UserManagement")',@Model.Id, true); return false; ">Approve</a>
+                                    @if (Model.State != "BLOCKED")
+                                    {
+                                        <a class="btn btn-primary js-delete" href="" style="margin-left:10px;" onclick="ChangeStatus('@Url.Action("UpdateStatus", "UserManagement")',@Model.Id, false); return false;">Declined</a>
+                                    }
+
+                                }*@
+                            &nbsp; &nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="~/assets/css/smoothness-jquery-ui.css">
+@section Scripts {
+    <script src="~/assets/js/jquery-1.12.4.js"></script>
+    <script src="~/assets/js/jquery-ui.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            $('#administrationSidebarElement').addClass('active');
+            $('#AccessFilterSidebarElement').addClass('active');
+            $('#timeBasedAccessSidebarElement').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $('#AccessFilterSubmenu').addClass('show');
+
+            $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+            $("li#AccessFilterSidebarElement a:first").attr('aria-expanded', 'true');
+
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('AccessFilter > TimeBasedAccess > Edit');
+            $('#subMenu').removeClass('breadcrumb-item');
+            @*var isCheker = "@User.IsInRole("Users Checker")";
+            if (isCheker == "True") {
+                $('form *').prop('disabled', true);
+
+            }*@
+
+            var sDate = "@Model.sDate";
+            var sDate = sDate.split(" ")[0].split("-");
+            var OldSDate = new Date(sDate[2],sDate[1],sDate[0]);
+
+            var today = new Date();
+
+            $('#sDate').datepicker({
+                dateFormat: "yy-mm-dd",
+                yearRange: "-0:+100",
+                changeMonth: true,
+                changeYear: true,
+                minDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
+            });
+            $('#eDate').datepicker({
+                dateFormat: "yy-mm-dd",
+                yearRange: "-0:+100",
+                changeMonth: true,
+                changeYear: true,
+               minDate: new Date(OldSDate.getFullYear(), OldSDate.getMonth() - 1, OldSDate.getDate() + 1)
+            });
+
+            $('#sDate').on('change', function () {
+                startDate = $(this).datepicker('getDate');
+                minEndDate = new Date(startDate.getTime());
+                minEndDate.setDate(minEndDate.getDate() + 1);
+                document.getElementById("eDate").value = null;
+                $("#eDate").datepicker("option", "minDate", minEndDate);
+            });
+
+            $("input[name='attrValues']").on('click', function () {
+                var radioValue = $("input[name='attrValues']:checked").val();
+                if (radioValue == 1) {
+                    $(".abc").css("display", "contents");
+                    $("#sDate").val("");
+                } else {
+                    $(".abc").css("display", "none");
+                    $("#sDate").val("");
+                    document.getElementById("eDate").value = null;
+                    document.getElementById("sDate").value = null;
+                }
+            });
+
+            $("input[name=RolesList]").change(function () {
+
+                if (this.value == "All" && this.checked) {
+                    $(".custom-check-box").prop("checked", true);
+                }
+                //else {
+                //    $(".custom-check-box").prop("checked", false);
+                //}
+
+
+
+                var AllRoles = $('.custom-check-box').map(function () {
+                    if ($(this).val() != "All")
+                        return $(this).val();
+                })
+                    .get()
+                    .join(', ');
+
+                var selectedValues = $('.custom-check-box:checked').map(function () {
+                    if ($(this).val() != "All")
+                        return $(this).val();
+                })
+                    .get()
+                    .join(', ');
+
+                if (AllRoles == selectedValues)
+                    $("#All").prop("checked", true);
+                else
+                    $("#All").prop("checked", false);
+
+                document.getElementById("ApplicableRole").value = selectedValues;
+
+            });
+
+
+        });
+
+        function DateValidationFunction() {
+            const selectedValue = document.querySelector('input[name="attrValues"]:checked').value;
+            if (selectedValue === "1") {
+                const sDate = document.querySelector("input[name='sDate']").value;
+                const eDate = document.querySelector("input[name='eDate']").value;
+
+                let isValid = true;
+                if (!sDate) {
+                    $("#sDateValidation").text("The Start Date field is Required").show();
+                    isValid = false;
+                } else {
+                    $("#sDateValidation").text("");
+                }
+
+                // Check if end date is empty
+                if (!eDate) {
+                    $("#eDateValidation").text("The End Date field is Required").show();
+                    isValid = false;
+                } else {
+                    $("#eDateValidation").text("")
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            }
+        }
+
+        function getdate() {
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1;
+            var yyyy = today.getFullYear();
+
+            if (dd < 10)
+                dd = '0' + dd;
+            if (mm < 10)
+                mm = '0' + mm;
+
+            var date = dd + '-' + mm + '-' + yyy;
+            return date;
+
+        }
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

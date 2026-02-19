@@ -1,0 +1,191 @@
+﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+<script>
+    function CheckerAction(id, isApproved) {
+        if (!isApproved) {
+            swal({
+                title: "Do you want to decline?",
+                text: "Write some reason",
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                closeOnCancel: true,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            }, function (inputValue) {
+                if (inputValue === false) return false;
+
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+                CallApi({ id: id, isApproved: isApproved, reason: inputValue });
+                return true;
+            });
+        } else {
+            CallApi({ id: id, isApproved: isApproved });
+            return true;
+        }
+    }
+
+    function CheckerActionWithRequestBodyChange(id, requestBody, isApproved) {
+
+        if (!isApproved) {
+            swal({
+                title: "Do you want to decline?",
+                text: "Write some reason",
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                closeOnCancel: true,
+                animation: "slide-from-top",
+                inputPlaceholder: "Write something"
+            }, function (inputValue) {
+                if (inputValue === false) return false;
+
+                if (inputValue === "") {
+                    swal.showInputError("You need to write something!");
+                    return false
+                }
+                CallApi({ id: id, isApproved: isApproved, reason: inputValue });
+                return true;
+            });
+        } else {
+            CallApiWithRequestBodyChange({ id: id, requestBody: requestBody, isApproved: isApproved });
+            return true;
+        }
+    }
+
+    function CallApi(params) {
+
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateStatus", "MakerChecker")',
+            // contentType: 'application/json',
+            // dataType: 'json',
+            data: {
+                "id": params.id,
+                "isApproved": params.isApproved,
+                "reason": params.reason
+            },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (result, status, xhr) {
+                    var title, text, type = "";
+                    if (result.success) {
+                        title = "Success!";
+                        type = "success";
+                        text = "Operaion perform successfully"
+                        if (!params.isApproved)
+                            text = "Approval rejected successfully"
+                        else
+                            text = "Approved successfully"
+                    }
+                    else {
+                    if (result.message.includes("__")){
+                        var data = result.message.split("__")[1];
+                        getView(data);
+                    }else{
+                        title = "Error!";
+                        type = "error";
+                        text = result.message
+                    }
+                        
+                    }
+
+                    swal({
+                        title: title,
+                        text: text,
+                        type: type,
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            if (type != "error")
+                                window.location.href = '@Url.Action("Approvals", "MakerChecker")';
+                        }
+                    });
+            },
+            error: ajaxErrorHandler
+        })
+    };
+
+    function getView(dataList){
+        var datatoSend = { data: dataList };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("DulicateEmailList", "ControlledOnboarding")',
+            // contentType: 'application/json',
+            // dataType: 'json',
+            data: datatoSend,
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: ajaxErrorHandler
+        })
+    }
+
+    function CallApiWithRequestBodyChange(params) {
+
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("UpdateStatusWithRequsetBodyChange", "MakerChecker")',
+            // contentType: 'application/json',
+            // dataType: 'json',
+            data: {
+                "id": params.id,
+                "requestBody": params.requestBody,
+                "isApproved": params.isApproved,
+                "reason": params.reason
+            },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (result, status, xhr) {
+                var title, text, type = "";
+                if (result.success) {
+                    title = "Success!";
+                    type = "success";
+                    text = "Operaion perform successfully"
+                    if (!params.isApproved)
+                        text = "Approval Rejected Successfully"
+                    else
+                        text = "Approved Successfully"
+                }
+                else {
+                    title = "Error!";
+                    type = "error";
+                    text = result.message
+                }
+
+                swal({
+                    title: title,
+                    text: text,
+                    type: type,
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        if (type != "error")
+                            window.location.href = '@Url.Action("Approvals", "MakerChecker")';
+                    }
+                });
+            },
+            error: ajaxErrorHandler
+        })
+    };
+</script>

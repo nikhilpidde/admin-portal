@@ -1,0 +1,180 @@
+﻿@model DTPortal.Web.ViewModel.RoleManagement.RoleManagementListViewModel
+
+@{ ViewData["Title"] = "Roles"; }
+
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        @if (!User.IsInRole("Roles Checker"))
+                        {<div class="btn-group">
+                                <a id="addRow1" asp-action="New" class="btn btn-info"><i class="fa fa-plus"></i> Add</a>
+                            </div>
+
+                        }
+
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="List">
+                                <i class="fa fa-refresh"></i>Refresh
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <table id="roleTable" class="table table-striped table-bordered order-column table-hover table-checkable full-width">
+                    <thead>
+                        <tr>
+                            <th hidden>Id</th>
+                            <th hidden>CreatedDate</th>
+                            <th>Role Name</th>
+                            <th>Role Description</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RoleLookupItems == null || Model.RoleLookupItems.Count() == 0)
+                        {
+                            <tr>
+                                <td style="text-align:center" valign="top" colspan="4" class="dataTables_empty">No record found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.RoleLookupItems)
+                            {
+                                <tr class="odd gradeX">
+                                    <td hidden>@item.Id</td>
+                                    <td hidden>@item.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                    <td>@item.DisplayName</td>
+                                    <td>@item.Description</td>
+                                    <td>@item.Status</td>
+                                    <td class="valigntop">
+                                        @if (!User.IsInRole("Roles Checker"))
+                                        {
+                                            <div class="btn-group">
+                                                <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    Actions
+                                                    <i class="fa fa-angle-down"></i>
+                                                </button>
+                                                <ul class="dropdown-menu pull-left" role="menu">
+                                                    <li>
+                                                        <a asp-action="Edit" asp-route-id="@item.Id">
+                                                            <i class="icon-pencil"></i>Edit
+                                                        </a>
+                                                    </li>
+                                                    @*<li>
+                                                        <a class="js-delete" data-role="@item.Name" data-id="@item.Id">
+                                                            <i class="fa fa-trash"></i>Delete
+                                                        </a>
+                                                    </li>*@
+                                                </ul>
+                                            </div>
+                                        }
+                                        else
+                                        {
+
+                                            <div class="btn-group">
+                                                <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    Actions
+                                                    <i class="fa fa-angle-down"></i>
+                                                </button>
+                                                <ul class="dropdown-menu pull-left" role="menu">
+                                                    <li>
+                                                        <a href="@Url.Action("Edit", "RoleManagement", new { id = item.Id })">
+                                                            <i class="icon-docs"></i>View
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+
+        $(document).ready(function () {
+
+
+            $('#administrationSidebarElement').addClass('active');
+            $('#roleManagementSidebarElement').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Roles');
+            $('#subMenu').removeClass('breadcrumb-item');
+            var table = $("#roleTable").DataTable({
+                "bLengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "order": [[1, "desc"]]   // Sort by CreatedDate column
+            });
+
+
+            $('#roleTable').on('click', '.js-delete', function () {
+                var deleteButton = $(this);
+                var data = $('#roleTable').DataTable().row(deleteButton.parents("tr")).data();
+                var role = deleteButton.attr("data-role");
+                if (role == "admin" || role == "admin_checker") {
+                    swal("Not Allowed!", "The role " + data[0] + " is default role, You can not delete this role","info")
+                    return false;
+                }
+                var id = deleteButton.attr("data-id");
+                swal({
+                    title: "Are you sure?",
+                    text: "Do you want to delete this record",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                    $.ajax({
+                        type: 'POST',
+                        cache: false,
+                        dataType: 'json',
+                        url: '@Url.Action("Delete", "RoleManagement")',
+                        data: {
+                             id: id
+                        },
+                        beforeSend: function () {
+                            $('#overlay').show();
+                        },
+                        complete: function () {
+                            $('#overlay').hide();
+                        },
+                        success: function (result) {
+                            window.location.reload();
+                        },
+                        error: ajaxErrorHandler
+                    });
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            });
+        });
+
+    </script>
+}

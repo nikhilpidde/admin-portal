@@ -1,0 +1,180 @@
+﻿@model DTPortal.Web.ViewModel.Agent.AgentEditViewModel
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <div class="form-row">
+
+                    <div class="form-group col-md-6">
+                        @if (@Model.Name == "")
+                        {
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-form-label s3"></label>
+                                <input value="N/A" class="form-control" readonly />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-form-label s3"></label>
+                                <input asp-for="@Model.Name" class="form-control" readonly />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        }
+                        <div class="form-group">
+                            <label asp-for="MobileNumber" class="col-form-label s3"></label>
+                            <input asp-for="@Model.MobileNumber" class="form-control" readonly />
+                            <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <div class="form-group">
+                            <label asp-for="Email" class="col-form-label s3"></label>
+                            <input asp-for="@Model.Email" class="form-control" readonly />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                </div>
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <a class="btn btn-info btn-xs onboarding greenButton" asp-controller="Subscriber" asp-action="Redirects" asp-route-IdentifierValue="@Model.Email" asp-route-IdentifierType="3">
+                            @* onclick="Subscriber()" *@
+                            Subscriber Details
+                        </a>
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    $(document).ready(function () {
+        $('#assistedOnboardingMenu').addClass('active');
+        $('#agentMenuItem').addClass('active');
+
+        $('#assistedOnboarding').addClass('show');
+
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#rateCardMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Assisted Onboarding');
+        $('#mainMenu').addClass('breadcrumb-item').append('Agent');
+        $('#subMenu').addClass('breadcrumb-item active').append('Edit');
+        /*For Beadcrum End*/
+    });
+
+    $('.onboarding').on('click', function () {
+        $('#overlay').show();
+    });
+
+    // function Subscriber() {
+    //     var IdentifierType = "Email";
+    //     var IdentifierValue = $("#Email").val();
+
+    //     var fileFormData = new FormData();
+    //     fileFormData.append("IdentifierType", IdentifierType);
+    //     fileFormData.append("IdentifierValue", IdentifierValue);
+
+    //     $.ajax({
+    //         url: '@Url.Action("SearchSubscriber", "Subscriber")',
+    //         type: 'POST',
+    //         headers: {
+    //             "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+    //         },
+    //         data: fileFormData,
+    //         processData: false, // Ensure data is not processed as query string params
+    //         contentType: false, // Set content type to false for FormData
+    //         beforeSend: function () {
+    //             $('#overlay').show();
+    //         },
+    //         complete: function () {
+    //             $('#overlay').hide();
+    //         },
+    //         success:
+    //         function (response) {
+    //             if (response.status == "Failed") {
+    //                 // Redirect to List action on failure
+    //                 window.location.href = '@Url.Action("List", "Agent")';
+    //             } else {
+    //                 // Redirect to SearchSubscriber POST action on success
+    //                 window.location.href = '@Url.Action("Redirects", "Subscriber")'; // This assumes the server returns the correct redirect URL
+    //             }
+    //         },
+    //         error: function (xhr, status, error) {
+    //             swal({
+    //                 title: 'Error',
+    //                 text: 'An error occurred while searching for the subscriber',
+    //                 type: 'error',
+    //             });
+    //         }
+    //     });
+    // }
+
+
+    // $('a.btn-xs.onboarding').click(function (e) {
+    //     e.preventDefault();
+    //     let href = $(this).attr('href');
+    //     $.ajax({
+    //         type: "GET",
+    //         url: href,
+    //         contentType: "application/json; charset=utf-8",
+    //         datatype: "json",
+    //         beforeSend: function () {
+    //             $('#overlay').show();
+    //         },
+    //         complete: function () {
+    //             $('#overlay').hide();
+    //         },
+    //         success: function (data) {
+    //         },
+    //         error: ajaxErrorHandler,
+    //         failure: function (response) {
+    //             swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+    //         }
+    //     });
+    // });
+
+
+
+    // $.ajax({
+    //     url: '@Url.Action("GetSubscribers", "Subscriber")',
+    //     data: { "type": inputType, "value": inputValue },
+    //     type: "GET",
+    //     contentType: "json",
+    //     error: ajaxErrorHandler,
+    //     success: function (data) {
+    //         items = [];
+    //         map = {};
+    //         $.each(data, function (i, item) {
+    //             var id = i;
+    //             var name = item;
+    //             map[name] = {
+    //                 id: id,
+    //                 name: name
+    //             };
+    //             items.push(name);
+    //         });
+    //         response(items);
+    //     }
+    // });
+</script>                

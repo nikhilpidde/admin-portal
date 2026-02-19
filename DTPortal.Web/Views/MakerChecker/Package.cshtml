@@ -1,0 +1,104 @@
+﻿@model DTPortal.Web.ViewModel.Package.PackageDetailsViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<style>
+    label {
+        text-align: right;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.PackageCode"></label>
+                    <input asp-for="Package.PackageCode" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.PackageDescription"></label>
+                    <input asp-for="Package.PackageDescription" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.ServiceFor"></label>
+                    <input asp-for="Package.ServiceFor" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.TotalSigningTransactions"></label>
+                    <input asp-for="Package.TotalSigningTransactions" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.TotalESealTransactions"></label>
+                    <input asp-for="Package.TotalESealTransactions" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.DiscountOnSigningTransactions"></label>
+                    <input asp-for="Package.DiscountOnSigningTransactions" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.DiscountOnESealTransactions"></label>
+                    <input asp-for="Package.DiscountOnESealTransactions" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.TaxPercentage"></label>
+                    <input asp-for="Package.TaxPercentage" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.Status"></label>
+                    <input asp-for="Package.Status" class="form-control" readonly />
+                </div>
+                @*<div class="form-group col-md-4">
+                    <label asp-for="Package.CreatedBy"></label>
+                    <input asp-for="Package.CreatedBy" class="form-control" readonly />
+                </div>
+                <div class="form-group col-md-4">
+                    <label asp-for="Package.UpdatedBy"></label>
+                    <input asp-for="Package.UpdatedBy" class="form-control" readonly />
+                </div>*@
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                            Approve
+                        </button>
+                        &nbsp; &nbsp;
+                        <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                            Reject
+                        </button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Approvals" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            //$('#homeMenu').addClass('breadcrumb-item').append('Details');
+            //$('#mainMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+            $('#subMenu').addClass('breadcrumb-item').append('Package > Details');
+        });
+    </script>
+}
+
+

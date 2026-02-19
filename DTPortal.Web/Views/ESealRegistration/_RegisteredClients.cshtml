@@ -1,0 +1,79 @@
+﻿@model IEnumerable<DTPortal.Core.Domain.Models.Client>
+
+<style>
+    .modal-dialog {
+        max-width: 900px;
+    }
+</style>
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title s3">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    Registered Clients
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="New" asp-controller="kycapplications">
+                                <i class="fa fa-plus"></i>Add
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="table-wrap">
+                    <div class="table-responsive" style="max-height:360px">
+                        <table class="table display product-overview mb-30" id="support_table5">
+                            <thead>
+                                <tr>
+                                    <th>Application Name</th>
+                                    <th>Application Type</th>
+                                    <th style="width:80px">Status</th>
+                                    <th style="width:60px">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Count() > 0)
+                                {
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@item.ApplicationName</td>
+                                            <td>@item.ApplicationType</td>
+                                            <td>@item.Status</td>
+                                            <td class="valigntop">
+                                                <a class="btn btn-link" asp-action="Edit" asp-controller="kycapplications" asp-route-id="@item.Id">
+                                                    <i class="icon-docs"></i>View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" align="center">No records found</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>

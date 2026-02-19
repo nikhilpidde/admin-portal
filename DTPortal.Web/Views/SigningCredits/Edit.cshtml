@@ -1,0 +1,102 @@
+﻿@model DTPortal.Web.ViewModel.SigningCredits.UpdateBucketViewModel
+@{
+    ViewData["Title"] = "Exclusive Apps";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Update">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="Id" class="form-control" />
+                            </div>
+                            <div class="form-group" hidden>
+                                <input asp-for="status" class="form-control" />
+                            </div>
+                            <div class="form-group" hidden>
+                                <input asp-for="OrgId" class="form-control" />
+                            </div>
+                            <div class="form-group" hidden>
+                                <input asp-for="appId" class="form-control" />
+                            </div>
+                            <div class="form-group" hidden>
+                                <input asp-for="AdditionalDs" class="form-control" />
+                            </div>
+                            <div class="form-group" hidden>
+                                <input asp-for="AdditionalEDs" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="OrganizationName" class="col-form-label s3"></label>
+                                <input asp-for="OrganizationName" class="form-control" readonly />
+                                <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ApplicationName" class="col-form-label s3"></label>
+                                <input asp-for="ApplicationName" class="form-control" readonly />
+                                <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="label" class="col-form-label s3"></label>
+                                <input asp-for="label" class="form-control" />
+                                <span asp-validation-for="label" class="text-danger"></span>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end ">
+                            @if (!User.IsInRole("Exclusive Apps Checker"))
+                            {
+                                @if (Model.status == "ACTIVE")
+                                {
+                                    <a href="@Url.Action("SetBucketStatus", "SigningCredits", new { id = @Model.Id, Doaction = "INACTIVE" })" id="cancelButton" class="btn btn-action-outline btn-secondary">
+                                        DEACTIVATE
+                                    </a>
+                                }
+                                @if (Model.status == "INACTIVE")
+                                {
+                                    <a href="@Url.Action("SetBucketStatus", "SigningCredits", new  { id = @Model.Id, Doaction = "ACTIVE" })" id="cancelButton" class="btn btn-action-outline btn-secondary">
+                                        ACTIVATE
+                                    </a>
+                                }
+                                @:&nbsp; &nbsp;
+                                <button class="btn btn-primary" type="submit">
+                                    Update
+                                </button>
+                            }
+                            &nbsp; &nbsp;
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+@section scripts {
+    <script>
+
+        $(document).ready(function () {
+            $('#activityReportsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#signingCreditsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $('#homeMenu').addClass('breadcrumb-item').append('Exclusive Apps');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Edit');
+            $('#subMenu').removeClass('breadcrumb-item');
+        });
+
+    </script>
+}

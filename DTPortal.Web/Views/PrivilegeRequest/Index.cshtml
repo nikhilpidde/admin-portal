@@ -1,0 +1,226 @@
+﻿@model List<DTPortal.Web.ViewModel.PrivilegeRequest.PrivilegeRequestItemViewModel>
+
+@{
+    ViewData["Title"] = "Privilege Requests List";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<style>
+    .dropdown-menu li a:hover {
+        color: white !important; /* White text on hover */
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="Index">
+                                <i class="fa fa-refresh"></i> Refresh
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <table id="privilegeRequestsTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th hidden>Id</th>
+                            <th>Organization Name</th>
+                            <th>Privilege</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || Model.Count == 0)
+                        {
+                            <tr>
+                                <td style="text-align:center" valign="top" colspan="6" class="dataTables_empty">No record found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td hidden>@item.id</td>
+                                    <td>@item.organizationName</td>
+                                    <td>
+                                        @if (item.privilege == "credential_verifier")
+                                        {
+                                            @:Credential Verifier
+                                        }
+                                        else if (item.privilege == "credential_issuer")
+                                        {
+                                            @:Credential Issuer
+                                        }
+                                        else
+                                        {
+                                            @item.privilege
+                                        }
+                                    </td>
+                                    <td>@item.status</td>
+
+                                    <td class="valigntop">
+                                        @if (item.status == "APPLIED" || item.status == "APPROVED" || item.status == "SUSPENDED")
+                                        {
+                                            <div class="btn-group">
+                                                <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    Actions
+                                                    <i class="fa fa-angle-down"></i>
+                                                </button>
+                                                <ul class="dropdown-menu pull-left" role="menu">
+                                                    @if (item.status == "APPLIED")
+                                                    {
+                                                        <li>
+                                                            <a class="approve-btn" data-id="@item.id">
+                                                                <i class="icon-check"></i> Approve
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="reject-btn" data-id="@item.id">
+                                                                <i class="icon-ban"></i> Reject
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    else if (item.status == "APPROVED")
+                                                    {
+                                                        <li>
+                                                            <a class="suspend-btn" data-id="@item.id">
+                                                                <i class="icon-ban"></i> Suspend
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                    else if (item.status == "SUSPENDED")
+                                                    {
+                                                        <li>
+                                                            <a class="approve-btn" data-id="@item.id">
+                                                                <i class="icon-check"></i> Approve
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#selfServiceConfigMenu').addClass('active');
+            $('#privilegeRequestElement').addClass('active');
+            $('#selfServiceConfig').addClass('show');
+
+            $("li#walletMenu a:first").attr('aria-expanded', 'true');
+            $("li#privilegeRequestElement a:first").attr('aria-expanded', 'true');
+
+            /*For Breadcrumb Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Service Provider Portal');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Privilege Request List');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            $("#privilegeRequestsTable").DataTable({
+                "bLengthChange": false,
+                "searching": true,
+                "ordering": true,
+                "order": [[0, "desc"]],
+                "pageLength": 5
+            });
+
+            $(".approve-btn").click(function () {
+                var id = $(this).data("id");
+
+                $.ajax({
+                    url: '@Url.Action("ApproveRequest", "PrivilegeRequest")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (response) {
+                        swal({
+                                type: "success",
+                                title: "Success",
+                                text: "Privilege approved successfully."
+                            }, function() {
+                                // Redirect only when the user clicks "OK"
+                            window.location.reload();
+                          });
+                    },
+                    error: ajaxErrorHandler
+                });
+            });
+
+
+
+
+            $(".reject-btn").click(function () {
+                var id = $(this).data("id");
+
+                $.ajax({
+                    url: '@Url.Action("RejectRequest", "PrivilegeRequest")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (response) {
+                        swal({
+                                type: "success",
+                                title: "Success",
+                                text: "Privilege rejected successfully."
+                            }, function() {
+                                // Redirect only when the user clicks "OK"
+                                window.location.reload();
+                          });
+
+                    },
+                    error: ajaxErrorHandler
+                });
+            });
+
+
+
+
+            $(".suspend-btn").click(function () {
+                var id = $(this).data("id");
+
+                $.ajax({
+                    url: '@Url.Action("SuspendRequest", "PrivilegeRequest")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (response) {
+                          swal({
+                                type: "success",
+                                title: "Success",
+                                text: "Privilege suspended successfully."
+                            }, function() {
+                                // Redirect only when the user clicks "OK"
+                                window.location.reload();
+                          });
+                    },
+                    error: ajaxErrorHandler
+                });
+            });
+
+
+
+
+        });
+    </script>
+}

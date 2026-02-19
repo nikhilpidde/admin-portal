@@ -1,0 +1,111 @@
+﻿@model IEnumerable<DTPortal.Web.ViewModel.SigningCredits.BucketListViewModel>
+
+@{
+    ViewData["Title"] = "Exclusive Apps";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        @if (!User.IsInRole("Exclusive Apps Checker"))
+                        {
+                            <div class="btn-group">
+                                <a id="addRow1" asp-action="AddBucket" class="btn btn-info"><i class="fa fa-plus"></i>Add</a>
+                            </div>
+                        }
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="List">
+                                <i class="fa fa-refresh"></i>Refresh
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+                <table id="SignatureCreditsTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Application Name</th>
+                            <th>Organization Name</th>
+                            <th>Created On</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || Model.Count() == 0)
+                        {
+                            <tr>
+                                <td style="text-align:center" valign="top" colspan="5" class="dataTables_empty">No record found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr class="odd gradeX">
+                                    <td>@item.ApplicationName</td>
+                                    <td>@item.OrganizationName</td>
+                                    <td>@item.CreatedOn.ToShortDateString()</td>
+                                    <td>@item.Status</td>
+                                    <td class="valigntop">
+
+                                        <div class="btn-group">
+                                            <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu pull-left" role="menu">
+                                                <li>
+                                                    <a asp-action="GetDataList" asp-route-id="@item.Id" asp-route-appName="@item.ApplicationName" asp-route-Label="@item.Label" asp-route-modify="true">
+                                                        <i class="icon-pencil"></i>View Documents
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id">
+                                                        <i class="icon-pencil"></i>Edit
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+
+        $(document).ready(function () {
+            $('#activityReportsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#signingCreditsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $('#homeMenu').addClass('breadcrumb-item').append('Exclusive Apps');
+            $('#mainMenu').addClass('breadcrumb-item active').append('List');
+            $('#subMenu').removeClass('breadcrumb-item');
+            var table = $("#SignatureCreditsTable").DataTable({
+                "bLengthChange": false,
+                "searching": true
+            });
+        });
+
+    </script>
+}

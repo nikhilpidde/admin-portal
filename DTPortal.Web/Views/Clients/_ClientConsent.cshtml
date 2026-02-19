@@ -1,0 +1,139 @@
+﻿@model DTPortal.Web.ViewModel.Clients.ClientConsentViewModel
+<style>
+    .box {
+        border: 1px solid #ccc;
+        padding: 15px;
+        background-color: #f9f9f9;
+        margin-bottom: 20px;
+        max-height:300px;
+        overflow-y:auto;
+    }
+
+        .box h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+    .options-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .option-item {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+        .option-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .option-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+    h3{
+        font-size: 15px !important;
+        font-weight:bold;
+    }
+    .modal-body{
+        padding:2rem !important;
+    }
+
+</style>
+
+<div id="addVendor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="popupOverlay">
+                <div class="loader"></div>
+            </div>
+            <div class="modal-header">
+                <h5 class="modal-title s3">
+                    <span class="text-capitalize s3" style="font-size: 18px">
+                        Select Profiles & Purposes for E-Consent Service
+                    </span>
+                </h5>
+                <button type="button"
+                        class="close cross"
+                        data-dismiss="modal">
+                    &times;
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Profiles Box -->
+                    <div class="col-md-6">
+                        <h3 class="text-capitalize s3">Profiles</h3>
+                        <div class="box">
+                            <div class="options-group">
+                                @foreach (var profile in Model.ProfilesList)
+                                {
+                                    <div class="option-item">
+                                        <input type="checkbox" id="profile_@profile.Id" name="ProfilesList" value="@profile.Id" @(profile.Selected ? "checked" : "") />
+                                        <label for="profile_@profile.Name">@profile.DisplayName</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Purposes Box -->
+                    <div class="col-md-6">
+                        <h3 class="text-capitalize s3">Purposes</h3>
+                        <div class="box">
+                            <div class="options-group">
+                                @foreach (var purpose in Model.PurposesList)
+                                {
+                                    <div class="option-item">
+                                        <input type="checkbox" id="purpose_@purpose.Id" name="PurposesList" value="@purpose.Id" @(purpose.Selected ? "checked" : "") />
+                                        <label for="purpose_@purpose.Name">@purpose.DisplayName</label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveSelections()">Ok</button>
+                <button class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function closeModal() {
+        $('#modalDialogDiv').modal('hide');
+    }
+
+    function saveSelections() {
+        let selectedProfiles = $('input[name="ProfilesList"]:checked')
+            .map(function () {
+                return $(this).val();
+            })
+            .get()
+            .join(',');
+
+        let selectedPurposes = $('input[name="PurposesList"]:checked')
+            .map(function () {
+                return $(this).val();
+            })
+            .get()
+            .join(',');
+
+        $('#client_profiles').val(selectedProfiles);
+        $('#client_purposes').val(selectedPurposes);
+
+        swal({ type: 'info', title: "info", text: "Click on Save/Update button to update in Server" });
+        closeModal();
+    }
+
+    $('.btn-secondary').click(function () {
+        closeModal();
+    });
+</script>

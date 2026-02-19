@@ -1,0 +1,195 @@
+﻿@model DTPortal.Web.ViewModel.SigningServiceReport.SigningServiceReportViewModel
+
+@using DTPortal.Web.Enums
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<style>
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+    /*#incidents:empty {
+        content: "<tr>message foo</tr>";
+    }*/
+</style>
+
+<div class="column">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Reports">
+                    @*<div id="reportTypesDiv">
+                            @foreach (var reportType in Model.ReportTypes)
+                            {
+                                <label>
+                                    <input type="radio" asp-for="ReportType" value="@reportType" />@reportType
+                                </label>
+                            }
+                        </div>*@
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="Identifier"></label>
+                            <input asp-for="Identifier" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="ServiceName"></label>
+                            <select asp-for="ServiceName" class="form-control mb-3">
+                                <option value="">select</option>
+                                <option value='PKI_AUTHENTICATED'>PKI Authenticated</option>
+                                <option value='KEY_PAIR_GENERATED'>Key Pair Generated</option>
+                                <option value='CSR_CREATED'>CSR Created</option>
+                                <option value='CERTIFICATE_GENERATED'>Certificate Generated</option>
+                                <option value='CERTIFICATE_PAIR_ISSUED'>Cerificate Pair Issued</option>
+                                <option value='DIGITALLY_SIGNED'>Digitally Signed</option>
+                                <option value='SIGNATURE_VERIFIED'>Signature Verified</option>
+                                <option value='Other'>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+
+                        </div>
+                        <div class="form-group col-md-4" hidden>
+                            <label asp-for="TransactionType"></label>
+                            <select asp-for="TransactionType" asp-items="Html.GetEnumSelectList<TransactionType>()" class="form-control mb-3">
+                                <option value="">select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="raReportsSearchSpecificDiv" class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="SignatureType"></label>
+                            <select asp-for="SignatureType" asp-items="Html.GetEnumSelectList<SignatureType>()" class="form-control mb-3">
+                                <option value="">select</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+
+                        </div>
+                        <div class="form-group col-md-4" style="margin:35px 0px;">
+                            <div class="checkbox">
+                                <label asp-for="ESealUsed">
+                                    <input type="checkbox" class="custom-check-box" asp-for="ESealUsed" />
+                                    @Html.DisplayNameFor(m => m.ESealUsed)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="StartDate"></label>
+                            <input class="form-control datepicker" asp-for="StartDate" type="text">
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-2">
+
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="EndDate"></label>
+                            <input class="form-control datepicker" asp-for="EndDate" type="text">
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="PerPage"></label>
+                            <select asp-for="PerPage" class="form-control mb-3">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                            </select>
+                            <span asp-validation-for="PerPage" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">
+                            Submit
+                        </button>&nbsp;&nbsp;
+                        <button type="button" class="btn btn-danger" onclick="resetFields()">Reset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @if (Model.Reports != null)
+    {
+        if (TempData["SearchDetails"] != null)
+        {
+            TempData.Keep("SearchDetails");
+        }
+        @await Html.PartialAsync("_ReportsTable", Model.Reports)
+    }
+</div>
+
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+
+@section Scripts {
+
+    <script src="~/assets/js/jquery-ui.js"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            $('#registrationAuthorityMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#raReportMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Registration Authority');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Reports');
+            $('#subMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            var today = new Date();
+            $('.datepicker').datepicker({
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
+            });
+
+            var options = "<option value>select</option>" +
+                "<option value='PKI_AUTHENTICATED'>PKI Authenticated</option>" +
+                "<option value='KEY_PAIR_GENERATED'>Key Pair Generated</option>" +
+                "<option value='CSR_CREATED'>CSR Created</option>" +
+                "<option value='CERTIFICATE_GENERATED'>Certificate Generated</option>" +
+                "<option value='CERTIFICATE_PAIR_ISSUED'>Cerificate Pair Issued</option>" +
+                "<option value='DIGITALLY_SIGNED'>Digitally Signed</option>" +
+                "<option value='SIGNATURE_VERIFIED'>Signature Verified</option>" +
+                "<option value='Other'>Other</option>";
+            //$('#ServiceName').append(options);
+        });
+
+        function resetFields() {
+            $('select').val('');
+            $("input:text").val("");
+            $("input:checkbox").prop('checked', false);
+            $('#PerPage option:first').prop('selected', true);
+        }
+    </script>
+}

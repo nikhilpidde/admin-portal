@@ -1,0 +1,402 @@
+﻿@model DTPortal.Web.ViewModel.SelfServicePortal.ApproveOrganizationConsentViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+}
+@{
+    var recordId = TempData["ApprovalRecordID"];
+}
+<style>
+    .modal-dialog {
+        max-width: 550px;
+    }
+
+    #checkerList {
+        text-align: left; /* Align the list items to the left */
+        padding: 20px;
+    }
+
+    .border {
+        list-style-type: disc; /* Use bullets for list items */
+        padding-left: 20px; /* Add some left padding to the list */
+        border: 1px solid #ddd; /* Add a solid border color */
+        padding: 10px; /* Add padding to the list items */
+        border-radius: 5px; /* Add rounded corners */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a shaded effect */
+    }
+
+    li {
+        margin-bottom: 10px;
+        text-align: left;
+    }
+
+    label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    /* Style the checkbox label for better visibility */
+    /*#verificationAgreement {
+                            display: none; /* Hide the checkbox */
+    }
+
+    */
+
+    #verificationAgreement + label::before {
+        content: "";
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        vertical-align: middle;
+    }
+
+    #verificationAgreement:checked + label::before {
+        background-color: #007BFF; /* Change the background color when checked */
+    }
+
+    #popupOverlay {
+        position: fixed;
+        top: 0;
+        z-index: 10000;
+        width: 100%;
+        height: 100%;
+        display: none;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    /*.loader {
+                              border: 4px solid #f3f3f3;
+                              border-top: 4px solid #3498db;
+                              border-radius: 50%;
+                              width: 50px;
+                              height: 50px;
+                                  margin: auto;
+                              animation: spin 2s linear infinite;
+                            }*/
+
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .check-item {
+        position: relative;
+        padding-left: 25px;
+    }
+
+        .check-item::before {
+            content: '\2714'; /* Unicode for check mark */
+            color: green;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div id="popupOverlay">
+            <div class="loader"></div>
+        </div>
+        <div class="modal-header">
+            <h5 class="modal-title s3">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    Verification Checklist
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal" style="color:#000">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <form  id="checkerListForm">
+                    <div id="checkerList">
+                        <ul class="border" style="padding-left: 10%;list-style-type: none;">
+                            <li class="check-item">Organization Details</li>
+                            <li class="check-item">Approval Letter</li>
+                            <li class="check-item">URSB Certificate</li>
+                            <li class="check-item">Organization CEO Details</li>
+                            <li class="check-item">Single Point of Contact (SPOC) Details</li>
+                            <li class="check-item">Organization Financial Auditor Details</li>
+
+                        </ul>
+
+
+                        <div class="form-row">
+                            <input class="form-control" asp-for="OrganizationFormId" type="text" hidden>
+                            <div class="form-group col-md-8">
+                                <label asp-for="AdminUgpassEmail" class="col-form-label">@clientName Email</label>
+                                <input class="form-control" asp-for="AdminUgpassEmail" placeholder="Enter Approver UAEID Email" type="text">
+                                <span asp-validation-for="AdminUgpassEmail" class="text-danger"></span>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="verificationAgreement">
+                            <label class="form-check-label" for="verificationAgreement">I agree that all the above details are valid and verified.</label>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary greenButton" onclick="updateSelfOrgCall(@recordId, true); return false;">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+<script>
+    $(document).ajaxSend(function (event, xhr, options) {
+
+        $('#popupOverlay').show();
+
+    }).ajaxComplete(function (event, xhr, options) {
+
+        $('#popupOverlay').hide();
+
+    }).ajaxError(function (event, jqxhr, settings, exception) {
+
+        $('#popupOverlay').hide();
+
+    });
+    $(document).ready(function () {
+        //$("#verificationAgreement").on("change", function () {
+        //    if (this.checked) {
+        //        $('#approveOrgFormSubmitBtn').css("pointer-events", "auto");
+        //        $('#approveOrgFormSubmitBtn').css("opacity", "1");
+        //    }
+        //    else {
+        //        $('#approveOrgFormSubmitBtn').css("pointer-events", "none");
+        //        $('#approveOrgFormSubmitBtn').css("opacity", "0.8");
+        //    }
+        //});
+
+    });
+
+    $(function () {
+
+        // $('#approveOrgFormSubmitBtn').click(function () {
+        //     if ($("#checkerListForm").valid()) {
+        //         $('#checkerListForm').submit();
+        //     }
+        //     else {
+        //         return false;
+        //     }
+        // });
+
+        //var OrgFormId = @Model.OrganizationFormId;
+        //var url = $(this).attr("action");
+        //var formData = $(this).serialize();
+
+        //$.ajax({
+        //    url: url,
+        //    type: "POST",
+        //    data: formData,
+        //    dataType: "json",
+        //    beforeSend: function () {
+        //        $('#overlay1').hide();
+        //        $('#overlay').show();
+        //        $('#approveOrgFormSubmitBtn').css("pointer-events", "none");
+        //        $('#approveOrgFormSubmitBtn').css("opacity", "0.8");
+        //    },
+        //    complete: function () {
+        //        $('#overlay').hide();
+        //    },
+        //    success: function (data) {
+        //        $('#modalDialogContentDiv').html(data);
+        //        $('#modalDialogDiv').modal('hide');
+        //        //location.reload();
+        //        window.location.href = '@Url.Action("List", "SelfServicePortal")';
+        //        $('#overlay').hide();
+        //    },
+        //    error: ajaxErrorHandler,
+        //    failure: function (response) {
+        //        $('#approveOrgFormSubmitBtn').css("pointer-events", "auto");
+        //        $('#approveOrgFormSubmitBtn').css("opacity", "1");
+        //        swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+        //    }
+        //});
+
+        //$.ajax({
+        //    type: "POST",
+        //    url: '@Url.Action("Approve", "SelfServicePortal")',
+        //    //contentType: "application/json; charset=utf-8",
+        //    //data: model,
+        //    data: formData,
+        //    //data: { "id": OrgFormId },
+        //    //datatype: "json",
+        //    //processData: false,
+        //    //contentType: false,
+        //    beforeSend: function () {
+        //        $('#overlay1').hide();
+        //        $('#overlay').show();
+        //        $('#approveOrgFormSubmitBtn').css("pointer-events", "none");
+        //        $('#approveOrgFormSubmitBtn').css("opacity", "0.8");
+        //    },
+        //    complete: function () {
+        //        $('#overlay').hide();
+        //    },
+        //    success: function (data) {
+        //        $('#modalDialogContentDiv').html(data);
+        //        $('#modalDialogDiv').modal('hide');
+        //        //location.reload();
+        //        window.location.href = '@Url.Action("List", "SelfServicePortal")';
+        //        $('#overlay').hide();
+        //    },
+        //    error: ajaxErrorHandler,
+        //    failure: function (response) {
+        //        $('#approveOrgFormSubmitBtn').css("pointer-events", "auto");
+        //        $('#approveOrgFormSubmitBtn').css("opacity", "1");
+        //        swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+        //    }
+        //});
+
+        //$("#checkerListForm").on("submit", function () {
+        //    var OrgFormId = @Model.OrganizationFormId;
+        //    var url = $(this).attr("action");
+        //    var formData = $(this).serialize();
+
+
+
+        //    //$.ajax({
+        //    //    url: url,
+        //    //    type: "POST",
+        //    //    data: formData,
+        //    //    dataType: "json",
+        //    //    beforeSend: function () {
+        //    //        $('#overlay1').hide();
+        //    //        $('#overlay').show();
+        //    //        $('#approveOrgFormSubmitBtn').css("pointer-events", "none");
+        //    //        $('#approveOrgFormSubmitBtn').css("opacity", "0.8");
+        //    //    },
+        //    //    complete: function () {
+        //    //        $('#overlay').hide();
+        //    //    }.done(function (response) {
+        //    //        if (response.status == "Success") {
+        //    //            type = 'success';
+        //    //        }
+        //    //        else {
+        //    //            type = 'error';
+        //    //        }
+        //    //        swal({ type: type, title: response.title, text: response.message }, function (isConfirm) {
+        //    //            if (isConfirm) {
+        //    //                if (type == 'success') {
+        //    //                    window.location.href = '@Url.Action("List", "SelfServicePortal")';
+        //    //                }
+        //    //            }
+        //    //        });
+        //    //        //},
+        //    //        //success: function (data) {
+        //    //        //    $('#modalDialogContentDiv').html(data);
+        //    //        //    $('#modalDialogDiv').modal('hide');
+        //    //        //    //location.reload();
+        //    //        //    window.location.href = '@Url.Action("List", "SelfServicePortal")';
+        //    //        //    $('#overlay').hide();
+        //    //        //},
+        //    //        //error: ajaxErrorHandler,
+        //    //        //failure: function (response) {
+        //    //        //    $('#approveOrgFormSubmitBtn').css("pointer-events", "auto");
+        //    //        //    $('#approveOrgFormSubmitBtn').css("opacity", "1");
+        //    //        //    swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+        //    //        //}
+        //    //    });
+        //});
+
+        /*$("#checkerListForm").off("submit").on("submit", function (event) {
+            event.preventDefault();
+            $('#approveOrgFormSubmitBtn').attr('disabled', 'disabled');
+            var url = $(this).attr("action");
+            var formData = $(this).serialize();
+
+            $('#modalDialogDiv').modal('hide');
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#approveOrgFormSubmitBtn').removeAttr('disabled');
+                    $('#overlay').hide();
+                }
+            }).done(function (response) {
+                if (response.status == "Success") {
+                    type = 'success';
+                }
+                else {
+                    type = 'error';
+                }
+                swal({ type: type, title: response.title, text: response.message }, function (isConfirm) {
+                    if (isConfirm) {
+                        if (type == 'success') {
+                            window.location.href = '@Url.Action("List", "SelfServicePortal")';
+                        }
+                    }
+                });
+            });
+        });*/
+
+
+    });
+
+    function updateSelfOrgCall(id, isApproved) {
+        var recordId = @recordId;
+        var requestObject = {
+            "OrgOnboardingFormsId": @Model.OrganizationFormId,
+            "AdminUgpassEmail": $("#AdminUgpassEmail").val()
+        };
+        // var checkboxListArray = [];
+        // $("#checkbox-list li").each(function () {
+        //     var item =
+        //     {
+        //         "Id": $(this).find('input[type=number]').val(),
+        //         "DisplayName": $(this).find('input[type=text]').val(),
+        //         "IsSelected": $(this).find('input[type=checkbox]').is(":checked")
+        //     }
+        //     checkboxListArray.push(item);
+        // });
+
+        // requestObject["documentListCheckbox"] = checkboxListArray;
+
+        CheckerActionWithRequestBodyChange(id, JSON.stringify(requestObject), isApproved);
+    }
+
+</script>

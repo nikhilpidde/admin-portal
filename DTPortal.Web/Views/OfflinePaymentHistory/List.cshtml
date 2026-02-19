@@ -1,0 +1,158 @@
+﻿@model DTPortal.Web.ViewModel.OfflinePayment.OfflinePaymentListViewModel
+
+@{
+    ViewData["Title"] = "Offline Payment";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                <div class="row p-b-20" style="display: flex; align-items: center; padding-bottom:0px;">
+                    @if (!User.IsInRole("Offline Payment History Checker"))
+                    {
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-controller="OfflinePaymentHistory" asp-action="AddPayment">
+                                Add credits
+                            </a>
+                        </div>
+                    }
+                    <div class="form-group" style="margin-left: auto; margin-right:3%">
+                        <label for="approvalStatusFilter">Filter by Approval Status:</label>
+                        <select id="approvalStatusFilter" class="form-control">
+                            <option value="">All</option>
+                            <option value="SUCCESS">Success</option>
+                            <option value="PENDING">Pending</option>
+                            @* <option value="PENDING">Pending</option> *@
+                        </select>
+                    </div>
+                </div>
+
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Organization Name</th>
+                            <th>Invoice No.</th>
+                            
+                            <th>Created Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CreditAllocations)
+                        {
+                            <tr class="odd gradeX">
+                                <td>@item.OrgName</td>
+                                <td>@item.InvoiceNo</td>
+                                <td>@item.CreatedOn</td>
+                                @if (new[] {"SUCCESS"}.Contains(item.AllocationStatus))
+                                {
+                                    // Display "APPROVED" if true
+                                    <td>SUCCESS</td>
+                                }
+                                else
+                                {
+                                    // Display the actual ApprovalStatus if not in the specified values
+                                    <td>@item.AllocationStatus</td>
+                                }
+                                <td class="valigntop" align="center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                aria-expanded="false">
+                                            Actions
+                                            <i class="fa fa-angle-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu pull-left" role="menu">
+                                            <li>
+                                                <a asp-action="OfflinePaymentDetails" asp-route-id="@item.Id">
+                                                    <i class="icon-pencil"></i>View
+                                                </a>
+                                                
+                                                @* @if (item.AllocationStatus == "BIZ_USECASES_SUBMITTED")
+                                                {
+                                                    <a asp-action="GetQuestions" asp-route-id="@item.OrgId">
+                                                        <i class="icon-pencil"></i>Business Requirement
+                                                    </a>
+                                                } *@
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--TABLE CONTENT END-->
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            $('#paymentHistoryMenuItem').addClass('active');
+            $('#OfflinePaymentHistorySidebarElement').addClass('active');
+
+            //$('#priceModel').addClass('show');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#OfflinePaymentHistorySidebarElement').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Payment History');
+            $('#subMenu').addClass('breadcrumb-item active').append('Offline Payments');
+            /*For Beadcrum End*/
+
+            var table = $(".table").DataTable({
+                "bLengthChange": false,
+                "columnDefs": [
+                    { "targets": [3], "type": "string" },  // OrgApprovalStatus - specify custom sorting
+                    { "targets": [2], "type": "date" },    // CreatedOn - specify date type for sorting
+                ],
+                "order": [[2, "desc"]]
+            });
+
+            // Define a custom sorting function for OrgApprovalStatus
+            $.fn.dataTable.ext.order['string-pre'] = function (data) {
+                switch (data) {
+                    case "SUCCESS":
+                        return 0;
+                    case "PENDING":
+                        return 1;
+                    // case "PENDING":
+                    //     return 2;
+                    default:
+                        return 2;
+                }
+            };
+
+            sessionStorage.removeItem('approvalStatusFilter');
+
+            // Add event listener for filtering
+            $('#approvalStatusFilter').on('change', function () {
+                var selectedValue = $(this).val();
+                table.column(3).search(selectedValue).draw();
+
+                // Store the selected value in sessionStorage
+                sessionStorage.setItem('approvalStatusFilter', selectedValue);
+            });
+
+            // Retrieve and set the selected value from sessionStorage
+            var storedValue = sessionStorage.getItem('approvalStatusFilter');
+            if (storedValue) {
+                $('#approvalStatusFilter').val(storedValue).change();
+            }
+        });
+    </script>
+}

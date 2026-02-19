@@ -1,0 +1,690 @@
+﻿@using Newtonsoft.Json;
+@model DTPortal.Web.ViewModel.Beneficiary.BeneficiaryEditViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+    var mobileCountryCode = @Configuration["CountryCode"] as string;
+}
+
+@{
+    ViewData["Title"] = "Edit";
+
+
+    await Html.RenderPartialAsync("_AlertBox");
+    var consentAcquired = Model.ConsentAcquired;
+}
+<style>
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+
+    #ServicesA {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .slider.round {
+        border-radius: 34px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form asp-action="UpadateBeneficiariesUser" asp-controller="Beneficiary" id="beneficiariesUserForm" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <div class="form-group col-md-6" style="float:left;">
+                                <input asp-for="orgName" class="form-control" tabindex="1" hidden />
+                                <input asp-for="SponsorExternalId" class="form-control" tabindex="1" hidden />
+                                <input asp-for="BeneficiaryDigitalId" class="form-control" tabindex="1" hidden />
+                                <input asp-for="SponsorDigitalId" class="form-control" tabindex="1" hidden />
+                                <input asp-for="BeneficiaryName" class="form-control" tabindex="1" hidden />
+                                <input asp-for="CountryCode" class="form-control" tabindex="1" hidden />
+                                <div class="form-group">
+                                    <label asp-for="UgpassEmail" class="col-form-label"></label>
+                                    @{
+                                        var ugpassEmail = Model.UgpassEmail;
+                                    }
+                                    <input asp-for="UgpassEmail" class="form-control" tabindex="1" value="@ugpassEmail" readonly />
+                                    <span asp-validation-for="UgpassEmail" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="NationalIdNumber" class="col-form-label"></label>
+                                    @{
+                                        var nationalIdNumber = Model.NationalIdNumber;
+                                    }
+                                    <input asp-for="NationalIdNumber" class="form-control" tabindex="1" value="@nationalIdNumber" readonly />
+                                    <span asp-validation-for="NationalIdNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="PassportNumber" class="col-form-label"></label>
+                                    @{
+                                        var passportNumber = Model.PassportNumber;
+                                    }
+                                    <input asp-for="PassportNumber" class="form-control" tabindex="1" value="@passportNumber" readonly />
+                                    <span asp-validation-for="PassportNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="MobileNumber" class="col-form-label"></label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <select id="countryCode" class="custom-select" style="height: 34px;">
+                                                <option value="+971">+971</option>
+                                                <option value="+91">+91</option>
+                                            </select>
+                                        </div>
+                                        <input asp-for="MobileNumber" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" class="form-control" tabindex="2" readonly />
+                                    </div>
+                                    <span asp-validation-for="MobileNumber" class="text-danger"></span>
+                                </div>
+                                @* <div class="form-group">
+                                    <label asp-for="Designation" class="col-form-label"></label>
+                                    @{
+                                        var designation = Model.Designation;
+                                    }
+                                    <input asp-for="Designation" class="form-control" tabindex="1" value="@designation" readonly />
+                                    <span asp-validation-for="Designation" class="text-danger"></span>
+                                </div> *@
+
+                                @*<div class="form-group">
+                                    <label asp-for="SignaturePhoto" class="col-form-label"></label>
+                                    @{
+                                        var signaturePhoto = Model.SignaturePhoto;
+                                    }
+                                    <input type="file" asp-for="SignaturePhoto" class="form-control" onchange="FileToBase64(this)" tabindex="1" accept=".jpg, .png, .jpeg" value="@signaturePhoto" readonly />
+                                    <input type="hidden" asp-for="SignaturePhoto" id="BusinessUser_Signature" readonly/>
+                                </div>*@
+
+                            </div>
+                            <div class="form-group col-md-6" style="float:left;opacity:0.8; pointer-events: none">
+                                <div class="form-group">
+                                    <label class="col-form-label">Services</label>
+                                    <fieldset style="border: 1px solid #D3D3D3; padding: 20px; border-radius: 10px; width: 100%; max-width: 1200px;">
+
+                                        <ul id="ServicesA" style="list-style: none; padding: 0;">
+                                            @for (int i = 0; i < Model.Service.Count; i++)
+                                            {
+                                                <li style="padding-bottom: 15px;">
+                                                    @{
+                                                        var serviceCheckbox = "Previlages_" + i + "__service";
+                                                        var validityCheckbox = "Previlages_" + i + "__validity";
+                                                        var validityFromInput = "Previlages_" + i + "__validityFrom";
+                                                        var validityUptoInput = "Previlages_" + i + "__validityUpto";
+
+                                                        var validityDiv = "validity_" + i + "_div";
+                                                        bool validityExists = false;
+                                                        // Find the corresponding ServicePrevilage if it exists
+                                                        var servicePrivilege = Model.ServicePrevilage.FirstOrDefault(sp => sp.privilegeServiceId == Model.Service[i].PrivilegeId);
+                                                        bool privilegeExists = Model.ServicePrevilage.Any(sp => sp.privilegeServiceId == Model.Service[i].PrivilegeId);
+                                                        if (privilegeExists)
+                                                        {
+                                                            validityExists = servicePrivilege.validityApplicable;
+                                                        }
+                                                        bool isValidityApplicable = privilegeExists && servicePrivilege.validityApplicable;
+                                                    }
+
+                                                    <div class="form-check" style="margin-bottom: 10px;">
+                                                        <input class="form-check-input" type="checkbox" id="@serviceCheckbox" name="selectedPrivileges" value="@Model.Service[i].PrivilegeId" @(privilegeExists ? "checked" : "")  style="margin-right: 10px;" readonly>
+                                                        <label class="form-check-label" for="@serviceCheckbox">@Model.Service[i].PrivilegeServiceDisplayName</label>
+                                                    </div>
+
+                                                    @if (privilegeExists && validityExists)
+                                                    {
+                                                        <div style=" margin-left: 15px;">
+                                                            <div class="form-check validity-checkbox" id="@validityDiv" style="@(isValidityApplicable ? "" : "display:block;")">
+                                                                <input class="form-check-input validity-checkboxInput" type="checkbox" id="@validityCheckbox" name="selectedValidity" value="@Model.Service[i].PrivilegeId" @(servicePrivilege != null ? "checked" : "") style="margin-right: 10px;">
+                                                                <label class="form-check-label" for="@validityCheckbox">Validity</label>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row" style="margin-left: 50px;">
+                                                            <div style="margin-left:15px">
+                                                                <div class="form-group validity-input1" @(isValidityApplicable ? "" : "style=\"display:block;\"")>
+                                                                    <label for="@validityFromInput">Validity From:</label>
+                                                                    <input type="date" id="@validityFromInput" name="validityFrom[@i]" class="form-control date-pick" style="width: 200px;" value="@((servicePrivilege != null && servicePrivilege.validFrom.HasValue) ? servicePrivilege.validFrom.Value.ToString("yyyy-MM-dd") : "")" readonly>
+                                                                </div>
+                                                            </div>
+                                                            <div style="margin-left:15px">
+                                                                <div class="form-group validity-input2" @(isValidityApplicable ? "" : "style=\"display:block; margin-left: 15px;\"")>
+                                                                    <label for="@validityUptoInput">Validity Upto:</label>
+                                                                    <input type="date" id="@validityUptoInput" name="validityUpto[@i]" class="form-control date-pick" style="width: 200px;" value="@((servicePrivilege != null && servicePrivilege.validUpTo.HasValue) ? servicePrivilege.validUpTo.Value.ToString("yyyy-MM-dd") : "")" readonly>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="form-check form-check-inline validity-checkbox" id="@validityDiv" style="display:none; margin-left:15px;">
+                                                            <input class="form-check-input validity-checkboxInput" type="checkbox" id="@validityCheckbox" name="selectedValidity" value="@Model.Service[i].PrivilegeId" @(servicePrivilege != null ? "" : "")>
+                                                            <label class="form-check-label" for="@validityCheckbox">Validity</label>
+                                                        </div>
+                                                        <div class="row" style="margin-left: 50px;">
+                                                            <div class="form-group validity-input1" style="display:none;  margin-left: 15px;">
+                                                                <label for="@validityFromInput">Validity From:</label>
+                                                                <input type="date" id="@validityFromInput" name="validityFrom[@i]" class="form-control date-pick" style="width: 200px;" value="@((servicePrivilege != null && servicePrivilege.validFrom.HasValue) ? servicePrivilege.validFrom.Value.ToString("yyyy-MM-dd") : "")" readonly>
+                                                            </div>
+                                                            <div class="form-group validity-input2" style="display:none; margin-left: 15px;">
+                                                                <label for="@validityUptoInput">Validity Upto:</label>
+                                                                <input type="date" id="@validityUptoInput" name="validityUpto[@i]" class="form-control date-pick" style="width: 200px;" value="@((servicePrivilege != null && servicePrivilege.validUpTo.HasValue) ? servicePrivilege.validUpTo.Value.ToString("yyyy-MM-dd") : "")" readonly>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </li>
+                                            }
+                                        </ul>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        @if (!String.IsNullOrEmpty(Model.SignaturePhoto))
+                        {
+                            <a class="btn btn-info" onclick="downloadDocument('SignaturePhoto');">
+                                <i class="fa fa-download"></i>Signature Photo
+                            </a>
+                        }
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end ">
+                            <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                                Approve
+                            </button>
+                            &nbsp; &nbsp;
+                            <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                                Reject
+                            </button>
+                            &nbsp; &nbsp;
+                            <a asp-action="Approvals" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+<script>
+    var servicePrivilages = @Html.Raw(JsonConvert.SerializeObject(Model.ServicePrevilage));
+    var checkbox;
+    var selectedValues = [];
+    var bid = '@Html.Raw(Model.id)';
+    var orgId = '@Html.Raw(Model.OrganizationUid)';
+    var ninRegex = /^[A-Z0-9]{1,14}$/;
+    var passportRegex = /^[A-Z0-9]{1,12}$/;
+
+    $(document).ready(function () {
+        $('#eSealRegistrationMenu').addClass('active');
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#beneficiaryMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Beneficiaries >Edit');
+        $('#mainMenu').removeClass('breadcrumb-item');
+        $('#subMenu').removeClass('breadcrumb-item');
+        var consentAcquiredField = $("#ConsentAcquired").val();
+        var CountryCode = $("#CountryCode").val();
+        if (CountryCode) {
+            if (CountryCode == "+91") {
+                $("#countryCode").val("+91");
+            } else {
+                $("#countryCode").val(mobileCountryCode);
+            }
+        }
+        $("#countryCode").prop("disabled", true);
+        var checkboxes = document.querySelectorAll('.validity-checkboxInput');
+        checkboxes.forEach(function (checkbox) {
+            checkbox.disabled = true;
+        });
+        setMinDate();
+    });
+
+    function setMinDate() {
+        var dtToday = new Date();
+
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+
+        if (month < 10)
+            month = '0' + month.toString();
+        if (day < 10)
+            day = '0' + day.toString();
+
+        var maxDate = year + '-' + month + '-' + day;
+        $('.date-pick').each(function () {
+            $(this).attr('min', maxDate);
+        });
+    }
+
+    function toggleValidity(index) {
+        var isChecked = $("#Previlages_" + index + "__service").is(":checked");
+        var validityCheckbox = $(".validity-checkbox").eq(index);
+        // var validityCheckbox = $(".validity-checkboxLabel").eq(index);
+        var validityCheckboxInput = $(".validity-checkboxInput").eq(index);
+        var validityInput1 = $(".validity-input1").eq(index);
+        var validityInput2 = $(".validity-input2").eq(index);
+
+        if (isChecked) {
+
+            validityCheckboxInput.prop("checked", false).show();
+
+        } else {
+            validityCheckbox.prop("checked", false).hide();
+            //validityCheckboxInput.toggle("true").hide();
+            validityCheckboxInput.prop("checked", false).hide();
+            validityInput1.hide().val("");
+            validityInput2.hide().val("");
+        }
+        $(".validity-checkbox").eq(index).show();
+        if (isChecked == false) {
+
+            $("#Previlages_" + index + "__validity").prop("checked", false);
+            $(".validity-checkbox").eq(index).hide();
+            validityInput1.hide().val("");
+            validityInput2.hide().val("");
+        }
+
+    }
+
+
+    function toggleValidity_input(index) {
+        var validityInput1 = $(".validity-input1").eq(index);
+        var validityInput2 = $(".validity-input2").eq(index);
+        var isChecked = $("#Previlages_" + index + "__validity").is(":checked");
+
+        $("#Previlages_" + index + "__validityFrom").val("");
+        $("#Previlages_" + index + "__validityUpto").val("")
+        $(".validity-input1").eq(index).toggle(isChecked);
+        $(".validity-input2").eq(index).toggle(isChecked);
+
+    }
+
+
+
+    function FileToBase64(element) {
+
+        var file = element.files[0];
+
+        var maxSizeKB = 20;
+        var maxSize = maxSizeKB * 1024;
+        if (file.size > maxSize) {
+            return swal({ type: 'error', title: "Max size exceeded", text: "File must be less than 20 Kb" });
+        }
+
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            var base64String = reader.result.split(',')[1]; // Extract base64 string from data URL
+            $("#BusinessUser_Signature").val(base64String);
+        }
+
+        reader.readAsDataURL(file);
+    }
+
+    function UpdateBeneficiariesUser() {
+        var isValid = true;
+        $('input[name="selectedPrivileges"]:checked').each(function () {
+
+            var index = $(this).attr('id').split('_')[1];
+            var privilegeId = $(this).val();
+            var validityCheckbox = $('#Previlages_' + index + '__validity').prop('checked');
+            var validityFrom = $('#Previlages_' + index + '__validityFrom').val();
+            if (validityFrom == "") {
+                validityFrom = null;
+            }
+            var validityUpto = $('#Previlages_' + index + '__validityUpto').val();
+            if (validityUpto == "") {
+                validityUpto = null;
+            }
+            if (validityCheckbox) {
+                if (validityFrom == null || validityUpto == null) {
+                    isValid = false;
+                }
+                else if (validityFrom > validityUpto) {
+                    isValid = false;
+                    dateValid = false;
+                }
+            }
+            var selectedObject = {
+                privilegeServiceId: privilegeId,
+                validityApplicable: validityCheckbox,
+                validFrom: validityFrom,
+                validUpTo: validityUpto
+            };
+            selectedValues.push(selectedObject);
+        });
+        if (!isValid) {
+            if (dateValid == false) {
+                swal({
+                    type: 'info',
+                    title: "Add Beneficiary",
+                    text: 'ValidityTo should be less than validityfrom',
+                    showCancelButton: false,
+                    closeOnConfirm: true
+                }, function (result) {
+                    if (result) {
+                    }
+                });
+                selectedValues = [];
+                return;
+            }
+            else {
+                swal({
+                    type: 'info',
+                    title: "Add Beneficiary",
+                    text: 'enter validity dates',
+                    showCancelButton: false,
+                    closeOnConfirm: true
+                }, function (result) {
+                    if (result) {
+                    }
+                });
+                selectedValues = [];
+                return;
+            }
+        }
+        var form = $("#beneficiariesUserForm");
+        var url = form.attr("action");
+        var validData = true;
+        var ugpassEmail = $('#UgpassEmail').val();
+        var nationalIdNumber = $('#NationalIdNumber').val();
+        var passportNumber = $('#PassportNumber').val();
+        var signaturePhoto = $('#BusinessUser_Signature').val();
+        var mobileNumber = $('#MobileNumber').val();
+        var designation = $('#Designation').val();
+        var isSelected = false;
+        const clientName = '@clientName';
+
+            if (ugpassEmail && !isValidEmail(ugpassEmail)) {
+                $('#UgpassEmail').siblings(".text-danger").text("Please enter a valid " + clientName + " email address.");
+                validData = false;
+            }
+            else {
+            $('#UgpassEmail').siblings(".text-danger").text("");
+            isSelected = true;
+        }
+
+        if (nationalIdNumber && !ninRegex.test(nationalIdNumber)) {
+            $('#NationalIdNumber').siblings(".text-danger").text("Please enter a valid NIN number accepts A-Z(capital)&0-9 and max length is 14.");
+            validData = false;
+        } else {
+            $('#NationalIdNumber').siblings(".text-danger").text("");
+            isSelected = true;
+        }
+
+        if (passportNumber && !passportRegex.test(passportNumber)) {
+            $('#PassportNumber').siblings(".text-danger").text("Please enter a valid passport number accepts A-Z(capital)&0-12 and max length is 12.");
+            validData = false;
+        } else {
+            $('#PassportNumber').siblings(".text-danger").text("");
+            isSelected = true;
+        }
+
+        if (mobileNumber) {
+            var mobilevalid = ValidateNumber(mobileNumber);
+            if (mobilevalid == false) {
+                var selectedCode = $('#countryCode').val();
+                var mobileerrormessage = "";
+                if (selectedCode == mobileCountryCode) {
+                    swal({
+                        type: 'info',
+                        title: "Add Beneficiary",
+                        text: "Mobile number should be 9 digits",
+                        showCancelButton: false,
+                        closeOnConfirm: true
+                    }, function (result) {
+                        if (result) {
+                        }
+                    });
+                }
+                else {
+                    swal({
+                        type: 'info',
+                        title: "Add Beneficiary",
+                        text: "Mobile number should be 10 digits",
+                        showCancelButton: false,
+                        closeOnConfirm: true
+                    }, function (result) {
+                        if (result) {
+                        }
+                    });
+                }
+                return;
+            }
+        }
+        if (!validData) {
+            return;
+        }
+        if (isSelected == false) {
+            swal({
+                type: 'info',
+                title: "Add Beneficiary",
+                text: 'atleast fill one field',
+                showCancelButton: false,
+                closeOnConfirm: true
+            }, function (result) {
+                if (result) {
+                }
+            });
+            return;
+        }
+        var SponsorExternalId = $('#SponsorExternalId').val();
+        var BeneficiaryDigitalId = $('#BeneficiaryDigitalId').val();
+        var BeneficiaryName = $('#BeneficiaryName').val();
+        var SponsorDigitalId = $('#SponsorDigitalId').val();
+        var mobilenumber = "";
+        if ($('#MobileNumber').val() != "") {
+            mobilenumber = $('#countryCode').val() + $('#MobileNumber').val();
+        }
+        var beneficiariesUser = {
+            NationalIdNumber: $('#NationalIdNumber').val(),
+            OrganizationUid: orgId,
+            Id: bid,
+            orgName: $('#orgName').val(),
+            PassportNumber: $('#BeneficiaryPassport').val(),
+            PassportNumber: $('#PassportNumber').val(),
+            MobileNumber: mobilenumber,
+            UgpassEmail: $('#UgpassEmail').val(),
+            SignaturePhoto: signaturePhoto,
+            Designation: $('#Designation').val(),
+            ServicePrevilage: selectedValues,
+            SponsorExternalId: SponsorExternalId,
+            BeneficiaryDigitalId: BeneficiaryDigitalId,
+            SponsorDigitalId: SponsorDigitalId,
+            BeneficiaryName: BeneficiaryName
+        };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify(beneficiariesUser),
+            contentType: "application/json",
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (data.success == true) {
+                    window.location.href = "@Url.Action("Index", "Beneficiary", new { orgName = Model.orgName })";
+                }
+                if (data.success == false) {
+                    swal({
+                        type: 'error',
+                        title: "Add Beneficiary",
+                        text: data.message,
+                        showCancelButton: false,
+                        closeOnConfirm: true
+                    }, function (result) {
+                        if (result) {
+                        }
+                    });
+                }
+                selectedValues = [];
+
+            }
+        });
+    };
+
+
+
+
+    function isValidEmail(email) {
+
+        var emailRegex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        return emailRegex.test(email);
+    }
+    function ValidateNumber(MobNumber) {
+        var selectedCode = $('#countryCode').val();
+        if (selectedCode == mobileCountryCode) {
+            if (MobNumber.length != 9) {
+                return false;
+            }
+        }
+        if (selectedCode == "+91") {
+            if (MobNumber.length != 10) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function downloadDocument(name) {
+            var exportType;
+            switch (name) {
+
+                case "SignaturePhoto":
+                    exportType = "jpg";
+                    saveByteArray(name, '@Html.Raw(@Model.SignaturePhoto)', exportType)
+                    break;
+            }
+        }
+
+    function saveByteArray(name, base64String, exportType) {
+            var myBytes = base64ToArrayBuffer(base64String);
+            var blob = new Blob([myBytes]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            if (exportType) {
+                let fileName = name + getFileExtension(exportType);
+                link.download = fileName;
+                link.click();
+            }
+            else {
+                swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+            }
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+
+        function getFileExtension(exportType) {
+            let extension;
+            switch (exportType) {
+                case 'jpg':
+                    extension = '.jpg';
+                    break;
+                case 'pdf':
+                    extension = '.pdf';
+                    break;
+                case 'excel':
+                    extension = '.xlsx';
+                    break;
+                case 'csv':
+                    extension = '.csv';
+                    break;
+            }
+
+            return extension;
+        }
+</script>
+}

@@ -1,0 +1,113 @@
+﻿@model PaginatedList<DTPortal.Core.DTOs.LogReportDTO>
+
+@using DTPortal.Core
+
+<style>
+    .modal-dialog {
+        max-width: 900px;
+    }
+</style>
+
+<div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title s3">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    Sub Transactions
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <div class="table-wrap">
+                    <div class="table-responsive">
+                        <table class="table display product-overview mb-30" id="support_table5">
+                            <thead>
+                                <tr>
+                                    <th>Operation</th>
+                                    <th>Application Name</th>
+                                    <th>Message</th>
+                                    <th style="width:80px">Status</th>
+                                    <th style="width:80px">Integrity</th>
+                                    <th style="width:175px">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Count() > 0)
+                                {
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@item.ServiceName</td>
+                                            <td>@item.ServiceProviderAppName</td>
+                                            <td>@item.LogMessage</td>
+                                            <td>@item.LogMessageType</td>
+                                            <td>@(item.IsChecksumValid?"Valid":"Invalid")</td>
+                                            <td>
+                                                <span class="utc-time" data-utc="@item.StartTime"></span>
+                                                -
+                                                <span class="utc-time" data-utc="@item.EndTime"></span>
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="5" align="center">No records found</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+<script>
+         // Update all datetime fields having ISO format: 2026-01-05T16:35:58.031
+        $(document).ready(function () {
+
+        updateUtcTimes();
+    });
+
+             function updateUtcTimes() {
+        document.querySelectorAll(".utc-time").forEach(function (element) {
+            const utcValue = element.getAttribute("data-utc");
+            element.innerText = convertUtcToLocal(utcValue);
+        });
+    }
+
+
+    function convertUtcToLocal(timestamp) {
+        if (!timestamp) return "N/A";
+
+        // Force UTC interpretation by appending Z
+        const utcDate = new Date(timestamp.endsWith("Z") ? timestamp : timestamp + "Z");
+
+        if (isNaN(utcDate)) return "Invalid Date";
+
+        const day = String(utcDate.getDate()).padStart(2, "0");
+        const month = String(utcDate.getMonth() + 1).padStart(2, "0");
+        const year = utcDate.getFullYear();
+
+        const hours = String(utcDate.getHours()).padStart(2, "0");
+        const minutes = String(utcDate.getMinutes()).padStart(2, "0");
+        const seconds = String(utcDate.getSeconds()).padStart(2, "0");
+
+        return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+
+
+</script>

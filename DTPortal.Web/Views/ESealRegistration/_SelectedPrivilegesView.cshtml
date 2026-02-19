@@ -1,0 +1,210 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model DTPortal.Web.ViewModel.ESealRegistration.PrivilegeSelectionWithOrgViewModel
+
+<style>
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        border: none;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        background: aliceblue;
+        color: white;
+        padding: 14px 18px;
+    }
+
+    .modal-title {
+        font-size: 20px !important;
+        font-weight: bold;
+    }
+
+    .close {
+        color: red;
+        font-size: 22px;
+        opacity: 0.8;
+        transition: 0.3s;
+    }
+
+        .close:hover {
+            opacity: 1;
+        }
+
+    /* Body improvements */
+    .modal-body {
+        padding: 18px;
+    }
+
+
+
+    /* Remove unwanted input styling */
+    .form-check input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #007bff;
+        margin: 0;
+    }
+
+    /* Ensure label alignment */
+    .form-check label {
+        font-size: 16px;
+        color: #333;
+        margin: 0;
+    }
+
+    /* Footer Design */
+    .modal-footer {
+        display: flex;
+        align-items: center;
+        padding: 14px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+
+    /* Button Styling */
+    .btn {
+        padding: 10px 16px;
+        border-radius: 6px;
+        font-weight: bold;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+    }
+    /* Remove unwanted box around checkboxes */
+    .form-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        background: white;
+        border-radius: 6px;
+        margin-bottom: 6px;
+        transition: 0.2s;
+    }
+
+        /* Fix checkbox size & remove extra spacing */
+        .form-check input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #007bff;
+            margin: 0;
+            appearance: auto;
+        }
+
+        /* Ensure label is aligned with checkbox */
+        .form-check label {
+            font-size: 16px;
+            color: #333;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+</style>
+
+<div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title">Manage Privileges</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body" style="max-height:60vh;overflow-y:auto;">
+                <form id="privilegeForm">
+                    @foreach (var privilege in Model.privileges)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input position-relative" name="selectedPrivileges" value="@privilege.privilege"
+                            @(privilege.isSelected ? "checked" : "")>
+                            <label class="form-check-label">
+                                @{
+                                    string labelText = privilege.privilege switch
+                                    {
+                                        "credential_issuer" => "Credential Issuer",
+                                        "credential_verifier" => "Credential Verifier",
+                                        _ => privilege.privilege // Default fallback
+                                    };
+                                }
+                                @labelText
+                            </label>
+                        </div>
+                    }
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary mr-2" onclick="updateSelectedPrivileges()">Update</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+<script>
+    function updateSelectedPrivileges() {
+        var selectedPrivileges = [];
+        $("input[name='selectedPrivileges']:checked").each(function () {
+            selectedPrivileges.push($(this).val());
+        });
+
+
+        $('#popupOverlay').fadeIn();
+        $.ajax({
+            url: '@Url.Action("UpdatePrivileges", "ESealRegistration")',
+            method: 'POST',
+            data: JSON.stringify({
+                OrganizationId: '@Model.organizationId',
+                SelectedPrivileges: selectedPrivileges
+            }),
+            contentType: 'application/json',
+            processData: false,
+            success: function () {
+                 $('.modal').modal('hide');
+                swal({
+                         type: 'success',
+                         title: "Success",
+                          text: "Privileges updated successfully."
+                      });
+
+            },
+            error: function (xhr) {
+                $('.modal').modal('hide');
+                swal({
+                         type: 'error',
+                         title: "Failed",
+                          text: "Failed to Update Previlige."
+                      });
+            },
+            complete: function () {
+                $('#popupOverlay').fadeOut();
+            }
+        });
+    }
+</script>

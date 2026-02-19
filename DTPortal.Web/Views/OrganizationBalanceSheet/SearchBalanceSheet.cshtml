@@ -1,0 +1,174 @@
+﻿@model DTPortal.Web.ViewModel.OrganizationBalanceSheet.OrganizationBalanceSheetSearchViewModel
+@using DTPortal.Core.DTOs
+
+@{
+    ViewData["Title"] = "Organization Balance Sheet";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+<style>
+    fieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 5px;
+        margin-bottom: 5px;
+        overflow-y: auto;
+        height: 180px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .sweet-alert fieldset {
+        display: none;
+    }
+
+    .sweet-alert p {
+        font-weight: 400;
+        overflow: auto;
+        max-height: 200px;
+        white-space: break-spaces;
+    }
+
+    a.dropdown-item:hover {
+        color: #212529 !important;
+    }
+
+    
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="height: 70px; z-index:1;">
+            <div class="form-row">
+                <input asp-for="OrganizationId" hidden />
+                <div class="form-group col-md-4">
+                    <input asp-for="OrganizationName" class="form-control " placeholder="Enter Organization Name" />
+                    <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                </div>
+                <div>
+                    <input type="submit" class="btn btn-primary" onclick="searchOrganization();" value="Search" />
+                    &nbsp;&nbsp;
+                    <input type="button" class="btn btn-danger" value="Clear" onclick="resetFields()" />
+                </div>
+            </div>
+        </div>
+
+        <div id="balanceSheetDetailsDiv">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            $('#balanceSheetMenuItem').addClass('active');
+            $('#OrganizationBalanceSheetSidebarElement').addClass('active');
+
+            $('#priceModel').addClass('show');
+            $('#balanceSheetSubmenu').addClass('show');
+
+            $("li#balanceSheetMenuItem a:first").attr('aria-expanded', 'true');
+            $("li#OrganizationBalanceSheetSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Balance Sheet');
+            $('#subMenu').addClass('breadcrumb-item active').append('Organization');
+            /*For Beadcrum End*/
+        });
+
+        function resetFields() {
+            $('select').val('');
+            $("input:text").val("");
+            $('#balanceSheetDetailsDiv').empty();
+            $('.text-danger').text('');
+            $("#OrganizationName").attr("placeholder", "Enter Organization Name");
+        }
+
+        $("#OrganizationName").typeahead({
+            minLength: 2,
+            items: 10,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetOrganizations", "OrganizationBalanceSheet")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        dictionary = {};
+                        $('#OrganizationId').val('');
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var array = item.split(",");
+                            var uid = array[1];
+                            var name = array[0];
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                            dictionary[name] = uid;
+                        });
+                        response(items);
+                    }
+                });
+            },
+            updater: function (item) {
+                var id = item.orgid;
+                getOrganizationBalanceSheet(item, dictionary[item]);
+                return item;
+            }
+        });
+
+        function getOrganizationBalanceSheet(name, uid) {
+            $('#balanceSheetDetailsDiv').empty();
+            var dataToSend = { organizationName: name, OrganizationId: uid };
+            $.ajax({
+                url: '@Url.Action("SearchBalanceSheet", "OrganizationBalanceSheet")',
+                data: dataToSend,
+                type: "POST",
+                /*contentType: "json",*/
+                error: ajaxErrorHandler,
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    if (data != null) {
+                        if(typeof data == "object"){
+                            window.location.reload();
+                        } else {
+                            $('#balanceSheetDetailsDiv').html(data);
+                        }
+                    }
+                    else {
+                        swal({ type: 'error', title: "Failed", text: "Failed to get organization balance sheet" });
+                    }
+                }
+            });
+        }
+
+        function searchOrganization() {
+            var value = $("#OrganizationName").val();
+            if (value == '') {
+                swal({ type: 'error', title: "Error", text: "Please enter the organization name" });
+            }
+            else {
+                getOrganizationBalanceSheet(value, dictionary[value]);
+            }
+        }
+    </script>
+}

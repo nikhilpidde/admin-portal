@@ -1,0 +1,173 @@
+﻿@using DTPortal.Web.Enums
+@model DTPortal.Web.ViewModel.Agent.AgentAddViewModel
+
+@{
+    ViewData["Title"] = "Add Agent";
+}
+
+<style>
+    #note {
+        padding-right: 10px;
+        display: flex;
+        justify-content: flex-end;
+        padding-bottom: 15px;
+    }
+</style>
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Add">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="IdentifierType" class="col-form-label"></label>
+                                <select asp-for="IdentifierType" asp-items="Html.GetEnumSelectList<AgentIndentifier>()" class="form-control">
+                                </select>
+                                <span asp-validation-for="IdentifierType" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="IdentifierValue" class="col-form-label"></label>
+                                <input asp-for="IdentifierValue" class="form-control" placeholder="Mobile Number (+9198XX...)" />
+                                <input type="hidden" id="SelectAgent" name="SelectAgent" />
+                                <span asp-validation-for="IdentifierValue" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <input type="submit" class="btn btn-primary greenButton" value="Save" />
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+<script>
+    $(document).ready(function () {
+        $('#assistedOnboardingMenu').addClass('active');
+        $('#agentMenuItem').addClass('active');
+
+        $('#assistedOnboarding').addClass('show');
+
+        // // Set the dropdown value to "Mobile Number"
+        // $('#IdentifierType').val(4);
+
+        // // Trigger the change event to execute associated actions
+        // $('#IdentifierType').trigger('change');
+
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#rateCardMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Assisted Onboarding');
+        $('#mainMenu').addClass('breadcrumb-item').append('Agent');
+        $('#subMenu').addClass('breadcrumb-item active').append('Add');
+        /*For Beadcrum End*/
+
+        $('#IdentifierType').change(function () {
+            var identifierValue = $("#IdentifierValue");
+            identifierValue.unbind("keypress");
+            let placeholderObject = {
+                3: "Mobile Number (+9198XX...)",
+                4: "Email",
+            }
+
+            identifierValue.val("");
+            $("span[data-valmsg-for='IdentifierValue']").html('');
+
+            if ($("#IdentifierValue").val() == "") {
+                if ($("#IdentifierType").val() != "") {
+                    var identifierValueSelected = $("#IdentifierType").val();
+                    $("#IdentifierValue").attr("placeholder", "Enter " + placeholderObject[identifierValueSelected.toString()]);
+                }
+                else
+                    $("#IdentifierValue").attr("placeholder", "Enter Value");
+                identifierValue.val("");
+            }
+
+            if ($('select option:selected').val() == 3) {
+                identifierValue.keypress(function (e) {
+                    if (identifierValue.val().length >= 13) {
+                        return false;
+                    }
+                    var charCode = (e.which) ? e.which : event.keyCode;
+                    if (String.fromCharCode(charCode).match(/[^+0-9]/g))
+                        return false;
+                });
+            }
+        });
+
+        $("#IdentifierValue").typeahead({
+
+            minLength: 4,
+            items: 10,
+            source: function (request, response) {
+                let type = $('#IdentifierType').val();
+                if (type == "")
+                    return;
+                if (type == 3) {
+                    type = 4
+                } else if (type == 4) {
+                    type = 3
+                }
+                $.ajax({
+                    url: '@Url.Action("GetSubscribers", "Subscriber")',
+                    data: { "type": parseInt(type), "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+            updater: function (item) {
+                return item;
+            }
+        });
+
+        $("input[type='submit']").on("click", function (e) {
+            var email = $('#IdentifierValue');
+            if ($('select option:selected').val() == 4 && email.val() != '') {
+                var emailRegex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+                if (!emailRegex.test(email.val())) {
+                    $("span[data-valmsg-for='IdentifierValue']").html("Invalid email address");
+                    e.preventDefault();
+                }
+            }
+        });
+    });
+
+
+
+</script>

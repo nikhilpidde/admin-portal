@@ -1,0 +1,161 @@
+﻿@model DTPortal.Web.ViewModel.UserDashboard.SequerityQuestionViewModel
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <noscript>Please enable java script in your browser.</noscript>
+    <title>Verify Security Question</title>
+    <link rel="icon" type="image/x-icon" href="~/assets/fav04.png" />
+
+    <link href="~/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" asp-append-version="true" />
+    <link href="~/lib/sweetalert/dist/sweetalert.css" rel="stylesheet" type="text/css" asp-append-version="true" />
+    <script src="~/global_assets/js/main/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/global_assets/js/main/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/lib/sweetalert/dist/sweetalert.min.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/assets/appcss/RegistrationPage.css" asp-append-version="true">
+
+</head>
+<style>
+    #AuthenticationProvision {
+        overflow-y: auto;
+        /* Firefox */
+        scrollbar-width: thin;
+        scrollbar-color: #888 transparent;
+    }
+
+        /* Chrome, Edge, Safari */
+        #AuthenticationProvision::-webkit-scrollbar {
+            width: 5px; /* 👈 reduce scroll width here */
+        }
+
+        #AuthenticationProvision::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+            #AuthenticationProvision::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+
+</style>
+<body>
+    @{await Html.RenderPartialAsync("_AlertBox");}
+    <section class="myform-area">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="form-area" id="AuthenticationProvision" style="overflow-y:scroll;">
+                        <div class="header">Verify Security Questions</div>
+                        <div class="activationDiv">
+                            <form id="securityQue" asp-action="ValidateSecurityQuestion">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-12">
+                                        <div class="form-group" hidden>
+                                            <input asp-for="UserId" class="form-control" />
+                                            <input asp-for="Username" class="form-control" />
+                                            <input asp-for="Uuid" class="form-control" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="Question1" class="col-form-label"></label>
+                                            <input asp-for="Question1" readonly />
+                                            <span asp-validation-for="Question1" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <input asp-for="Answer1" required />
+                                            <label asp-for="Answer1" class="s3"></label>
+                                            <span asp-validation-for="Answer1" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="Question2" class="col-form-label"></label>
+                                            <input asp-for="Question2" readonly />
+                                            <span asp-validation-for="Question2" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+
+                                            <input asp-for="Answer2" required />
+                                            <label asp-for="Answer2" class="s3"></label>
+                                            <span id='message'></span>
+                                            <span asp-validation-for="Answer2" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="Question3" class="col-form-label"></label>
+                                            <input asp-for="Question3" readonly />
+                                            <span asp-validation-for="Question3" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+
+                                            <input asp-for="Answer3" required />
+                                            <label asp-for="Answer3" class="s3"></label>
+                                            <span id='message'></span>
+                                            <span asp-validation-for="Answer3" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="myform-button" style="margin-top: 30px">
+                                    <div class="d-flex justify-content-end ">
+
+                                        <button id="secQueBtn" class="myform-btn" type="submit" >
+                                            Validate
+                                        </button>
+
+                                    </div>
+                                </div>
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        $(document).ready(function () {
+               function validateQuestions() {
+
+                var q1 = $('#Question1').val();
+                var q2 = $('#Question2').val();
+                var q3 = $('#Question3').val();
+
+                if (!q1 || !q2 || !q3) {
+                    disableButton();
+                    return;
+                }
+
+                if (q1 === q2 || q1 === q3 || q2 === q3) {
+                    $('#message').html('All three questions must be different')
+                        .css('color', 'red');
+                    disableButton();
+                }
+                else {
+                    $('#message').html('');
+                    enableButton();
+                }
+            }
+
+            function disableButton() {
+                $('#secQueBtn').prop("disabled", true).css('opacity', '0.5');
+            }
+
+            function enableButton() {
+                $('#secQueBtn').prop("disabled", false).css('opacity', '1');
+            }
+
+            $('#Question1, #Question2, #Question3').on('change', validateQuestions);
+            $('#Answer1, #Answer2, #Answer3').on('keyup change', validateQuestions);
+
+        });
+
+
+    </script>
+</body>
+
+</html>

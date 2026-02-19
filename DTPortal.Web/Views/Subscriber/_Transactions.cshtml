@@ -1,0 +1,180 @@
+﻿@model DTPortal.Web.ViewModel.Subscriber.SubscriberReportsSearchViewModel
+@using DTPortal.Web.Enums
+
+<style>
+    #OnboardingLogs:hover{
+        color:blue;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="card" style="padding: 0px;">
+    <div class="card-head row" style="padding: 0px 20px 0px 0px;display: inline-block;margin: auto;width: 100%;">
+        <header style="font-size:15px">Search Transactions</header>
+        <div style="float:right">
+            <a id="OnboardingLogs" class="btn-xs onboarding font-weight-normal" asp-action="SubscriberOboardingServiceReports" asp-route-fullname="@Model.SubscriberFullname" asp-route-identifier="@Model.Identifier">Show Onboarding Logs</a>
+        </div>
+    </div>
+    <div class="card-body " id="bar-parent5">
+        <form method="post" asp-action="SubscriberReports" style="height: 40px;">
+            <div class="row">
+                <input asp-for="Identifier" hidden />
+                <input asp-for="SubscriberFullname" hidden />
+                <div class=" col-lg-3 col-md-3 col-sm-3 col-3">
+                    <div class="form-group">
+                        <select asp-for="TransactionType" asp-items="Html.GetEnumSelectList<TransactionType>()" class="form-control">
+                            <option selected value="">Select Transaction Type</option>
+                        </select>
+                        <span asp-validation-for="TransactionType" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+                    <select asp-for="TransactionStatus" class="form-control">
+                        <option selected value="">Select Transaction Status</option>
+                        <option value="SUCCESS">Success</option>
+                        <option value="FAILED">Failed</option>
+                        <option value="BOTH">Both</option>
+                    </select>
+                    <span asp-validation-for="TransactionStatus" class="text-danger"></span>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+                    <input type="text" name="daterange" style="height: 34px" class="form-control" asp-for="DateRange" onfocus="onFocus()">
+                    <span id="dateRangeTypeError" asp-validation-for="DateRange" class="text-danger">Please select date range</span>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+                    <div class="row">
+                        <input type="button" id="submitBtn" class="btn btn-primary" value="Apply" />
+                        &nbsp;&nbsp;
+                        <input type="button" class="btn btn-danger" value="Clear" onclick="resetTransactionFields()" />
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            <div id="subscriberReports" class="col-md-12 col-sm-12">
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $('#dateRangeTypeError').hide();
+
+        $('input[name="daterange"]').daterangepicker({
+            locale: {
+                format: 'YYYY/MM/DD'
+            },
+            drops: 'auto',
+            maxDate: moment()
+        });
+        $('input[name="daterange"]').val('');
+        $('input[name="daterange"]').attr("placeholder", "Select Date Range");
+
+        $("#submitBtn").click(function (e) {
+            e.preventDefault();
+
+            var form = $(this).parents('form');
+            form.validate();
+            if ($('#DateRange').val() === '') {
+                $('#dateRangeTypeError').show();
+            }
+            else {
+                $('#dateRangeTypeError').hide();
+            }
+            if (form.valid()) {
+                //var form = $(this).parents('form');
+                //$.validator.unobtrusive.parse($form);
+                var actionUrl = form.attr('action');
+                var dataToSend = form.serialize();
+                $('#subscriberReports').empty();
+
+                $.ajax({
+                    type: "POST",
+                    url: actionUrl,
+                    data: dataToSend,
+                    datatype: "json",
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        $('#subscriberReports').html(data);
+                        let transactionType = parseInt($('#TransactionType').val());
+                        if (transactionType == 1) { // Authentication
+                            $('#signingReportsTab').hide();
+                            $('#SignExpBtnDiv').hide();
+                        }
+                        else if (transactionType == 2) { // Signing
+                            $('#AuthExpBtnDiv').hide();
+                            $('#authenticationReportsTab').hide();
+                            $('#authenticationReports').removeClass("active");
+                            $('#signingReports').addClass("active");
+                        }
+                        else { // Both
+                            var val = $('#ReportsTab li a.active').text();
+                            if (val == 'Authentication') {
+                                $('#SignExpBtnDiv').hide();
+                                $('#AuthExpBtnDiv').show();
+                            }
+                        }
+
+                        // To make page scroll down for viewing transactions
+                        var bodyRect = document.body.getBoundingClientRect();
+                        elemRect = document.getElementById("transactionDiv").getBoundingClientRect();
+                        offset = (elemRect.top - 100) - bodyRect.top;
+                        window.scrollTo(0, offset);
+                    },
+                    error: ajaxErrorHandler,
+                    failure: function (response) {
+                        swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                    }
+                });
+            }
+        });
+
+         $('a.btn-xs.onboarding').click(function (e) {
+            e.preventDefault();
+            let href = $(this).attr('href');
+            $.ajax({
+                type: "GET",
+                url: href,
+                contentType: "application/json; charset=utf-8",
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        });
+    });
+
+    function onFocus(event) {
+        $('#dateRangeTypeError').hide();
+    }
+
+    function resetTransactionFields() {
+        $('#TransactionType').val('');
+        $('#TransactionStatus').val('');
+        $("#DateRange").val("");
+    }
+
+</script>

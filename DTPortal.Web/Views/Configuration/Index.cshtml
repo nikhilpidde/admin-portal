@@ -1,0 +1,608 @@
+﻿@model DTPortal.Web.ViewModel.Configuration.ConfigrationViewModel
+
+@{
+    ViewData["Title"] = "App Configuration";
+}
+@{
+
+    await Html.RenderPartialAsync("_AlertBox");
+
+}
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form id="uform" asp-action="Submit" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <label class="col-form-label s3"><b> *Configuration Details will be updated after restarting Authentication server.</b></label>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel panel-default">
+                                    <div data-toggle="collapse" data-target="#SSO" aria-expanded="false" class="panel-heading">SSO Configuration</div>
+                                    <div id="SSO" class="panel-body collapse">
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOSessionTimeout" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOSessionTimeout" class="form-control" />
+                                            <span asp-validation-for="sso.SSOSessionTimeout" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOTemporarySessionTimeout" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOTemporarySessionTimeout" class="form-control" />
+                                            <span asp-validation-for="sso.SSOTemporarySessionTimeout" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOIdealTimeout" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOIdealTimeout" class="form-control" />
+                                            <span asp-validation-for="sso.SSOIdealTimeout" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOAccessTokenTimeout" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOAccessTokenTimeout" class="form-control" />
+                                            <span asp-validation-for="sso.SSOAccessTokenTimeout" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOAuthorizationCodeTimeout" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOAuthorizationCodeTimeout" class="form-control" />
+                                            <span asp-validation-for="sso.SSOAuthorizationCodeTimeout" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOAccountLockTime" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOAccountLockTime" class="form-control" />
+                                            <span asp-validation-for="sso.SSOAccountLockTime" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOWrongPin" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOWrongPin" class="form-control" />
+                                            <span asp-validation-for="sso.SSOWrongPin" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSOWrongCode" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSOWrongCode" class="form-control" />
+                                            <span asp-validation-for="sso.SSOWrongCode" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.SSODenyCount" class="col-form-label s3"></label>
+                                            <input asp-for="sso.SSODenyCount" class="form-control" />
+                                            <span asp-validation-for="sso.SSODenyCount" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel panel-default">
+                                    <div data-toggle="collapse" data-target="#AdminSSO" aria-expanded="false" class="panel-heading">AdminPortal Configuration</div>
+                                    <div id="AdminSSO" class="panel-body collapse">
+                                        <div class="form-group">
+                                            <label asp-for="adminPortalsso.AdminPortalSSO_session_timeout" class="col-form-label s3"></label>
+                                            <input asp-for="adminPortalsso.AdminPortalSSO_session_timeout" class="form-control" />
+                                            <span asp-validation-for="adminPortalsso.AdminPortalSSO_session_timeout" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="adminPortalsso.AdminPortalSSO_temporary_session_timeout" class="col-form-label s3"></label>
+                                            <input asp-for="adminPortalsso.AdminPortalSSO_temporary_session_timeout" class="form-control" />
+                                            <span asp-validation-for="adminPortalsso.AdminPortalSSO_temporary_session_timeout" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="adminPortalsso.AdminPortalSSO_ideal_timeout" class="col-form-label s3"></label>
+                                            <input asp-for="adminPortalsso.AdminPortalSSO_ideal_timeout" class="form-control" />
+                                            <span asp-validation-for="adminPortalsso.AdminPortalSSO_ideal_timeout" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="adminPortalsso.AdminPortalSSO_account_lock_time" class="col-form-label s3"></label>
+                                            <input asp-for="adminPortalsso.AdminPortalSSO_account_lock_time" class="form-control" />
+                                            <span asp-validation-for="adminPortalsso.AdminPortalSSO_account_lock_time" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="adminPortalsso.AdminPortalSSO_wrong_pin" class="col-form-label s3"></label>
+                                            <input asp-for="adminPortalsso.AdminPortalSSO_wrong_pin" class="form-control" />
+                                            <input asp-for="adminPortalsso.AdminPortalSSO_active_sessions_per_user" type="hidden" class="form-control" />
+                                            <span asp-validation-for="adminPortalsso.AdminPortalSSO_wrong_pin" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="adminPortalsso.AdminPortalSSO_email_domain" class="col-form-label s3"></label>
+                                            <input asp-for="adminPortalsso.AdminPortalSSO_email_domain" class="form-control" />
+                                            <span>Add Domain with comma (,) seprated</span><br />
+                                            <span asp-validation-for="adminPortalsso.AdminPortalSSO_email_domain" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @*<div class="col-xs-12 col-md-12">
+                                <div class="panel panel-default">
+                                <div data-toggle="collapse" data-target="#RSC" aria-expanded="false" class="panel-heading">Redis Server Configuration</div>
+                                <div id="RSC" class="panel-body collapse">
+                                <div class="form-group">
+                                <label asp-for="sso.RedisServerConnection" class="col-form-label s3"></label>
+                                <div class="input-box">
+                                <input class="form-control border-right-0" type="password" data-val="true"
+                                data-val-required="The Redis Server Connection field is required."
+                                id="sso_RedisServerConnection" name="sso.RedisServerConnection" value="@Model.sso.RedisServerConnection"
+                                autocomplete="off">
+                                <span toggle="#sso_RedisServerConnection" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                </div>
+
+                                <span asp-validation-for="sso.RedisServerConnection" class="text-danger"></span>
+                                </div>
+
+                                </div>
+                                </div>
+                                </div>*@
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel panel-default">
+                                    <div data-toggle="collapse" data-target="#RA" aria-expanded="false" class="panel-heading">RA Service Configuration</div>
+                                    <div id="RA" class="panel-body collapse">
+                                        <div class="form-group">
+                                            <label asp-for="sso.RAbaseAddress" class="col-form-label s3"></label>
+                                            <input asp-for="sso.RAbaseAddress" class="form-control" />
+                                            <span asp-validation-for="sso.RAbaseAddress" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.RAstatusUpdateUri" class="col-form-label s3"></label>
+                                            <input asp-for="sso.RAstatusUpdateUri" class="form-control" />
+                                            <span asp-validation-for="sso.RAstatusUpdateUri" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel panel-default">
+                                    <div data-toggle="collapse" data-target=".RSC" aria-expanded="false" class="panel-heading">Log Configuration</div>
+
+                                    <div class="panel-body collapse RSC">
+                                        <div class="panel-heading">Central Log</div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.CentralLogConnection" class="col-form-label s3"></label>
+                                            <div class="input-box">
+                                                <input class="form-control border-right-0 pwd" type="text" data-val="true"
+                                                       data-val-required="The Redis Server Connection field is required."
+                                                       id="sso_CentralLogConnection" name="sso.CentralLogConnection" value="@Model.sso.CentralLogConnection"
+                                                       autocomplete="off">
+                                                <span toggle="#sso_CentralLogConnection" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                            </div>
+                                            <span asp-validation-for="sso.CentralLogConnection" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.CentralLogQueueName" class="col-form-label s3"></label>
+                                            <input asp-for="sso.CentralLogQueueName" class="form-control" />
+                                            <span asp-validation-for="sso.CentralLogQueueName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body collapse RSC">
+                                        <div class="panel-heading">Service Log</div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.ServiceLogConnection" class="col-form-label s3"></label>
+                                            <div class="input-box">
+                                                <input class="form-control border-right-0 pwd" type="text" data-val="true"
+                                                       data-val-required="The Redis Server Connection field is required."
+                                                       id="sso_ServiceLogConnection" name="sso.ServiceLogConnection" value="@Model.sso.ServiceLogConnection"
+                                                       autocomplete="off">
+                                                <span toggle="#sso_ServiceLogConnection" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                            </div>
+                                            <span asp-validation-for="sso.ServiceLogConnection" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.ServiceLogQueueName" class="col-form-label s3"></label>
+                                            <input asp-for="sso.ServiceLogQueueName" class="form-control" />
+                                            <span asp-validation-for="sso.ServiceLogQueueName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body collapse RSC">
+                                        <div class="panel-heading">Admin Log</div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.AdminLogConnection" class="col-form-label s3"></label>
+                                            <div class="input-box">
+                                                <input class="form-control border-right-0 pwd" type="text" data-val="true"
+                                                       data-val-required="The Redis Server Connection field is required."
+                                                       id="sso_AdminLogConnection" name="sso.AdminLogConnection" value="@Model.sso.AdminLogConnection"
+                                                       autocomplete="off">
+                                                <span toggle="#sso_AdminLogConnection" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                            </div>
+                                            <span asp-validation-for="sso.AdminLogConnection" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.AdminLogQueueName" class="col-form-label s3"></label>
+                                            <input asp-for="sso.AdminLogQueueName" class="form-control" />
+                                            <span asp-validation-for="sso.AdminLogQueueName" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel panel-default">
+                                    <div data-toggle="collapse" data-target="#PKI" aria-expanded="false" class="panel-heading">PKI Service Configuration</div>
+                                    <div id="PKI" class="panel-body collapse">
+                                        <div class="form-group">
+                                            <label asp-for="sso.PKIServiceBaseAddress" class="col-form-label s3"></label>
+                                            <input asp-for="sso.PKIServiceBaseAddress" class="form-control" />
+                                            <span asp-validation-for="sso.PKIServiceBaseAddress" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.PKIServiceGenerateSignatureUri" class="col-form-label s3"></label>
+                                            <input asp-for="sso.PKIServiceGenerateSignatureUri" class="form-control" />
+                                            <span asp-validation-for="sso.PKIServiceGenerateSignatureUri" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="sso.PKIServiceVerifySignatureUri" class="col-form-label s3"></label>
+                                            <input asp-for="sso.PKIServiceVerifySignatureUri" class="form-control" />
+                                            <span asp-validation-for="sso.PKIServiceVerifySignatureUri" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-xs-12 col-md-12">
+                                <div class="panel panel-default">
+                                    <div data-toggle="collapse" data-target=".IDP" aria-expanded="false" class="panel-heading">IDP Configuration</div>
+
+                                    <div class="panel-body collapse IDP">
+                                        @*<div id="OAuth2_OpenID" data-toggle="collapse" data-target="#OAuth" aria-expanded="false" class="panel-heading">OAuth2/OpenID Connect</div>*@
+                                        @*<div class="panel-heading"></div>*@
+                                        @*<div id="OAuth" class="panel-body collapse">*@
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_Issuer" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_Issuer" class="form-control" />
+                                            <span asp-validation-for="idp.OAuth2_Issuer" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_authorization_endpoint" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_authorization_endpoint" class="form-control" />
+                                            <span asp-validation-for="idp.OAuth2_authorization_endpoint" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_token_endpoint" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_token_endpoint" class="form-control" />
+                                            <span asp-validation-for="idp.OAuth2_token_endpoint" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_userinfo_endpoint" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_userinfo_endpoint" class="form-control" />
+                                            <span asp-validation-for="idp.OAuth2_userinfo_endpoint" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_introspection_Endpoint" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_introspection_Endpoint" class="form-control" />
+                                            <span asp-validation-for="idp.OAuth2_introspection_Endpoint" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_jwks_uri" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_jwks_uri" class="form-control" />
+                                            <span asp-validation-for="idp.OAuth2_jwks_uri" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_request_parameter_supported" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_request_parameter_supported" class="form-control" readonly />
+                                            <span asp-validation-for="idp.OAuth2_request_parameter_supported" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_response_types_supported" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_response_types_supported" class="form-control" readonly />
+                                            <span asp-validation-for="idp.OAuth2_response_types_supported" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_algorithem_supported" class="col-form-label s3"></label>
+                                            <input asp-for="idp.OAuth2_algorithem_supported" class="form-control" readonly />
+                                            <span asp-validation-for="idp.OAuth2_algorithem_supported" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_token_endpoint_auth_methods_supported" class="col-form-label s3"></label>
+                                            <fieldset style="padding: 5px;border: groove 2px;">
+                                                <div class="card-default" style="margin-left: 10px; margin-top:5px;">
+                                                    @foreach (var item in Model.idp.OAuth2_token_endpoint_auth_methods_supported)
+                                                    {
+                                                        <label class="List_Element">@item </label>
+                                                        <input name="idp.OAuth2_token_endpoint_auth_methods_supported" value="@item" type="hidden" />
+                                                    }
+                                                </div>
+                                            </fieldset>
+                                            <span asp-validation-for="idp.OAuth2_token_endpoint_auth_methods_supported" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_scopes_supported" class="col-form-label s3"></label>
+                                            <fieldset style="padding: 5px;border: groove 2px;">
+                                                <div class="card-default" style="margin-left: 10px; margin-top:5px;">
+                                                    @foreach (var item in Model.idp.OAuth2_scopes_supported)
+                                                    {
+                                                        <label class="List_Element"> @item </label>
+                                                        <input name="idp.OAuth2_scopes_supported" value="@item" type="hidden" />
+                                                    }
+                                                </div>
+                                            </fieldset>
+                                            <span asp-validation-for="idp.OAuth2_scopes_supported" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_grant_types_supported" class="col-form-label s3"></label>
+                                            <fieldset style="padding: 5px;border: groove 2px;">
+                                                <div class="card-default" style="margin-left: 10px; margin-top:5px;">
+                                                    @foreach (var item in Model.idp.OAuth2_grant_types_supported)
+                                                    {
+                                                        <label class="List_Element"> @item </label>
+                                                        <input name="idp.OAuth2_grant_types_supported" value="@item" type="hidden" />
+                                                    }
+                                                </div>
+                                            </fieldset>
+                                            <span asp-validation-for="idp.OAuth2_grant_types_supported" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.OAuth2_claims_supported" class="col-form-label s3"></label>
+                                            <fieldset style="padding: 5px;border: groove 2px;">
+                                                <div class="card-default" style="margin-left: 10px; margin-top:5px;">
+                                                    @foreach (var item in Model.idp.OAuth2_claims_supported)
+                                                    {
+                                                        <label class="List_Element"> @item </label>
+                                                        <input name="idp.OAuth2_claims_supported" value="@item" type="hidden" />
+                                                    }
+                                                </div>
+                                            </fieldset>
+                                            <span asp-validation-for="idp.OAuth2_claims_supported" class="text-danger"></span>
+                                        </div>
+                                        @*</div>*@
+                                    </div>
+                                    <!--<div class="panel-body collapse IDP">
+                                    <div id="SAML2_DIV" data-toggle="collapse" data-target="#SAML" aria-expanded="false" class="panel-heading">SAML2</div>
+                                    <div class="panel-heading">Service Log</div>
+                                    <div id="SAML" class="panel-body collapse">
+                                        <div class="form-group">
+                                            <label asp-for="idp.SAML2_entityID" class="col-form-label s3"></label>
+                                            <input asp-for="idp.SAML2_entityID" class="form-control" />
+                                            <span asp-validation-for="idp.SAML2_entityID" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.SAML2_singleSignOnService" class="col-form-label s3"></label>
+                                            <input asp-for="idp.SAML2_singleSignOnService" class="form-control" />
+                                            <input type="hidden" asp-for="idp.SAML2_singleSignOnService_hidden" class="form-control" />
+                                            <span asp-validation-for="idp.SAML2_singleSignOnService" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.SAML2_singleLogoutService" class="col-form-label s3"></label>
+                                            <input asp-for="idp.SAML2_singleLogoutService" class="form-control" />
+                                            <input type="hidden" asp-for="idp.SAML2_singleLogoutService_hidden" class="form-control" />
+                                            <span asp-validation-for="idp.SAML2_singleLogoutService" class="text-danger"></span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label asp-for="idp.SAML2_Method_binding_Supported" class="col-form-label s3"></label>
+                                            <fieldset style="padding: 5px;border: groove 2px;">
+                                                <div class="card-default" style="margin-left: 10px; margin-top:5px;">-->
+                                    @*@foreach (var item in Model.idp.SAML2_Method_binding_Supported)
+                                        {
+                                        <label class="List_Element"> @item </label><br />
+                                        <input name="idp.SAML2_Method_binding_Supported" value="@item" type="hidden" />
+                                        }*@
+                                    <!--</div>
+                                                </fieldset>
+                                                <span asp-validation-for="idp.SAML2_Method_binding_Supported" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group signing">
+                                                <label asp-for="idp.signingCert" class="control-label"></label>
+                                                <input asp-for="idp.signCert" class="form-control" type="hidden" />
+                                                <input asp-for="idp.signingCert" class="form-control" />
+                                                <span asp-validation-for="idp.signingCert" class="text-danger"></span>
+                                            </div>
+                                            <div class="form-group signing">
+                                                <label asp-for="idp.encryptCert" class="control-label"></label>
+                                                <input asp-for="idp.enctCert" class="form-control" type="hidden" />
+                                                <input asp-for="idp.encryptCert" class="form-control" />
+                                                <span asp-validation-for="idp.encryptCert" class="text-danger"></span>
+                                            </div>
+                                        </div>
+                                    </div>-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            @if (!User.IsInRole("Application Configuration Checker"))
+                            {
+                                <button class="btn btn-primary" type="button" id="submitFormBtn" style="opacity: 0.5;" disabled>
+                                    Update
+                                </button>
+                            }
+
+                            &nbsp; &nbsp;
+                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<style scoped>
+
+    .pwd {
+        -webkit-text-security: disc;
+    }
+
+    .input-box {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding-left: 0.5rem;
+        overflow: hidden;
+        font-family: sans-serif;
+    }
+
+        .input-box .toggle-password {
+            font-weight: 300;
+            font-size: 15px;
+            margin-right: 5px;
+            padding: 0px 16px 0px 0px;
+        }
+
+        .input-box input {
+            flex-grow: 1;
+            font-size: 14px;
+            background: #fff;
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+        }
+
+        .input-box:focus-within {
+            border-color: #80bdff;
+        }
+
+    .List_Element {
+        border: 1px solid #e2e0e0;
+        background-color: #f3f3f3;
+        padding: 2px 5px;
+    }
+
+    #OAuth2_OpenID::before {
+        display: none;
+    }
+
+    #SAML2_DIV::before {
+        display: none;
+    }
+
+    input[type=checkbox], input[type=radio] {
+        width: 20px;
+        height: 20px;
+        vertical-align: sub;
+    }
+
+    .panel {
+        margin-bottom: 20px;
+        background-color: #fff;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .panel-default {
+        border-color: #ddd;
+        height: 100%;
+    }
+
+        .panel-default > .panel-heading {
+            color: #333;
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+
+    .panel-heading {
+        padding: 10px 15px;
+        border-bottom: 1px solid transparent;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .panel-body {
+        padding: 10px 15px;
+    }
+
+        .panel-body > .panel-heading {
+            color: #333;
+            border: 1px solid transparent;
+            margin-bottom: 5px;
+            background-color: #f5f5f5;
+            border-color: #ddd;
+            padding: 5px 10px;
+            font-size: 1rem;
+        }
+
+    .bdscore {
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 0px;
+    }
+
+    div.panel-heading[aria-expanded="true"]::before {
+        content: ">";
+        transform: rotate( 90deg );
+        transition: all 0.3s;
+    }
+
+    div.panel-heading[aria-expanded="false"]::before, div.panel-heading[aria-expanded="true"]::before {
+        content: ">";
+        position: absolute;
+        right: 30px;
+        top: 8px;
+        font-family: "Poppins";
+        transition: all 0.3s;
+        font-weight: 400;
+        font-size: x-large;
+        align-self: center;
+    }
+</style>
+@section Scripts {
+<script>
+
+    var operationName = "AUTHENTICATION_APPLICATION_CONFIGURATION";
+    $(document).ready(function () {
+
+        $('#digitalAuthSidebarElement').addClass('active');
+        $('#ConfigurationSidebarElement').addClass('active');
+        $('#AppConfigurationSidebarElement').addClass('active');
+
+        $('#homeSubmenu').addClass('show');
+        $('#ConfigurationSubmenu').addClass('show');
+
+        $("li#digitalAuthSidebarElement a:first").attr('aria-expanded', 'true');
+        $("li#ConfigurationSidebarElement a:first").attr('aria-expanded', 'true');
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Digital Authentication');
+        $('#mainMenu').addClass('breadcrumb-item active').append(' Application Configuration');
+        $('#subMenu').removeClass('breadcrumb-item');
+
+        var isCheker = "@User.IsInRole("Application Configuration Checker")";
+        if (isCheker == "True") {
+            $("Input[type=text],Input[type=number],Input[type=file]").prop('disabled', true);
+
+        }
+
+         //$(".toggle-password").click(function () {
+            //    $(this).toggleClass("fa-eye fa-eye-slash");
+            //    var input = $($(this).attr("toggle"));
+            //    if (input.attr("type") == "password") {
+            //        input.attr("type", "text");
+            //    } else {
+            //        input.attr("type", "password");
+            //    }
+            //});
+        $(".toggle-password").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+            if(input.hasClass("pwd"))
+            {
+            input.removeClass("pwd");
+        }else{
+            input.addClass("pwd");
+        }
+        });
+
+        getAllValue();
+    });
+
+    function submitForm() {
+        var form = $("#uform");
+        form.submit();
+    }
+</script>
+
+    @{
+
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+}
+}

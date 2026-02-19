@@ -1,0 +1,85 @@
+﻿@model DTPortal.Core.DTOs.ControlledOnboardingDTO
+
+@{
+    ViewData["Title"] = "Controlled Onboarding";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <table id="trustedUserListTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th width="33.33%">Name</th>
+                            <th width="33.33%">Email</th>
+                            <th width="33.33%">Mobile Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Emails.Count() > 0)
+                        {
+                            @foreach (var item in Model.Emails)
+                            {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.Email</td>
+                                    <td>@item.MobileNo</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" align="center" style="width:200%">No records found</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                            Approve
+                        </button>
+                        &nbsp; &nbsp;
+                        <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                            Reject
+                        </button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Approvals" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            //$('#homeMenu').addClass('breadcrumb-item').append('Details');
+            //$('#mainMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+            $('#subMenu').addClass('breadcrumb-item').append('Controlled Onboarding');
+
+            $("#trustedUserListTable").DataTable();
+        });
+    </script>
+}

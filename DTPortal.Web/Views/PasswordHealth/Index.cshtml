@@ -1,0 +1,293 @@
+﻿@model DTPortal.Web.ViewModel.PasswordHealth.PasswordHealthViewModel
+
+@{ ViewData["Title"] = "Password Policy"; }
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form asp-action="Index">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row scrollable-content">
+                        <div class="col-xs-12 col-md-6">
+                            <div class="form-group">
+                                <label for="enforcepwdhistory">
+                                    <input  class="custom-check-box" type="checkbox" id="enforcepwdhistory" name="enforcepwdhistory" value="1"
+                                           @(Model.PasswordHistory != 0 ? "checked" : "")>
+                                    Enforce password history<br>
+                                    <span class="help-block">(New password should not match last "n" passwords)</span>
+                                </label>
+                            </div>
+                            <div class="form-group pwdHistory" id="pwdHistoryField">
+                                <label asp-for="PasswordHistory" class="col-form-label s3"></label>
+                                <input asp-for="PasswordHistory" class="form-control" />
+                                <span asp-validation-for="PasswordHistory" class="text-danger"></span>
+                            </div>
+                            @*<div class="form-group  has-feedback">
+                                <label asp-for="MinimumPwdAge" class="col-form-label s3"></label>
+                                <input asp-for="MinimumPwdAge" class="form-control" />
+                                <span asp-validation-for="MinimumPwdAge" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="MaximumPwdAge" class="col-form-label s3"></label>
+                                <input asp-for="MaximumPwdAge" class="form-control" />
+                                <span id="Age" class="text-danger"></span>
+                                <span asp-validation-for="MaximumPwdAge" class="text-danger"></span>
+                            </div>*@
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Password Complexity</div>
+                                <div class="panel-body">
+                                    <div class="col-xs-12 col-md-6 float-left">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">Password Contains</div>
+                                            <div class="panel-body">
+                                                <label asp-for="PwdContains" class="col-form-label s3"></label>
+                                                <fieldset style="padding: 5px;border: groove 2px;">
+                                                    <div class="card-default" style="margin-left: 10px; margin-top:5px;">
+                                                        @foreach (var item in Model.PwdContainsList)
+                                                        {
+                                                            <label>
+                                                                <input type="radio" class="custom-check-box" name="PwdContains" value="@item.Value" @(Model.PwdContains.ToString() == item.Value?"checked":"") />
+                                                                @item.Text
+                                                            </label><br>
+
+                                                        }
+                                                        <table class="splsymbols">
+                                                            <tr>
+                                                                <td class="text-muted">
+                                                                    <kbd>@@</kbd> (at the rate
+                                                                    of)
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-muted"><kbd>#</kbd> (hashtag)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-muted"><kbd>$</kbd> (dollar)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-muted"><kbd>*</kbd> (asterisk)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-muted"><kbd>-</kbd> (hyphen)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-muted"><kbd>_</kbd> (underscore)</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="text-muted"><kbd>.</kbd> (dot)</td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </fieldset>
+                                                <span asp-validation-for="PwdContains" class="text-danger"></span>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-xs-12 col-md-6 float-right">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">Password Length</div>
+                                            <div class="panel-body">
+                                                <div class="form-group">
+                                                    <label asp-for="MinimumPwdLength" class="col-form-label s3"></label>
+                                                    <input asp-for="MinimumPwdLength" class="form-control" />
+                                                    <span asp-validation-for="MinimumPwdLength" class="text-danger"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label asp-for="MaximumPwdLength" class="col-form-label s3"></label>
+                                                    <input asp-for="MaximumPwdLength" class="form-control" />
+                                                    <span id="Length" class="text-danger"></span>
+                                                    <span asp-validation-for="MaximumPwdLength" class="text-danger"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 bdscore">
+                            @*<div class="form-group">
+                                <div class="checkbox">
+                                    <label>
+                                        <input class="custom-check-box" asp-for="IsReversibleEncryption" /> @Html.DisplayNameFor(model => model.IsReversibleEncryption)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="BadPwdCount" class="col-form-label s3"></label>
+                                <input asp-for="BadPwdCount" class="form-control" />
+                                <span asp-validation-for="BadPwdCount" class="text-danger"></span>
+                            </div>*@
+                            <div class="form-group">
+                                <input asp-for="Id" class="form-control" type="hidden" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            <button class="btn btn-primary" type="submit" id="submitForm">
+                                Update
+                            </button>
+                            &nbsp;&nbsp;
+                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<style scoped>
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+    .panel {
+        margin-bottom: 20px;
+        background-color: #fff;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .panel-default {
+        border-color: #ddd;
+        height: 100%;
+    }
+
+        .panel-default > .panel-heading {
+            color: #333;
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+
+    .panel-heading {
+        padding: 10px 15px;
+        border-bottom: 1px solid transparent;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .panel-body {
+        padding: 15px;
+    }
+
+    .bdscore {
+        margin-top: 20px;
+    }
+</style>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+
+          $('#administrationSidebarElement').addClass('active');
+            $('#adminConfigurationSidebarElement').addClass('active');
+            $('#PasswordHealthSidebarElement').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $('#adminConfigurationSubmenu').addClass('show');
+
+            $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+            $("li#adminConfigurationSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Digital Authentication');
+            $('#mainMenu').addClass('breadcrumb-item active').append('  Password Policy');
+            $('#subMenu').removeClass('breadcrumb-item');
+            let pwdHistoryCheck = '@Model.PasswordHistory';
+            if (pwdHistoryCheck > 0) {
+                $('.pwdHistory').show();
+            }
+            else {
+                $('#PasswordHistory').val(0);
+                $('.pwdHistory').hide();
+            }
+
+            // onclick
+            $("#enforcepwdhistory").click(function () {
+                if ($(this).prop("checked") == true) {
+                    $('#PasswordHistory').val(pwdHistoryCheck);
+                    $('.pwdHistory').show();
+                }
+                else if ($(this).prop("checked") == false) {
+                    $('#PasswordHistory').val(0);
+                    $('.pwdHistory').hide();
+                }
+            });
+
+            $("#MinimumPwdLength,#MaximumPwdLength").on("change", function () {
+                var minLen = parseInt($("#MinimumPwdLength").val());
+                var maxLen = parseInt($("#MaximumPwdLength").val());
+               
+                if (minLen < maxLen) {
+                    $('#Length').text("")
+                    $('#submitForm').css('opacity', '1');
+                    $('#submitForm').attr("disabled", false);
+                }
+                else {
+                    $('#Length').text("Maximum Password Length should be gretter than Minimum Password Length")
+                    $('#submitForm').attr("disabled", true);
+                    $('#submitForm').css('opacity', '0.5');
+                }
+               
+            });
+
+
+            //$("#MinimumPwdAge,#MaximumPwdAge,#MinimumPwdLength,#MaximumPwdLength").on("change", function () {
+            //    var minAge = parseInt($("#MinimumPwdAge").val());
+            //    var maxAge = parseInt($("#MaximumPwdAge").val());
+            //    var minLen = parseInt($("#MinimumPwdLength").val());
+            //    var maxLen = parseInt($("#MaximumPwdLength").val());
+            //    if (minAge < maxAge) {
+            //        $('#Age').text("")
+            //    }
+            //    else{
+            //        $('#Age').text("Maximum Password Age should be gretter than Minimum Password Age")
+            //    }
+            //    if (minLen < maxLen) {
+            //        $('#Length').text("")
+            //    }
+            //    else {
+            //        $('#Length').text("Maximum Password Length should be gretter than Minimum Password Length")
+            //    }
+            //    if (minAge < maxAge && minLen < maxLen) {
+            //        $('#submitForm').css('opacity', '1');
+            //        $('#submitForm').attr("disabled", false);
+            //    }
+            //    else {
+            //        $('#submitForm').attr("disabled", true);
+            //        $('#submitForm').css('opacity', '0.5');
+            //    }
+            //});
+
+        });
+    </script>
+}

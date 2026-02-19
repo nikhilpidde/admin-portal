@@ -1,0 +1,120 @@
+﻿@model DTPortal.Web.ViewModel.Package.PackageListViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Packages";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+<style>
+    .card {
+        height: 100vh;
+        max-height:200vh;
+        position: relative;
+    }
+    @@media only screen and (max-width:600px){
+        .card {
+            height: 100vh;
+            max-height: 200vh;
+            position: relative;
+        }
+    }
+
+    #pckgTable {
+        position: absolute;
+        right: 0;
+        left: 0;
+    }
+   
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="Add">
+                                <i class="fa fa-plus"></i>Add
+                            </a>
+                        </div>
+
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="List">
+                                <i class="fa fa-refresh"></i>Refresh
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="pckgTable">
+                    <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                        <thead>
+                            <tr>
+                                <th>Package Code</th>
+                                <th>Package Description</th>
+                                <th>Service For</th>
+                                <th>Total Signing Transactions</th>
+                                <th>Total ESeal Transactions</th>
+                                <th>Discount On Signing Transactions</th>
+                                <th>Discount On ESeal Transactions</th>
+                                <th>Tax (in percentage)</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Packages)
+                            {
+                                <tr class="odd gradeX">
+                                    <td>@item.PackageCode</td>
+                                    <td>@item.PackageDescription</td>
+                                    <td>@item.ServiceFor</td>
+                                    <td>@item.TotalSigningTransactions</td>
+                                    <td>@item.TotalESealTransactions</td>
+                                    <td>@item.DiscountOnSigningTransactions</td>
+                                    <td>@item.DiscountOnESealTransactions</td>
+                                    <td>@item.TaxPercentage</td>
+                                    <td>@item.Status</td>
+                                    <td class="valigntop">
+                                        <a class="btn btn-xs deepPink-bgcolor no-margin" asp-action="Edit" asp-route-id="@item.PackageId">
+                                            <i class="icon-pencil"></i>Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--TABLE CONTENT END-->
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#packageMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Package');
+            $('#subMenu').addClass('breadcrumb-item active').append('List');
+            /*For Beadcrum End*/
+
+            var table = $(".table").DataTable({
+                "scrollX": true,
+            });
+        });
+    </script>
+}
+

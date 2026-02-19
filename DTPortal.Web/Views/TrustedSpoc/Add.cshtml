@@ -1,0 +1,661 @@
+﻿ 
+@model DTPortal.Web.ViewModel.TrustedSpoc.TrustedUserNewList
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+ 
+
+@{
+    ViewData["Title"] = "Trusted Users";
+}
+
+<style>
+
+    :root {
+        --font-sans: "Poppins", sans-serif;
+        --color-primary: #4f46e5;
+        --color-primary-hover: #4338ca;
+        --color-success: #10b981;
+        --color-danger: #ef4444;
+        --color-text-primary: #0f172a;
+        --color-text-secondary: #475569;
+        --color-text-tertiary: #94a3b8;
+        --color-border: #e2e8f0;
+        --color-bg-primary: #ffffff;
+        --color-bg-secondary: #f8fafc;
+        --color-bg-hover: #f1f5f9;
+        --spacing-sm: 8px;
+        --spacing-md: 16px;
+        --spacing-lg: 24px;
+        --spacing-xl: 32px;
+        --radius-sm: 6px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+   
+    .page-container {
+        background: var(--color-bg-secondary);
+        padding: var(--spacing-lg);
+        border-radius: var(--radius-lg);
+        min-height: calc(100vh - 120px);
+    }
+
+    
+    .page-header {
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .page-title {
+        font-family: var(--font-sans);
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin: 0;
+        letter-spacing: -0.02em;
+    }
+
+    
+    .action-bar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+  
+    .search-box {
+        position: relative;
+        width: 320px;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-text-tertiary);
+        font-size: 16px;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px 14px 10px 42px;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        font-family: var(--font-sans);
+        font-size: 14px;
+        color: var(--color-text-primary);
+        background: var(--color-bg-primary);
+        transition: all 0.2s ease;
+    }
+
+        .search-input::placeholder {
+            color: var(--color-text-tertiary);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+  
+    .table-wrapper {
+        background: var(--color-bg-primary);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--color-border);
+        overflow: hidden;
+    }
+
+    
+     
+    
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        color: var(--color-text-tertiary);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .empty-title {
+        font-family: var(--font-sans);
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .empty-subtitle {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        color: var(--color-text-tertiary);
+    }
+
+    
+    .btn-light {
+        background: var(--color-bg-hover);
+        border: 1px solid var(--color-border);
+        padding: 10px 20px;
+        border-radius: var(--radius-md);
+        font-family: var(--font-sans);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .btn-light:hover {
+            background: var(--color-border);
+        }
+
+   
+    .modal-content {
+        border: none;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+        padding: var(--spacing-lg) var(--spacing-xl);
+        border-bottom: 1px solid var(--color-border);
+        background: var(--color-bg-primary);
+    }
+
+    .modal-title {
+        font-family: var(--font-sans);
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+
+    .modal-subtitle {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        color: var(--color-text-secondary);
+        margin: 4px 0 0 0;
+    }
+
+    .modal-body {
+        padding: var(--spacing-xl);
+        background: var(--color-bg-secondary);
+    }
+
+    .modal-footer {
+        padding: var(--spacing-md) var(--spacing-xl);
+        border-top: 1px solid var(--color-border);
+        background: var(--color-bg-primary);
+        gap: 12px;
+    }
+
+ 
+    .form-group {
+        margin-bottom: var(--spacing-lg);
+    }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+    .form-label {
+        display: block;
+        font-family: var(--font-sans);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .required {
+        color: var(--color-danger);
+    }
+
+   
+  
+    .invalid-feedback {
+        display: none;
+        font-family: var(--font-sans);
+        font-size: 13px;
+        color: var(--color-danger);
+        margin-top: 6px;
+    }
+
+        .invalid-feedback.d-block {
+            display: block;
+        }
+
+     
+    .input-group {
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .input-prefix {
+        position: absolute;
+        left: 14px;
+        font-family: var(--font-sans);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .input-group .form-control {
+        padding-left: 22px;
+    }
+
+   
+
+   
+    @@media (max-width: 768px) {
+        .page-container {
+            padding: var(--spacing-md);
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: var(--spacing-md);
+        }
+
+        .action-bar {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+
+       
+
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            padding-left: var(--spacing-lg);
+            padding-right: var(--spacing-lg);
+        }
+    }
+  
+.info-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 28px 32px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    border: 1px solid #eef2f7;
+    margin-bottom: 24px;
+}
+
+ 
+.info-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    row-gap: var(--spacing-md);
+    column-gap: var(--spacing-lg);
+    align-items: start;
+}
+
+ 
+.info-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #000000eb;
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+}
+
+ 
+.info-value {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: var(--color-text-primary);
+    font-weight: 500;
+    line-height: 1.6;
+}
+
+ 
+.info-value .form-control {
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    height: 40px;
+}
+
+ 
+.info-value .form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+}
+    
+    .trusted-user-wrapper {
+        background: #f6f9fc;
+        padding: 40px;
+    }
+
+     
+    .trusted-user-card {
+         
+        margin: auto;
+        background: #ffffff;
+        border-radius: 14px;
+        padding: 32px 40px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+  
+    .form-row-ui {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        align-items: center;
+        margin-bottom: 22px;
+    }
+     
+        .form-row-ui label {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+    
+    .mobile-group {
+        display: flex;
+        gap: 12px;
+    }
+
+    .country-code {
+        width: 90px;
+        height: 44px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        padding-left: 10px;
+    }
+
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 30px;
+    }
+
+    .btn-primary-ui {
+        background: #1d72d8;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+        .btn-primary-ui:hover {
+            background: #155ec2;
+        }
+
+    .btn-cancel {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 10px 22px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+  
+    .required {
+        color: red;
+    }
+
+    .mobile-wrapper {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .country-code {
+        width: 72px;
+        height: 38px;
+    }
+
+    .mobile-wrapper .form-control {
+        flex: 1; 
+    }
+
+</style>
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label s3"> Spoc Name <span style="color: red;">*</span></label>
+                                <input type="text"
+                                       id="txtName"
+                                       class="form-control"
+                                       />
+                                <span id="nameError" class="invalid-feedback text-danger">Name must be at least 2 characters</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Spoc Email  <span style="color: red;">*</span></label>
+                                <input type="email"
+                                       id="txtEmail"
+                                       class="form-control"
+                                        />
+                                <span id="emailError" class="invalid-feedback">Enter a valid Email Address</span> <span class="text-danger"></span>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label s3">Mobile Number  <span style="color: red;">*</span></label>
+
+                                <div class="mobile-wrapper">
+                                    <select id="ddlCountryCode" class="country-code">
+                                        <option data-length="10" value="+91">+91</option>
+                                        <option data-length="9" value="+971">+971</option>
+                                    </select>
+
+                                    <input type="tel"
+                                           id="txtMobile"
+                                           class="form-control"
+                                            />
+                                </div>
+
+                                
+                                <span id="mobileError" class="invalid-feedback">
+                                    Please enter a valid mobile number
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            <button class="btn btn-primary" id="btnSaveUser" type="button">
+                                Save User
+                            </button>
+                            &nbsp;&nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+ 
+ 
+ 
+
+
+@* <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+
+
+<script>
+$(document).ready(function () {
+
+           $('#selfServiceConfigMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#TrustedSpocMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Trusted User');
+            $('#subMenu').addClass('breadcrumb-item active').append('Add');
+    
+    function updateMobileRules() {
+        const selected = $("#ddlCountryCode option:selected");
+        const length = selected.data("length");
+
+        $("#txtMobile")
+            .attr("maxlength", length)
+            .attr("placeholder", length + "-digit mobile number")
+            .val("");
+    }
+
+    $("#ddlCountryCode").on("change", updateMobileRules);
+    updateMobileRules();
+
+     
+    $("#txtName").on("input", validateName);
+    $("#txtEmail").on("input", validateEmail);
+
+    $("#txtMobile").on("input", function () {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        validateMobile();
+    });
+
+
+       $("#btnSaveUser").on("click", function () {
+
+        if (!validateForm()) return;
+
+        const payload = {
+            name: $("#txtName").val().trim(),
+            email: $("#txtEmail").val().trim(),
+            mobileNumber: $("#ddlCountryCode").val() + $("#txtMobile").val().trim()
+        };
+
+        $("#btnSaveUser").prop("disabled", true).text("Saving");
+
+        $.ajax({
+            url: '@Url.Action("AddSpoc", "TrustedSpoc")',
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+
+              success: function (res) {
+        if (res.success) {
+            swal("Success", res.message || "User added successfully", "success");
+            clearForm();
+        } else {
+            swal("Error", res.message || "Failed to add user", "error");
+        }
+    },
+
+
+            error: function () {
+                swal("Error", "Failed to add user", "error");
+            },
+
+            complete: function () {
+                // 🔹 hide loader
+                $('#overlay').hide();
+
+                // 🔹 enable button again
+                $("#btnSaveUser").prop("disabled", false).text("Save User");
+            }
+        });
+    });
+
+
+});
+
+
+
+function validateName() {
+    const val = $("#txtName").val().trim();
+    return toggleValidation("#txtName", "#nameError", val.length >= 2);
+}
+
+function validateEmail() {
+    const email = $("#txtEmail").val().trim();
+        const regex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+    return toggleValidation("#txtEmail", "#emailError", regex.test(email));
+}
+
+function validateMobile() {
+    const mobile = $("#txtMobile").val().trim();
+    const code = $("#ddlCountryCode").val();
+
+    let regex, message;
+
+    if (code === "+91") {
+        regex = /^[6-9]\d{9}$/;
+        message = "Enter valid 10-digit Indian mobile number";
+    } else {
+        regex = /^[0-9]{9}$/;
+        message = "Enter valid 9-digit UAE mobile number";
+    }
+
+    $("#mobileError").text(message);
+    return toggleValidation("#txtMobile", "#mobileError", regex.test(mobile));
+}
+
+function toggleValidation(input, error, isValid) {
+    if (isValid) {
+        $(input).removeClass("is-invalid");
+        $(error).removeClass("d-block");
+    } else {
+        $(input).addClass("is-invalid");
+        $(error).addClass("d-block");
+    }
+    return isValid;
+}
+
+function validateForm() {
+    return validateName() && validateEmail() && validateMobile();
+}
+
+function clearForm() {
+    $("#txtName, #txtEmail, #txtMobile")
+        .val("")
+        .removeClass("is-invalid");
+
+    $(".invalid-feedback").removeClass("d-block");
+}
+</script>

@@ -1,0 +1,85 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="height: 70px;z-index:1;">
+            <div class="form-row" style="margin-top: 4px;">
+                <div class="form-group col-md-5">
+                    <input id="SearchApplicationName" class="form-control" placeholder="Enter Application Name" />
+                </div>
+                <div class="col-md-2">
+                    <div class="btn-group">
+                        <a class="btn btn-info" value="Search" onclick="searchApplication();"><i class="fa fa-search"></i>Search</a>
+                        &nbsp;&nbsp;
+                        <a id="add" class="btn btn-primary"><i class="fa fa-plus"></i>Add</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="ApplicationsDiv">
+</div>
+<script src="~/js/jquery-ui.js"></script>
+<script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+<script>
+    $(document).ready(function () {
+        $("#SearchApplicationName").typeahead({
+            minLength: 2,
+            items: 10,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetApplicationsList", "SigningCredits")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (key, value) {
+                            map[value] = key;
+                            items.push(value);
+                        });
+                        response(items);
+                    }
+                });
+            },
+            updater: function (item) {
+                var key = map[item];
+                getApplicationDetails(key);
+                return item;
+            }
+        });
+
+    });
+    function getApplicationDetails(item) {
+        $.ajax({
+            url: '@Url.Action("GetApplicationDetails", "SigningCredits")',
+            data: { "value": item },
+            type: "GET",
+            contentType: "json",
+            error: ajaxErrorHandler,
+            success: function (data) {
+
+            }
+        });
+    }
+    $("#add").click(function () {
+        $('#ApplicationsDiv').empty();
+        $('#SearchApplicationName').val('');
+        $.ajax({
+            url: '@Url.Action("AddBucket", "SigningCredits")',
+            type: "GET",
+            contentType: "json",
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#ApplicationsDiv').html(data);
+            }
+        });
+    });
+</script>

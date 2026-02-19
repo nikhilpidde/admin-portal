@@ -1,0 +1,241 @@
+﻿@model IEnumerable<DTPortal.Core.DTOs.ServiceHealthDTO>
+
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+<style>
+    body {
+        padding-top: 50px;
+        background-color: #34495e;
+    }
+
+    .hiddenRow {
+        padding: 0 !important;
+    }
+
+    .accordion-toggle.collapsed .expand-button:after {
+        content: '+';
+    }
+
+    .accordion-toggle .expand-button:after {
+        display: flex position: absolute;
+        transform: translate(0, -50%);
+        content: '-';
+    }
+</style>
+
+<div class="panel-body">
+    <table id="ServiceHealth" class="table table-condensed table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Service Name</th>
+                <th>Address</th>
+                <th>Status</th>
+                <th>Description</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model != null)
+            {
+                int index = 1;
+                foreach (var item in Model)
+                {
+                    string id = "row" + index++;
+                    string target = "#" + id;
+
+                    <tr data-toggle="collapse" data-target="@target" class="accordion-toggle collapsed" aria-expanded="false">
+                        @if (item.Clustered)
+                        {
+                            <td><a class="expand-button"><span class="glyphicon glyphicon-eye-open"></span></a></td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td>@item.DisplayName</td>
+                        <td>@item.Address</td>
+                        <td style="padding-left:22px">
+                            @if (item.Status.ToLower() == "healthy")
+                            {
+                                <div class="media-right">
+                                    <div class="tooltip">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 37.365 34.833">
+                                            <g id="Group_614" data-name="Group 614" transform="translate(0 0)">
+                                                <path id="Path_73670" data-name="Path 73670" d="M55.786-522.715c.044-2.529,1.951-3.725,4.551-2.939,2.62.792,4.4,2.715,6.1,4.7.747.874,1.412,1.819,2.24,2.895,1.7-2.172,3.218-4.335,4.967-6.286q5.929-6.616,12.065-13.046a10.437,10.437,0,0,1,7.445-3.235C82.943-530.3,75.563-518.408,68.4-505.793c-.943-1.943-1.665-3.525-2.467-5.064-1.177-2.259-2.338-4.531-3.641-6.717C60.783-520.1,58.883-522.233,55.786-522.715Z" transform="translate(-55.786 540.627)" fill="#acc43d" />
+                                            </g>
+                                        </svg>
+                                        <div class="left">
+                                            <span style="padding:10px">
+                                                <strong>Service is Up and Running</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="media-right">
+                                    <div class="tooltip">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 41.083 41.083">
+                                            <g id="Group_637" data-name="Group 637" transform="translate(-3195 -1703)">
+                                                <g id="Group_635" data-name="Group 635" transform="translate(3195 1703)">
+                                                    <path id="Path_73676" data-name="Path 73676" d="M575.638,645.47a20.542,20.542,0,1,0,20.542,20.542A20.541,20.541,0,0,0,575.638,645.47ZM574,653.708a2.1,2.1,0,0,1,4.208,0v11.737a2.1,2.1,0,1,1-4.208,0Zm4.267,21.429a1.249,1.249,0,0,1-1.249,1.249h-1.77A1.249,1.249,0,0,1,574,675.137v-1.77a1.249,1.249,0,0,1,1.249-1.249h1.77a1.249,1.249,0,0,1,1.249,1.249Z" transform="translate(-555.097 -645.47)" fill="#d26b4e" />
+                                                    <path id="Path_73677" data-name="Path 73677" d="M587.73,671.324a2.1,2.1,0,0,0,2.1-2.1V657.483a2.1,2.1,0,0,0-4.208,0v11.737A2.1,2.1,0,0,0,587.73,671.324Z" transform="translate(-566.726 -649.244)" fill="#daeee3" />
+                                                    <rect id="Rectangle_311" data-name="Rectangle 311" width="4.267" height="4.267" rx="2.016" transform="translate(18.9 26.648)" fill="#daeee3" />
+                                                </g>
+                                            </g>
+                                        </svg>
+                                        <div class="left">
+                                            <span style="padding:10px">
+                                                @if (item.Description == null)
+                                                {
+                                                    <strong>Service is Down</strong>
+                                                }
+                                                else
+                                                {
+                                                    <strong>@item.Description</strong>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            <span style="max-width:350px">@item.ServiceDescription</span>
+                        </td>
+                        <td><i class="fa fa-info-circle" title="More info" aria-hidden="true" onclick="showServiceHistory('@item.Name', '@item.DisplayName')"></i></td>
+                    </tr>
+                    <tr>
+                        @if (item.Clustered)
+                        {
+                            <td colspan="12" class="hiddenRow">
+                                <div class="accordian-body collapse" id="@id" style="">
+                                    <table class="table table-striped" style=" margin: 0;">
+                                        <thead>
+                                            <tr class="info">
+                                                <th style="text-align:center;">Instance Name</th>
+                                                <th style="text-align:center;">Address</th>
+                                                <th style="text-align:center;">Status</th>
+                                                <th style="text-align:center;">Description</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var subItem in item.Members)
+                                            {
+                                                <tr style=" background-color: white;">
+                                                    <td style="text-align:center;">@subItem.DisplayName</td>
+                                                    <td style="text-align:center;">@subItem.Address</td>
+                                                    <td style="text-align:center;display: flex;flex-direction: row;justify-content: center;align-items: center;">
+                                                        @if (subItem.Status.ToLower() == "healthy")
+                                                        {
+                                                            <div class="media-right">
+                                                                <div class="tooltip">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 37.365 34.833">
+                                                                        <g id="Group_614" data-name="Group 614" transform="translate(0 0)">
+                                                                            <path id="Path_73670" data-name="Path 73670" d="M55.786-522.715c.044-2.529,1.951-3.725,4.551-2.939,2.62.792,4.4,2.715,6.1,4.7.747.874,1.412,1.819,2.24,2.895,1.7-2.172,3.218-4.335,4.967-6.286q5.929-6.616,12.065-13.046a10.437,10.437,0,0,1,7.445-3.235C82.943-530.3,75.563-518.408,68.4-505.793c-.943-1.943-1.665-3.525-2.467-5.064-1.177-2.259-2.338-4.531-3.641-6.717C60.783-520.1,58.883-522.233,55.786-522.715Z" transform="translate(-55.786 540.627)" fill="#acc43d" />
+                                                                        </g>
+                                                                    </svg>
+                                                                    <div class="left">
+                                                                        <span style="padding:10px">
+                                                                            <strong>Service is Up and Running</strong>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="media-right">
+                                                                <div class="tooltip">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 41.083 41.083">
+                                                                        <g id="Group_637" data-name="Group 637" transform="translate(-3195 -1703)">
+                                                                            <g id="Group_635" data-name="Group 635" transform="translate(3195 1703)">
+                                                                                <path id="Path_73676" data-name="Path 73676" d="M575.638,645.47a20.542,20.542,0,1,0,20.542,20.542A20.541,20.541,0,0,0,575.638,645.47ZM574,653.708a2.1,2.1,0,0,1,4.208,0v11.737a2.1,2.1,0,1,1-4.208,0Zm4.267,21.429a1.249,1.249,0,0,1-1.249,1.249h-1.77A1.249,1.249,0,0,1,574,675.137v-1.77a1.249,1.249,0,0,1,1.249-1.249h1.77a1.249,1.249,0,0,1,1.249,1.249Z" transform="translate(-555.097 -645.47)" fill="#d26b4e" />
+                                                                                <path id="Path_73677" data-name="Path 73677" d="M587.73,671.324a2.1,2.1,0,0,0,2.1-2.1V657.483a2.1,2.1,0,0,0-4.208,0v11.737A2.1,2.1,0,0,0,587.73,671.324Z" transform="translate(-566.726 -649.244)" fill="#daeee3" />
+                                                                                <rect id="Rectangle_311" data-name="Rectangle 311" width="4.267" height="4.267" rx="2.016" transform="translate(18.9 26.648)" fill="#daeee3" />
+                                                                            </g>
+                                                                        </g>
+                                                                    </svg>
+                                                                    <div class="left">
+                                                                        <span style="padding:10px">
+                                                                            @if (subItem.Description == null)
+                                                                            {
+                                                                                <strong>Service is Down</strong>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <strong>@subItem.Description</strong>
+                                                                            }
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                    <td style="text-align:center;">@subItem.ServiceDescription</td>
+                                                    <td><i class="fa fa-info-circle" title="More info" aria-hidden="true" onclick="showServiceHistory('@subItem.Name', '@subItem.DisplayName')"></i></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </td>
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<script src="~/assets/js/jquery-ui.js"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $('Table#ServiceHealth .collapse').on('show.bs.collapse', function () {
+            $('.collapse.show').each(function () {
+                $(this).collapse('hide');
+            });
+        });
+    });
+
+    function showServiceHistory(name, displayName)
+    {
+        $('.accordion-toggle').removeAttr('data-toggle');
+
+        var url = '@Url.Action("GetServiceHealthHistory", "Dashboard")?serviceName='+name +'&displayName='+displayName;
+        $.ajax({
+                type: "GET",
+                url: url,
+                contentType: "application/json; charset=utf-8",
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    if (data != null)
+                    {
+                        $('#modalDialogContentDiv').html(data);
+                        $('#modalDialogDiv').modal('show');
+                    }
+                    else
+                    {
+                        swal({ type: 'error', title: "Error", text: "Failed to get service history" });
+                    }
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+    }
+
+</script>

@@ -1,0 +1,687 @@
+﻿@model DTPortal.Web.ViewModel.SelfServicePortal.OrganizationDetailsViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+}
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+@{
+    ViewData["Title"] = "Self Service Portal";
+}
+
+<style>
+    .form-group {
+        margin-bottom: 0px;
+    }
+
+    /* Style the fieldset */
+    fieldset {
+        border: 1px solid #ccc; /* Add a border with a color of your choice */
+        padding: 10px; /* Add padding to create space inside the fieldset */
+        margin: 10px 0; /* Add margin to create space around the fieldset */
+        border-radius: 10px;
+    }
+
+        /* Style the form controls within the fieldset */
+        fieldset input[type="text"] {
+            width: 100%; /* Make the text inputs fill the width of the fieldset */
+            margin: 5px 0; /* Add margin to create space between inputs */
+        }
+
+    /* Style the validation error messages */
+    span.text-danger {
+        color: red; /* Set the text color for error messages */
+    }
+
+    #orgLegend {
+        width: 30%;
+        font-size: 1.2rem;
+    }
+
+    #financialLegend {
+        width: 27%;
+        font-size: 1.2rem;
+    }
+
+    #selfieLegend {
+        width: 9%;
+        font-size: 1.2rem;
+    }
+
+    #spocLegend {
+        width: 10%;
+        font-size: 1.2rem;
+    }
+
+    #certificatesLegend {
+        width: 32%;
+        font-size: 1.2rem;
+    }
+
+    #ceoLegend {
+        width: 39%;
+        font-size: 1.2rem;
+    }
+
+    #note {
+        padding-right: 10px;
+        display: flex;
+        justify-content: flex-end;
+        padding-bottom: 15px;
+    }
+
+    .Reports {
+        margin-bottom: 9px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post">
+                    <div class="form-row">
+                        <div class="form-group col-md-6" style="float:left; pointer-events: none; opacity: 0.8">
+                            <fieldset>
+                                <legend id="orgLegend">Organization Details:</legend>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="OrganizationName" class="col-form-label"></label>
+                                    @{
+                                        var organizationName = string.IsNullOrEmpty(Model.OrganizationName) ? "N/A" : Model.OrganizationName;
+                                    }
+                                    <input asp-for="OrganizationName" class="form-control" value="@organizationName" />
+                                    <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="OrgRegIdNumber" class="col-form-label"></label>
+                                    @{
+                                        var orgRegIdNumber = string.IsNullOrEmpty(Model.OrgRegIdNumber) ? "N/A" : Model.OrgRegIdNumber;
+                                    }
+                                    <input asp-for="OrgRegIdNumber" class="form-control" value="@orgRegIdNumber" />
+                                    <span asp-validation-for="OrgRegIdNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="CorporateOfficeAddress1" class="col-form-label"></label>
+                                    @{
+                                        var corporateOfficeAddress1 = string.IsNullOrEmpty(Model.CorporateOfficeAddress1) ? "N/A" : Model.CorporateOfficeAddress1;
+                                    }
+                                    <input asp-for="CorporateOfficeAddress1" class="form-control" value="@corporateOfficeAddress1" />
+                                    <span asp-validation-for="CorporateOfficeAddress1" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="CorporateOfficeAddress2" class="col-form-label"></label>
+                                    @{
+                                        var corporateOfficeAddress2 = string.IsNullOrEmpty(Model.CorporateOfficeAddress2) ? "N/A" : Model.CorporateOfficeAddress2;
+                                    }
+                                    <input asp-for="CorporateOfficeAddress2" class="form-control" value="@corporateOfficeAddress2" />
+                                    <span asp-validation-for="CorporateOfficeAddress2" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="Country" class="col-form-label"></label>
+                                    @{
+                                        var country = string.IsNullOrEmpty(Model.Country) ? "N/A" : Model.Country;
+                                    }
+                                    <input asp-for="Country" class="form-control" value="@country" />
+                                    <span asp-validation-for="Country" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="Pincode" class="col-form-label"></label>
+                                    @{
+                                        var pincode = string.IsNullOrEmpty(Model.Pincode) ? "N/A" : Model.Pincode;
+                                    }
+                                    <input asp-for="Pincode" class="form-control" value="@pincode" />
+                                    <span asp-validation-for="Pincode" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="OrgOfficialContactNumber" class="col-form-label"></label>
+                                    @{
+                                        var orgOfficialContactNumber = string.IsNullOrEmpty(Model.OrgOfficialContactNumber) ? "N/A" : Model.OrgOfficialContactNumber;
+                                    }
+                                    <input asp-for="OrgOfficialContactNumber" class="form-control" value="@orgOfficialContactNumber" />
+                                    <span asp-validation-for="OrgOfficialContactNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="OrgWebUrl" class="col-form-label"></label>
+                                    @{
+                                        var orgWebUrl = string.IsNullOrEmpty(Model.OrgWebUrl) ? "N/A" : Model.OrgWebUrl;
+                                    }
+                                    <input asp-for="OrgWebUrl" class="form-control" value="@orgWebUrl" />
+                                    <span asp-validation-for="OrgWebUrl" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="OrgTanTaxNumber" class="col-form-label"></label>
+                                    @{
+                                        var orgTanTaxNumber = string.IsNullOrEmpty(Model.OrgTanTaxNumber) ? "N/A" : Model.OrgTanTaxNumber;
+                                    }
+                                    <input asp-for="OrgTanTaxNumber" class="form-control" />
+                                    <span asp-validation-for="OrgTanTaxNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+                                    <label asp-for="OrgCategory" class="col-form-label"></label>
+                                    @{
+                                        var orgCategory = string.IsNullOrEmpty(Model.OrgCategory) ? "N/A" : Model.OrgCategory;
+                                    }
+                                    <input asp-for="OrgCategory" class="form-control" />
+                                    <span asp-validation-for="OrgCategory" class="text-danger"></span>
+                                </div>
+                                @* <div class="form-group col-md-12">
+                                <label asp-for="OtpVerification" class="col-form-label"></label>
+                                @{
+                                var otpVerification = string.IsNullOrEmpty(Model.OtpVerification) ? "N/A" : Model.OtpVerification;
+                                }
+                                <input asp-for="OtpVerification" class="form-control" />
+                                <span asp-validation-for="OtpVerification" class="text-danger"></span>
+                                </div> *@
+                            </fieldset>
+                        </div>
+
+                        <div class="form-group col-md-6" style="float:right;">
+                            <fieldset>
+                                <legend id="selfieLegend">Photo:</legend>
+                                <div class="form-group">
+
+                                    <div class="form-row">
+                                        <div class="col-md-12" style="padding-bottom: 4%; padding-left: 8%; display:flex">
+                                            <div class="col-sm-5" style="float:left">
+                                                <label class="col-form-label">Spoc Photo</label>
+                                                <br />
+                                                <img class="custom-card-image" src="@Model.SpocFaceCaptured" asp-append-version="true" style="max-width: 200px; max-height: 150px;" />
+                                            </div>
+
+                                            <div class="col-sm-2" style="padding-top: 18%;padding-left: 7%;">
+                                                @if (Model.SpocFaceMatchStatus)
+                                                {
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 37.365 34.833">
+                                                        <g id="Group_614" data-name="Group 614" transform="translate(0 0)">
+                                                            <path id="Path_73670" data-name="Path 73670" d="M55.786-522.715c.044-2.529,1.951-3.725,4.551-2.939,2.62.792,4.4,2.715,6.1,4.7.747.874,1.412,1.819,2.24,2.895,1.7-2.172,3.218-4.335,4.967-6.286q5.929-6.616,12.065-13.046a10.437,10.437,0,0,1,7.445-3.235C82.943-530.3,75.563-518.408,68.4-505.793c-.943-1.943-1.665-3.525-2.467-5.064-1.177-2.259-2.338-4.531-3.641-6.717C60.783-520.1,58.883-522.233,55.786-522.715Z" transform="translate(-55.786 540.627)" fill="#acc43d" />
+                                                        </g>
+                                                    </svg>
+                                                }
+                                                else
+                                                {
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="red" class="bi bi-x" viewBox="0 0 16 16" aria-hidden="true" style="font-weight: bold;">
+                                                        <path d="M13.354 1.646a.5.5 0 0 0-.708 0L8 6.293 3.354 1.646a.5.5 0 0 0-.708.708L7.293 7l-4.647 4.646a.5.5 0 0 0 .708.708L8 7.707l4.646 4.647a.5.5 0 0 0 .708-.708L8.707 7l4.647-4.646a.5.5 0 0 0 0-.708z" />
+                                                    </svg>
+                                                }
+                                            </div>
+
+                                            <div class="col-sm-5" style="float:right">
+                                                <label class="col-form-label">@clientName Photo</label>
+                                                <br />
+                                                @if (!String.IsNullOrEmpty(Model.SpocRAFaceCaptured))
+                                                {
+                                                    <img class="custom-card-image" src="@Model.SpocRAFaceCaptured" asp-append-version="true" style="max-width: 200px; max-height: 150px;" />
+                                                }
+                                                else
+                                                {
+                                                    <img class="custom-card-image" src="~/assets/images/no-image.jpg" asp-append-version="true" style="max-width: 200px; max-height: 150px;" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset style="margin-top:8%;">
+                                <legend id="certificatesLegend">Uploaded Documents:</legend>
+                                <div class="form-row" style="justify-content: center; padding-bottom:3%;">
+                                    @if (!string.IsNullOrEmpty(Model.ApprovalLetter))
+                                    {
+                                        <a class="btn btn-info greenButton" onclick="downloadDocument('ApprovalLetter');">
+                                            <i class="fa fa-download"></i>Approval Letter
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.UrsbCertificate))
+                                    {
+                                        @:&nbsp; &nbsp;
+                                        <a class="btn btn-info greenButton" onclick="downloadDocument('UrsbCertificate');">
+                                            <i class="fa fa-download"></i>Business Registration Certificate
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.auditorUraPdf))
+                                    {
+                                        @:&nbsp; &nbsp;
+                                        <a class="btn btn-info greenButton Reports" onclick="downloadDocument('Auditor Ura Report');">
+                                            <i class="fa fa-download"></i>Auditor Ura Report
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.ceoUraPdf))
+                                    {
+                                        @:&nbsp; &nbsp;
+                                        <a class="btn btn-info greenButton Reports" onclick="downloadDocument('CEO Ura Report');">
+                                            <i class="fa fa-download"></i>Ceo Ura Report
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.orgUraPdf))
+                                    {
+                                        @:&nbsp; &nbsp;
+                                        <a class="btn btn-info greenButton Reports" onclick="downloadDocument('Organization Ura Report');">
+                                            <i class="fa fa-download"></i>Org Ura Report
+                                        </a>
+                                    }
+                                    @if (!string.IsNullOrEmpty(Model.spocUraPdf))
+                                    {
+                                        @:&nbsp; &nbsp;
+                                        <a class="btn btn-info greenButton Reports" onclick="downloadDocument('SPOC Ura Report');">
+                                            <i class="fa fa-download"></i>Spoc Ura Report
+                                        </a>
+                                    }
+                                </div>
+                            </fieldset>
+                            <fieldset style="margin-top:8%;pointer-events: none; opacity: 0.8">
+                                <legend id="ceoLegend">Organization CEO Details:</legend>
+                                <div class="form-group col-md-12">
+
+                                    <label asp-for="CeoName" class="col-form-label"></label>
+                                    @{
+                                        var ceoName = string.IsNullOrEmpty(Model.CeoName) ? "N/A" : Model.CeoName;
+                                    }
+                                    <input asp-for="CeoName" class="form-control" value="@ceoName" />
+                                    <span asp-validation-for="CeoName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+
+                                    <label asp-for="CeoEmail" class="col-form-label">CEO @clientName Email</label>
+                                    @{
+                                        var ceoEmail = string.IsNullOrEmpty(Model.CeoEmail) ? "N/A" : Model.CeoEmail;
+                                    }
+                                    <input asp-for="CeoEmail" class="form-control" value="@ceoEmail" />
+                                    <span asp-validation-for="CeoEmail" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+
+                                    <label asp-for="CeoPanTaxNum" class="col-form-label"></label>
+                                    @{
+                                        var ceoPanTaxNum = string.IsNullOrEmpty(Model.CeoPanTaxNum) ? "N/A" : Model.CeoPanTaxNum;
+                                    }
+                                    <input asp-for="CeoPanTaxNum" class="form-control" value="@ceoPanTaxNum" />
+                                    <span asp-validation-for="CeoPanTaxNum" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-md-12">
+
+                                    <label asp-for="ceoIdDocumentNumber" class="col-form-label"></label>
+                                    @{
+                                        var ceoIdNumber = string.IsNullOrEmpty(Model.ceoIdDocumentNumber) ? "N/A" : Model.ceoIdDocumentNumber;
+                                    }
+                                    <input asp-for="ceoIdDocumentNumber" class="form-control" value="@ceoIdNumber" />
+                                    <span asp-validation-for="ceoIdDocumentNumber" class="text-danger"></span>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12" style="pointer-events: none; opacity: 0.8">
+                            <fieldset>
+                                <legend id="spocLegend">SPOC Details:</legend>
+                                <div class="form-group col-md-6" style="float:left;">
+                                    <div class="form-group col-md-12">
+                                        <label asp-for="SpocOfficeEmail" class="col-form-label"></label>
+                                        @{
+                                            var spocOfficeEmail = string.IsNullOrEmpty(Model.SpocOfficeEmail) ? "N/A" : Model.SpocOfficeEmail;
+                                        }
+                                        <input asp-for="SpocOfficeEmail" class="form-control" value="@spocOfficeEmail" />
+                                        <span asp-validation-for="SpocOfficeEmail" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-12">
+
+                                        <label asp-for="SpocUgpassEmail" class="col-form-label">SPOC @clientName Email</label>
+                                        @{
+                                            var spocUgpassEmail = string.IsNullOrEmpty(Model.SpocUgpassEmail) ? "N/A" : Model.SpocUgpassEmail;
+                                        }
+                                        <input asp-for="SpocUgpassEmail" class="form-control" value="@spocUgpassEmail" />
+                                        <span asp-validation-for="SpocUgpassEmail" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group col-md-12">
+
+                                        <label asp-for="SpocUgpassMobNum" class="col-form-label">SPOC @clientName Mobile Number</label>
+                                        @{
+                                            var spocUgpassMobNum = string.IsNullOrEmpty(Model.SpocUgpassMobNum) ? "N/A" : Model.SpocUgpassMobNum;
+                                        }
+                                        <input asp-for="SpocUgpassMobNum" class="form-control" value="@spocUgpassMobNum" />
+                                        <span asp-validation-for="SpocUgpassMobNum" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6" style="float:right;">
+                                    @* <div class="form-group col-md-12">
+
+                                    <label asp-for="SpocSocialSecurityNum" class="col-form-label"></label>
+                                    @{
+                                    var spocSocialSecurityNum = string.IsNullOrEmpty(Model.SpocSocialSecurityNum) ? "N/A" : Model.SpocSocialSecurityNum;
+                                    }
+                                    <input asp-for="SpocSocialSecurityNum" class="form-control" value="@spocSocialSecurityNum" />
+                                    <span asp-validation-for="SpocSocialSecurityNum" class="text-danger"></span>
+                                    </div> *@
+
+                                    @if (!String.IsNullOrEmpty(Model.SpocName))
+                                    {
+                                        <div class="form-group col-md-12">
+                                            <label asp-for="SpocName" class="col-form-label"></label>
+                                            <input asp-for="SpocName" class="form-control" />
+                                            <span asp-validation-for="SpocName" class="text-danger"></span>
+                                        </div>
+                                    }
+
+                                    @if (!String.IsNullOrEmpty(Model.SpocIdDocNo))
+                                    {
+                                        <div class="form-group col-md-12">
+                                            <label asp-for="SpocIdDocNo" class="col-form-label"></label>
+                                            <input asp-for="SpocIdDocNo" class="form-control" />
+                                            <span asp-validation-for="SpocIdDocNo" class="text-danger"></span>
+                                        </div>
+                                    }
+                                    <div class="form-group col-md-12">
+
+                                        <label asp-for="SpocTaxNum" class="col-form-label"></label>
+                                        @{
+                                            var spocTaxNum = string.IsNullOrEmpty(Model.SpocTaxNum) ? "N/A" : Model.SpocTaxNum;
+                                        }
+                                        <input asp-for="SpocTaxNum" class="form-control" value="@spocTaxNum" />
+                                        <span asp-validation-for="SpocTaxNum" class="text-danger"></span>
+                                    </div>
+                                    @* @if (!String.IsNullOrEmpty(Model.SpocPassport))
+                                    {
+                                    <div class="form-group col-md-12">
+                                    <label asp-for="SpocPassport" class="col-form-label"></label>
+                                    <input asp-for="SpocPassport" class="form-control" />
+                                    <span asp-validation-for="SpocPassport" class="text-danger"></span>
+                                    </div>
+                                    } *@
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-12" style="float:right;pointer-events: none; opacity: 0.8">
+                            <fieldset>
+                                <legend id="financialLegend">Organization Auditor Details:</legend>
+                                <div class="form-group col-md-6" style="float:left;">
+                                    <div class="form-group col-md-12">
+
+                                        <label asp-for="FinancialAuditorName" class="col-form-label"></label>
+                                        @{
+                                            var financialAuditorName = string.IsNullOrEmpty(Model.FinancialAuditorName) ? "N/A" : Model.FinancialAuditorName;
+                                        }
+                                        <input asp-for="FinancialAuditorName" class="form-control" value="@financialAuditorName" />
+                                        <span asp-validation-for="FinancialAuditorName" class="text-danger"></span>
+                                    </div>
+
+                                    @* @if (!String.IsNullOrEmpty(Model.FinancialAuditorNin))
+                                    {
+                                    <div class="form-group col-md-12">
+                                    <label asp-for="FinancialAuditorNin" class="col-form-label"></label>
+                                    <input asp-for="FinancialAuditorNin" class="form-control" />
+                                    <span asp-validation-for="FinancialAuditorNin" class="text-danger"></span>
+                                    </div>
+                                    } *@
+                                    <div class="form-group col-md-12">
+
+                                        <label asp-for="AuditorUgPassEmail" class="col-form-label">Auditor @clientName Emai</label>
+                                        @{
+                                            var auditorUgPassEmail = string.IsNullOrEmpty(Model.AuditorUgPassEmail) ? "N/A" : Model.AuditorUgPassEmail;
+                                        }
+                                        <input asp-for="AuditorUgPassEmail" class="form-control" value="@auditorUgPassEmail" />
+                                        <span asp-validation-for="AuditorUgPassEmail" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6" style="float:right;">
+                                    <div class="form-group col-md-12">
+                                        <label asp-for="FinancialAuditorIdDocNumber" class="col-form-label"></label>
+                                        @{
+                                            var financialAuditorPassport = string.IsNullOrEmpty(Model.FinancialAuditorIdDocNumber) ? "N/A" : Model.FinancialAuditorIdDocNumber;
+                                        }
+                                        <input asp-for="FinancialAuditorIdDocNumber" class="form-control" value="@financialAuditorPassport" />
+                                        <span asp-validation-for="FinancialAuditorIdDocNumber" class="text-danger"></span>
+
+                                    </div>
+
+                                    @if (!String.IsNullOrEmpty(Model.FinancialAuditorLicenseNum))
+                                    {
+                                        <div class="form-group col-md-12">
+                                            <label asp-for="FinancialAuditorLicenseNum" class="col-form-label"></label>
+                                            <input asp-for="FinancialAuditorLicenseNum" class="form-control" />
+                                            <span asp-validation-for="FinancialAuditorLicenseNum" class="text-danger"></span>
+                                        </div>
+                                    }
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+
+                    <input asp-for="OrgOnboardingFormsId" hidden />
+                    <input asp-for="OrgRegIdNumber" hidden />
+                    <input asp-for="OrgUid" hidden />
+                    <div class="d-flex float-left" style="">
+                        <div>
+                            <label class="col-form-label">Organization Status :</label>
+                            &nbsp; &nbsp;
+                            <span style="padding: 1%;">
+                                @if (Model.OrgApprovalStatus == "ESEAL_APPLIED")
+                                {
+                                    <span class="badge badge-info">ESEAL Applied</span>
+                                }
+                                else if (Model.OrgApprovalStatus == "ESEAL_ISSUED")
+                                {
+                                    <span class="badge badge-info">ESEAL Issued</span>
+                                }
+                                else if (Model.OrgApprovalStatus == "BIZ_USECASES_SUBMITTED")
+                                {
+                                    <span class="badge badge-info">Business Use Cases Submitted</span>
+                                }
+                                else if (Model.OrgApprovalStatus == "BRM_RECOMMENDED_SOFTWARE")
+                                {
+                                    <span class="badge badge-info">BRM Recommended Software</span>
+                                }
+                                else if (Model.OrgApprovalStatus == "SPOC_OPTED_FOR_SOFTWARE")
+                                {
+                                    <span class="badge badge-info">SPOC Opted for Software</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-info">@Model.OrgApprovalStatus</span>
+                                }
+                            </span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.RejectedReason))
+                        {
+                            <div style="width:250px;  opacity: 0.8">
+                                <div class="form-group">
+                                    <label asp-for="RejectedReason" class="col-form-label"></label>
+                                    <textarea asp-for="RejectedReason" class="form-control" readonly>@Model.RejectedReason</textarea>
+                                    <span asp-validation-for="RejectedReason" class="text-danger"></span>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+
+                    <div style="margin-top:4%">
+
+                        <div class="d-flex justify-content-end ">
+
+                            @if (string.IsNullOrEmpty(Model.RejectedReason))
+                            {
+                                <a class="btn btn-primary greenButton" onclick="approveForm()">Approve</a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-primary greenButton" onclick="CheckerAction(@ViewBag.ApprovalRecordID,true); return false;">Approve</a>
+                            }
+                            &nbsp;&nbsp;
+
+                            <a class="btn btn-danger" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">Reject</a>
+
+                            &nbsp;&nbsp;
+                            <a type="button" asp-action="Approvals" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @*<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>*@
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+
+            $('#selfServiceConfigMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#organzationsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+            $('#mainMenu').addClass('breadcrumb-item').append('Organization Details')
+            $('#subMenu').removeClass('breadcrumb-item active');
+            /*For Beadcrum End*/
+
+            //if (Model.SpocFaceCaptured.Contains("data:image/png;base64,"))
+            //$("#spocFaceImage").attr('src', '@Html.Raw(Model.SpocFaceCaptured)');
+        });
+
+        function approveForm() {
+            var OrgFormId = @Model.OrgOnboardingFormsId;
+
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("ApproveOrganization", "MakerChecker")',
+                contentType: "application/json; charset=utf-8",
+                data: { "id": OrgFormId },
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay1').hide();
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+                }
+            });
+        }
+
+        $(function () {
+            $("#rejectBtn").click(function () {
+                var rejectButton = $(this);
+                var data = rejectButton.attr('data-orgOnboardingFormId');
+                var OrgFormId = @Model.OrgOnboardingFormsId;
+
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("Reject", "SelfServicePortal")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { "orgFormId": OrgFormId },
+                    datatype: "json",
+                    beforeSend: function () {
+                        $('#overlay1').hide();
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        $('#modalDialogContentDiv').html(data);
+                        $('#modalDialogDiv').modal('show');
+                    },
+                    error: ajaxErrorHandler,
+                    failure: function (response) {
+                        swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+                    }
+                });
+            });
+        });
+
+        function downloadDocument(name) {
+            var exportType;
+            switch (name) {
+                case "ApprovalLetter":
+                    exportType = "pdf";
+                    saveByteArray(name, '@Html.Raw(@Model.ApprovalLetter)', exportType)
+                    break;
+
+                case "UrsbCertificate":
+                    exportType = "pdf";
+                    saveByteArray(name, '@Html.Raw(@Model.UrsbCertificate)', exportType)
+                    break;
+                case "Auditor Ura Report":
+                    exportType = "pdf";
+                    saveByteArray(name, '@Html.Raw(@Model.auditorUraPdf)', exportType)
+                    break;
+                case "CEO Ura Report":
+                    exportType = "pdf";
+                    saveByteArray(name, '@Html.Raw(@Model.ceoUraPdf)', exportType)
+                    break;
+                case "Organization Ura Report":
+                    exportType = "pdf";
+                    saveByteArray(name, '@Html.Raw(@Model.orgUraPdf)', exportType)
+                    break;
+                case "SPOC Ura Report":
+                    exportType = "pdf";
+                    saveByteArray(name, '@Html.Raw(@Model.spocUraPdf)', exportType)
+                    break;
+            }
+        }
+
+        function saveByteArray(name, base64String, exportType) {
+            var myBytes = base64ToArrayBuffer(base64String);
+            var blob = new Blob([myBytes]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            if (exportType) {
+                let fileName = name + getFileExtension(exportType);
+                link.download = fileName;
+                link.click();
+            }
+            else {
+                swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+            }
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+
+        function getFileExtension(exportType) {
+            let extension;
+            switch (exportType) {
+                case 'jpg':
+                    extension = '.jpg';
+                    break;
+                case 'pdf':
+                    extension = '.pdf';
+                    break;
+                case 'excel':
+                    extension = '.xlsx';
+                    break;
+                case 'csv':
+                    extension = '.csv';
+                    break;
+            }
+
+            return extension;
+        }
+    </script>
+}

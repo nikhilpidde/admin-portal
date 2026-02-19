@@ -1,0 +1,198 @@
+﻿@model DTPortal.Web.ViewModel.SMTP.SMTPViewModel
+
+@{ ViewData["Title"] = "SMTP"; }
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<style>
+    .input-box {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding-left: 0.5rem;
+        overflow: hidden;
+        font-family: sans-serif;
+    }
+
+        .input-box .toggle-password {
+            font-weight: 300;
+            font-size: 15px;
+            margin-right: 5px;
+            padding: 0px 16px 0px 0px;
+        }
+
+        .input-box input {
+            flex-grow: 1;
+            font-size: 14px;
+            background: #fff;
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+        }
+
+        .input-box:focus-within {
+            border-color: #80bdff;
+        }
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+</style>
+
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form id="uform" asp-action="Submit">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+
+                            <div class="form-group" hidden>
+                                <input asp-for="Id" />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="SMTPHost" class="col-form-label s3"></label>
+                                <input asp-for="SMTPHost" class="form-control" />
+                                <span asp-validation-for="SMTPHost" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SMTPPort" class="col-form-label s3"></label>
+                                <input asp-for="SMTPPort" class="form-control" />
+                                <span asp-validation-for="SMTPPort" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FromName" class="col-form-label s3"></label>
+                                <input asp-for="FromName" class="form-control" />
+                                <span asp-validation-for="FromName" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="FromEmailAddress" class="col-form-label s3"></label>
+                                <input asp-for="FromEmailAddress" class="form-control" />
+                                <span asp-validation-for="FromEmailAddress" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SMTPUserName" class="col-form-label s3"></label>
+                                <input asp-for="SMTPUserName" class="form-control" />
+                                <span asp-validation-for="SMTPUserName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="MailSubject" class="col-form-label s3"></label>
+                                <input asp-for="MailSubject" class="form-control" />
+                                <span asp-validation-for="MailSubject" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Template" class="col-form-label s3"></label>
+                                <input asp-for="Template" class="form-control" />
+                                <span asp-validation-for="Template" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="SMTPPassword" class="col-form-label s3"></label>
+                                <div class="input-box">
+                                    <input class="form-control border-right-0" type="password" data-val="true"
+                                           data-val-required="The SMTP Password field is required."
+                                           id="SMTPPassword" name="SMTPPassword" value="@Model.SMTPPassword"
+                                           autocomplete="off">
+                                    <span toggle="#SMTPPassword" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                </div>
+                                
+                                <span asp-validation-for="SMTPPassword" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label>
+                                        <input class="custom-check-box" asp-for="RequireAuthentication" /> @Html.DisplayNameFor(model => model.RequireAuthentication)
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label>
+                                        <input class="custom-check-box" asp-for="RequiresSSL" /> @Html.DisplayNameFor(model => model.RequiresSSL)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            <input type="button" value="Update" name="actionType" id="submitFormBtn" class="btn btn-primary" style="opacity: 0.5;" disabled />
+                            &nbsp;&nbsp;
+                            <input type="submit" name="actionType" value="Test SMTP Configuration" class="btn btn-primary" style="background-color:olivedrab;" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var operationName = "AUTHENTICATION_SMTP_CONFIGURATION";
+        $(document).ready(function () {
+
+             $('#smtpMenu').addClass('active');
+            $('#adminConfigurationSidebarElement').addClass('active');
+            $('#smtpSidebarElement').addClass('active');
+
+            $('#smtp').addClass('show');
+            $('#adminConfigurationSubmenu').addClass('show');
+
+            $("li#smtpMenu a:first").attr('aria-expanded', 'true');
+            $("li#adminConfigurationSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('General Services ');
+            $('#mainMenu').addClass('breadcrumb-item active').append(' SMTP');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+
+            $(".toggle-password").click(function () {
+                $(this).toggleClass("fa-eye fa-eye-slash");
+                var input = $($(this).attr("toggle"));
+                if (input.attr("type") == "password") {
+                    input.attr("type", "text");
+                } else {
+                    input.attr("type", "password");
+                }
+            });
+
+            getAllValue();
+        });
+
+        function submitForm() {
+            var form = $("#uform");
+            form.submit();
+        }
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

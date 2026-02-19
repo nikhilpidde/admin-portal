@@ -1,0 +1,199 @@
+﻿@model DTPortal.Web.ViewModel.OfflinePayment.OfflinePaymentViewModel
+@using DTPortal.Web.Enums
+@{
+    ViewData["Title"] = "Add";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class=card-body>
+                <form asp-action="Add" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group ">
+                                <label asp-for="OrgName" class="col-form-label"></label>
+                                <input asp-for="OrgName" class="form-control" />
+                                <span asp-validation-for="OrgName" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group ">
+                                <label asp-for="TransactionRefId" class="col-form-label"></label>
+                                <input asp-for="TransactionRefId" class="form-control" />
+                                <span asp-validation-for="TransactionRefId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group ">
+                                <label asp-for="AmountReceived" class="col-form-label"></label>
+                                <input asp-for="AmountReceived" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" class="form-control" />
+                                <span asp-validation-for="AmountReceived" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group ">
+                                <label asp-for="InvoiceNo" class="col-form-label"></label>
+                                <input asp-for="InvoiceNo" class="form-control" />
+                                <span asp-validation-for="InvoiceNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group ">
+                                <label asp-for="PaymentChannel" class="col-form-label"></label>
+                                <select asp-for="PaymentChannel" class="form-control">
+                                    <option value="">select</option>
+                                    <option value="Manual">Manual</option>
+                                </select>
+                                <span asp-validation-for="PaymentChannel" class="text-danger"></span>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-md-6" style="float:left">
+
+
+                            <div class="form-group">
+                                <label asp-for="TotalSigningCredits" class="col-form-label"></label>
+                                <input asp-for="TotalSigningCredits" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" value="0" class="form-control" />
+                                <span asp-validation-for="TotalSigningCredits" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="TotalEsealCredits" class="col-form-label"></label>
+                                <input asp-for="TotalEsealCredits" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" value="0" class="form-control" />
+                                <span asp-validation-for="TotalEsealCredits" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="TotalUserSubscriptionCredits" class="col-form-label"></label>
+                                <input asp-for="TotalUserSubscriptionCredits" maxlength="5" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" value="0" class="form-control" />
+                                <span asp-validation-for="TotalUserSubscriptionCredits" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label asp-for="OnlinePaymentGateway" class="col-form-label"></label>
+                                <input asp-for="OnlinePaymentGateway" class="form-control" />
+                                <span asp-validation-for="OnlinePaymentGateway" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="OnlinePaymentGatewayReferenceNo" class="col-form-label"></label>
+                                <input asp-for="OnlinePaymentGatewayReferenceNo" class="form-control" />
+                                <span asp-validation-for="OnlinePaymentGatewayReferenceNo" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        @* <div style="float: left;">
+                        <b>NOTE: </b> Any one of the three credits field is required.
+                        </div> *@
+                        <div class="d-flex justify-content-end " style="padding-top: 31px;">
+                            <button type="submit" id="submitBtn" class="btn btn-primary">Save</button>
+                            &nbsp;&nbsp;
+                            <a type="button" asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                    <div style="display:none;">
+                        <input asp-for="OrgId" id="OrgId" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+<script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+
+
+<script>
+    var innerDictionary = {};
+    $(document).ready(function () {
+        $('#priceModelMenu').addClass('active');
+        $('#paymentHistoryMenuItem').addClass('active');
+        $('#OfflinePaymentHistorySidebarElement').addClass('active');
+
+        //$('#priceModel').addClass('show');
+
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#OfflinePaymentHistorySidebarElement').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+
+        $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Payment History');
+        $('#subMenu').addClass('breadcrumb-item active').append('Offline Payments');
+        // $('#subMenu').addClass('breadcrumb-item active').append('Add Payment');
+
+        $('input[type=text]:not([readonly]),input[type=number]:not([readonly]),input[type=email]:not([readonly]),input[type=file]:not([readonly]),select:not([readonly])').each(function () {
+            var req = $(this).attr('data-val-required');
+            var exclude = $(this).attr('data-exclude');
+            if (undefined != req && undefined == exclude) {
+                var label = $('label[for="' + $(this).attr('id') + '"]');
+                var text = label.text();
+                if (text.length > 0) {
+                    label.append(' <span style="color:#ff0000b3;">*</span>');
+                }
+            }
+        });
+
+        $("#OrgName").typeahead({
+
+            minLength: 2,
+            items: 10,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetOrganizations", "OrganizationPaymentHistory")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        innerDictionary = {};
+                        $('#OrgId').val('');
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var array = item.split(",");
+                            var uid = array[1];
+                            var name = array[0];
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                            innerDictionary[name] = uid;
+                        });
+                        response(items);
+                    }
+
+                });
+            },
+            updater: function (item) {
+                $('#OrgId').val(innerDictionary[item]);
+                return item;
+            }
+        });
+    });
+
+    function formValidation() {
+        var isValid = true;
+
+        $('input[type=text]:not([readonly]), input[type=number]:not([readonly]), input[type=email]:not([readonly]), select:not([readonly])').each(function () {
+            var value = $(this).val();
+            if (!value || value.trim() === "") {
+                isValid = false;
+                $(this).siblings('.text-danger').text('This field is required.');
+            }
+        });
+
+        return isValid;
+    }
+</script>

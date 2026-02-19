@@ -1,0 +1,204 @@
+﻿@model DTPortal.Web.ViewModel.AttributeServiceTransactions.AttributeServiceDetailsViewModel
+
+<style>
+    .cross {
+        color: black !important;
+        padding: 5px !important;
+        margin: 10px !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    .modal-dialog {
+        max-width: 900px; 
+    }
+
+    .modal-header {
+        background-color: #f5f5f5;
+    }
+
+    .modal-title {
+        font-size: 18px;
+    }
+
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .table th,
+        .table td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+    .modal-footer {
+        background-color: #f5f5f5;
+    }
+</style>
+
+<div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                Transaction Details
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body" style="max-height: 450px; overflow-y: auto;">
+            @if (Model == null)
+            {
+                <p>No record found</p>
+            }
+            else
+            {
+                <table class="table">
+                    <tr>
+                        <th hidden>Id</th>
+                        <td hidden>@Model.attributeProfileRequest.Id</td>
+                    </tr>
+                    <tr>
+                        <th>User Id</th>
+                        <td>@(string.IsNullOrEmpty(Model.attributeProfileRequest.UserId) ? "NA" : Model.attributeProfileRequest.UserId)</td>
+                    </tr>
+                    <tr>
+                        <th>Transaction Id</th>
+                        <td>@(string.IsNullOrEmpty(Model.attributeProfileRequest.TransactionId) ? "NA" : Model.attributeProfileRequest.TransactionId)</td>
+                    </tr>
+                    <tr>
+                        <th>Client Name</th>
+                        <td>@(string.IsNullOrEmpty(Model.attributeProfileRequest.ClientName) ? "NA" : Model.attributeProfileRequest.ClientName)</td>
+                    </tr>
+                    <tr>
+                        <th>Requested Date</th>
+                        <td>
+                            @if (@Model.attributeProfileRequest.RequestDate != DateTime.MinValue)
+                            {
+                                @Model.attributeProfileRequest.RequestDate
+                            }
+                            else
+                            {
+                                <label>NA</label>
+                            }
+                        </td>
+                    </tr>
+
+
+
+                   
+                    <tr>
+                        <th>Requested Profile</th>
+                        <td>@(string.IsNullOrEmpty(Model.attributeProfileRequest.RequestProfile) ? "NA" : Model.attributeProfileRequest.RequestProfile)</td>
+                    </tr>
+
+
+                    <tr>
+                        <th>Request Purpose</th>
+                        <td>@(string.IsNullOrEmpty(Model.attributeProfileRequest.RequestPurpose) ? "NA" : Model.attributeProfileRequest.RequestPurpose)</td>
+                    </tr>
+                   
+                     <tr>
+                        <th>Consent Status</th>
+                        <td>@(string.IsNullOrEmpty(Model.attributeProfileConsent.ConsentStatus) ? "NA" : Model.attributeProfileConsent.ConsentStatus)</td>
+                    </tr>
+                    <tr>
+                        <th>Requested Attributes</th>
+                        <td>
+                            @{
+                                var requestedAttributes = Model.attributeProfileConsent.RequestedProfileAttributes;
+
+                                
+                                if (string.IsNullOrEmpty(requestedAttributes))
+                                {
+                                    <label>NA</label>
+                                }
+                                else
+                                {
+                                    // Split the comma-separated string and build HTML content
+                                    var attributesArray = requestedAttributes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    var htmlContent = "";
+
+                                    foreach (var attribute in attributesArray)
+                                    {
+                                        htmlContent += $" <text>{attribute}<br /></text>";
+                                    }
+
+                                    @Html.Raw(htmlContent)
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Accepted Attributes</th>
+                        <td>
+                            @{
+                                var acceptedAttributes = Model.attributeProfileConsent.ApprovedProfileAttributes;
+                                if (string.IsNullOrEmpty(acceptedAttributes))
+                                {
+                                    <label>NA</label>
+                                }
+                                else
+                                {
+                                    var attributesArray = acceptedAttributes.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                                    var htmlContent = "";
+
+                                    foreach (var attribute in attributesArray)
+                                    {
+                                        htmlContent += $" <text>{attribute}<br /></text>";
+                                    }
+
+                                    @Html.Raw(htmlContent)
+                                }
+                            }
+                        </td>
+                    </tr>
+                  
+                    <tr>
+                        <th>Consent Date</th>
+                        <td>
+                            @if (@Model.attributeProfileConsent.ConsentUpdatedDate != DateTime.MinValue)
+                            {
+                                @Model.attributeProfileConsent.ConsentUpdatedDate
+                            }
+                            else
+                            {
+                                <label>NA</label>
+                            }
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                            <th>Transaction Status</th>
+                            <td>@(string.IsNullOrEmpty(Model.attributeProfileStatus.Status) ? "NA" : Model.attributeProfileStatus.Status)</td>
+                    </tr>
+                    <tr>
+                            <th>Failed Reason</th>
+                                <td>@(string.IsNullOrEmpty(Model.attributeProfileStatus.FailedReason) ? "NA" : Model.attributeProfileStatus.FailedReason)</td>
+                    </tr>
+                </table>
+
+            }
+        </div>
+        <div class="modal-footer">
+            @* <div class="btn-group">
+                @if (Model.attributeProfileStatus.DataPivotId != -1)
+                {
+                    <a class="btn btn-primary greenButton" asp-action="Edit" asp-controller="DataPivot" asp-route-id="@Model.attributeProfileStatus.DataPivotId">
+                     Data Pivot
+                    </a>
+                }
+            </div> *@
+
+           
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>

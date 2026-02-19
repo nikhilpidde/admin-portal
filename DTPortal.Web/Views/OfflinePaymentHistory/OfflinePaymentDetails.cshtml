@@ -1,0 +1,160 @@
+﻿@model DTPortal.Web.ViewModel.OfflinePayment.OfflinePaymentViewModel
+
+@{
+    ViewData["Title"] = "Offline Payment";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+<style>
+    #orgOfflinePaymentLegend {
+        width: 30%;
+        font-size: 1.2rem;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class=card-body>
+                <form asp-action="Add" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-md-6" style="pointer-events: none; opacity: 0.8">
+                            <div class="form-group">
+                                <label asp-for="OrgName" class="col-form-label"></label>
+                                
+                             
+                                <input asp-for="OrgName" class="form-control" />
+                                <span asp-validation-for="OrgName" class="text-danger"></span>
+                                @* <div>@Html.DisplayFor(model => model.OrgName)</div> *@
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="AmountReceived" class="col-form-label"></label>
+                                @{
+                                    var amountReceived = Model.AmountReceived;
+                                }
+                                <input asp-for="AmountReceived" class="form-control" value="@amountReceived" />
+                                <span asp-validation-for="AmountReceived" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="TransactionRefId" class="col-form-label"></label>
+                                @{
+                                    var transaction = Model.TransactionRefId;
+                                }
+                                <input asp-for="TransactionRefId" class="form-control" value="@transaction" />
+                                <span asp-validation-for="TransactionRefId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="InvoiceNo" class="col-form-label"></label>
+                                @{
+                                    var invoice = Model.InvoiceNo;
+                                }
+                                <input asp-for="InvoiceNo" class="form-control" value="@invoice" />
+                                <span asp-validation-for="InvoiceNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PaymentChannel" class="col-form-label"></label>
+                                @{
+                                    var abc = Model.PaymentChannel;
+                                }
+                                <input asp-for="PaymentChannel" class="form-control" value="@abc" />
+                                <span asp-validation-for="PaymentChannel" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6" style="float:left; pointer-events: none; opacity: 0.8">
+                            <div class="form-group">
+                                <label asp-for="OnlinePaymentGateway" class="col-form-label"></label>
+                                @{
+                                    var qwe = Model.OnlinePaymentGateway;
+                                }
+                                <input asp-for="OnlinePaymentGateway" class="form-control" value="@qwe" />
+                                <span asp-validation-for="OnlinePaymentGateway" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="OnlinePaymentGatewayReferenceNo" class="col-form-label"></label>
+                                @{
+                                    var paymentRefNo = Model.OnlinePaymentGatewayReferenceNo;
+                                }
+                                <input asp-for="OnlinePaymentGatewayReferenceNo" class="form-control" value="@paymentRefNo" />
+                                <span asp-validation-for="OnlinePaymentGatewayReferenceNo" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="TotalSigningCredits" class="col-form-label"></label>
+                                @{
+                                    var signignCredits = Model.TotalSigningCredits;
+                                }
+                                <input asp-for="TotalSigningCredits" class="form-control" value="@signignCredits" />
+                                <span asp-validation-for="TotalSigningCredits" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label asp-for="TotalEsealCredits" class="col-form-label"></label>
+                                @{
+                                    var esealCredits = Model.TotalEsealCredits;
+                                }
+                                <input asp-for="TotalEsealCredits" class="form-control" value="@esealCredits" />
+                                <span asp-validation-for="TotalEsealCredits" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="TotalUserSubscriptionCredits" class="col-form-label"></label>
+                                @{
+                                    var totalUserSubscriptionCredits = Model.TotalUserSubscriptionCredits;
+                                }
+                                <input asp-for="TotalUserSubscriptionCredits" class="form-control" value="@totalUserSubscriptionCredits" />
+                                <span asp-validation-for="TotalUserSubscriptionCredits" class="text-danger"></span>
+                            </div>
+                            
+                        </div>
+                        @* <div class="d-flex justify-content-end ">
+                            <a type="button" asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div> *@
+
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-end " style="padding-top: 31px;">
+                            @* <button type="submit" id="submitBtn" class="btn btn-primary">Save</button> *@
+                            &nbsp;&nbsp;
+                            <a type="button" asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                    <div style="display:none;">
+                        <input asp-for="OrgId" id="OrgId" />
+                    </div> 
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            $('#paymentHistoryMenuItem').addClass('active');
+            $('#OfflinePaymentHistorySidebarElement').addClass('active');
+
+            //$('#priceModel').addClass('show');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#OfflinePaymentHistorySidebarElement').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+            // Your script code here
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Payment History');
+            $('#subMenu').addClass('breadcrumb-item active').append('Offline Payments');
+            /*For Beadcrum End*/
+        });
+    </script>
+}

@@ -1,0 +1,83 @@
+﻿@model DTPortal.Web.ViewModel.RoleManagement.RoleManagementNewViewModel
+
+@{ ViewData["Title"] = "Approvals Request Details"; }
+
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <!-- <div class="card-header">
+                                <h5 class="card-title">Form row</h5>
+                                <h6 class="card-subtitle text-muted">Bootstrap column layout.</h6>
+                            </div> -->
+            <div class="card-body">
+                <form asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="RoleName" class="control-label"></label>
+                                <input asp-for="RoleName" class="form-control"  readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DisplayName" class="control-label"></label>
+                                <input asp-for="DisplayName" class="form-control" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description" class="control-label"></label>
+                                <input asp-for="Description" class="form-control" readonly/>
+                            </div>
+                        </div>
+                        @* @await Html.PartialAsync("_Activities", Model.Activities)*@
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Activities" class="control-label"></label>
+                                <partial name="_Activities" for="Activities" />
+                            </div>
+                            <div class="form-group Checkerkbox" style="display:none;">
+                                <label asp-for="CheckerActivitie" class="col-form-label s3">Checker Activity</label>
+                                <partial name="_CheckerActivities" for="CheckerActivitie" />
+
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end ">
+                            <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                                Approve
+                            </button>
+                            &nbsp; &nbsp;
+                            <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                                Reject
+                            </button>
+                            &nbsp; &nbsp;
+                            <a asp-action="Approvals" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals > Roles > Details');
+            $('#subMenu').removeClass('breadcrumb-item');
+        });
+
+
+    </script>
+}
+

@@ -1,0 +1,94 @@
+﻿@model IEnumerable<ServiceHealthHistory>
+@using DTPortal.Core.DTOs;
+
+<div class="timeline-label">
+    @if (Model != null)
+    {
+        if (Model.Count() == 0)
+        {
+            <span>No Records found</span>
+        }
+        else
+        {
+            foreach (var health in Model)
+            {
+                string date;
+                string time;
+                {
+                    var timeStamp = Convert.ToDateTime(health.DateTime);
+                    if (timeStamp.Date == DateTime.Today.Date)
+                    {
+                        date = "Today";
+                        time = timeStamp.ToString("hh:mm tt");
+                    }
+                    else if (timeStamp.Date == DateTime.Today.AddDays(-1).Date)
+                    {
+                        date = "Yesterday";
+                        time = timeStamp.ToString("hh:mm tt");
+                    }
+                    else
+                    {
+                        date = timeStamp.ToString("dd-MM-yyyy");
+                        time = timeStamp.ToString("hh:mm tt");
+                    }
+                }
+                @if (health.Status == "Healthy")
+                {
+                    <div class="timeline-item-healthy healthStatus" style="height:75px">
+                        <div class="column"
+             style="text-align: end; padding: 0px 15px; margin-left: -15px">
+                            <div class="fw-bolder text-gray-800 fs-6" style="min-width:90px">@date</div>
+                            <div class="fw-bolder text-gray-800 fs-6" style="min-width:90px">@time</div>
+                        </div>
+                        <div class="timeline-badge">
+                            <i class="fa fa-circle" style="color:green"></i>
+                        </div>
+                        <div class="fw-mormal timeline-content text-muted ps-3">
+                            <div class="timeline-content text-gray-500 ps-3">@health.Status</div>
+                            @*<div class="timeline-conten text-muted ps-3">
+                                @health.Description
+                                </div>*@
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="timeline-item-unhealthy healthStatus" style="height:75px">
+                        <div class="column" style="text-align: end; padding: 0px 15px; margin-left: -15px">
+                            <div class="fw-bolder text-gray-800 fs-6" style="min-width:90px">@date</div>
+                            <div class="fw-bolder text-gray-800 fs-6" style="min-width:90px">@time</div>
+                        </div>
+                        <div class="timeline-badge">
+                            <div class="tooltip">
+                                <i class="fa fa-circle" style="color:indianred"></i>
+                                <div class="left" style="left:15px; top:38px">
+                                    <div class="timeline-conten ps-3">
+                                        <span style="padding:10px">
+                                            <strong>@health.Description</strong>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fw-mormal timeline-content text-muted ps-3">
+                            <div class="tooltip">
+                                <div class="timeline-content text-gray-500 ps-3">@health.Status</div>
+                                <div class="left" style="left:15px; top:38px">
+                                    <div class="timeline-conten ps-3">
+                                        <span style="padding:10px">
+                                            <strong>@health.Description</strong>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+        }
+    }
+</div>
+
+
+

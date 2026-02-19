@@ -1,0 +1,388 @@
+﻿@model DTPortal.Web.ViewModel.UserDashboard.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Profile";
+
+}
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form id="uform" asp-action="Profile">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="Id" class="form-control" />
+                                <input asp-for="fidoData.FullName" class="form-control" />
+                                <input asp-for="fidoData.suid" class="form-control" />
+                                <input asp-for="fidoData.userDetails" class="form-control" />
+                                <input asp-for="fidoData.MailID_MobileNO" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Uuid" class="col-form-label s3"></label>
+                                <input asp-for="Uuid" class="form-control" readonly />
+                                <span asp-validation-for="Uuid" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FullName" class="col-form-label s3"></label>
+                                <input asp-for="FullName" class="form-control" />
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Dob" class="col-form-label s3"></label>
+                                <input asp-for="Dob" class="form-control" type="text" />
+                                <span asp-validation-for="Dob" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="gender" class="col-form-label s3"></label>
+                                <div class="form-control" style="border:none">
+                                    <label class="c-radio">
+                                        <input asp-for="gender" type="radio" value="1" />
+                                        <span class="fa fa-mars"></span> Male
+                                    </label>
+                                    <label class="c-radio">
+                                        <input asp-for="gender" type="radio" value="0" />
+                                        <span class="fa fa-venus"></span> Female
+                                    </label>
+                                    <span asp-validation-for="gender" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FidoStatus" class="col-form-label s3"></label>
+                                <input id="FidoStatus" name="FidoStatus" value='@(Model.FidoStatus == "1"?"REGISTERED":"NOT REGISTERED")' class="form-control" readonly />
+                                <span asp-validation-for="FidoStatus" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="MailId" class="col-form-label s3"></label>
+                                 <div style="justify-content: space-evenly;display: flex;text-align: center;align-items: center;">
+                                  <input asp-for="MailId" class="form-control" />
+                                     <span class="prefix" style="font-weight: bold;font-size: 18px;text-align: inherit;">@@</span>
+                                    <select asp-for="EmailDomain" class="form-control"
+                                        asp-items="@Model.EmailDomains"></select>
+                                </div>
+                                <span asp-validation-for="MailId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="MobileNo" class="col-form-label s3"></label>
+                                <div class="input-box">
+                                    <span class="prefix">+971</span>
+                                    <input asp-for="MobileNo" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" class="form-control" />
+                                </div>
+                                <span asp-validation-for="MobileNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Status" class="col-form-label s3"></label>
+                                <input asp-for="Status" class="form-control" readonly />
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Role" class="col-form-label s3"></label>
+                                <input asp-for="Role" class="form-control" readonly />
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            </div>
+                           
+                            @*<div class="form-group">
+                                    <label asp-for="AuthScheme" class="col-form-label s3"></label>
+                                    <select asp-for="AuthScheme" class="form-control"
+                                            asp-items="@Model.AuthSchemeList"></select>
+                                    <span asp-validation-for="AuthScheme" class="text-danger"></span>
+                                </div>*@
+                        </div>
+                    </div>
+
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            <button class="btn btn-primary" id="RegisterFido" type="button">
+                                @(Model.FidoStatus == "1"? "Re-Register" : "Register") Fido2 Device
+                            </button>
+                            @*&nbsp;&nbsp;
+                            <a asp-controller="UserDashboard" asp-action="ChangePassword" asp-route-id="@Model.Id" class="btn btn-info">
+                                Change Password
+                            </a>*@
+                            &nbsp;&nbsp;
+                            <button class="btn btn-primary" id="submitFormBtn" type="button" style="opacity: 0.5;" disabled>
+                                Update
+                            </button>
+                            &nbsp;&nbsp;
+
+                            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .input-box {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding-left: 0.5rem;
+        overflow: hidden;
+        font-family: sans-serif;
+    }
+
+        .input-box .prefix {
+            font-weight: 300;
+            font-size: 14px;
+            color: #999;
+        }
+
+        .input-box input {
+            flex-grow: 1;
+            font-size: 14px;
+            background: #fff;
+            border: none;
+            outline: none;
+            padding: 0.5rem;
+        }
+
+        .input-box:focus-within {
+            border-color: #777;
+        }
+
+    .c-checkbox,
+    .c-radio {
+        margin-right: 4px;
+    }
+
+        .c-checkbox *,
+        .c-radio * {
+            cursor: pointer;
+        }
+
+        .c-checkbox input,
+        .c-radio input {
+            opacity: 0;
+            position: absolute;
+            margin-left: 0 !important;
+        }
+
+        .c-checkbox span,
+        .c-radio span {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            text-align: center;
+        }
+
+            .c-checkbox span:before,
+            .c-radio span:before {
+                margin-left: 1px;
+            }
+
+        .c-checkbox:hover span,
+        .c-radio:hover span {
+            border-color: #5d9cec;
+        }
+
+    .form-inline .c-checkbox span, .form-inline
+    .c-radio span {
+        margin-left: 0;
+    }
+
+    .c-checkbox.c-checkbox-rounded span, .c-checkbox.c-radio-rounded span,
+    .c-radio.c-checkbox-rounded span,
+    .c-radio.c-radio-rounded span {
+        border-radius: 500px;
+    }
+
+    /* override for radio */
+    .c-radio span {
+        border-radius: 500px;
+    }
+
+        /* the icon */
+        .c-checkbox span:before,
+        .c-radio span:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            text-align: center !important;
+            font-size: 12px;
+            line-height: 18px;
+            vertical-align: middle;
+        }
+
+    /* Checked state */
+    .c-checkbox,
+    .c-radio {
+        /* override for radio */
+        /* Disable state */
+        /* override for radio */
+    }
+
+        .c-checkbox input[type=checkbox]:checked + span:before,
+        .c-checkbox input[type=radio]:checked + span:before,
+        .c-radio input[type=checkbox]:checked + span:before,
+        .c-radio input[type=radio]:checked + span:before {
+            color: #fff;
+            opacity: 1;
+            transition: color .3s ease-out;
+        }
+
+        .c-checkbox input[type=checkbox]:checked + span,
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=checkbox]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            border-color: #5d9cec;
+            background-color: #5d9cec;
+        }
+
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            background-color: #fff;
+        }
+
+            .c-checkbox input[type=radio]:checked + span:before,
+            .c-radio input[type=radio]:checked + span:before {
+                color: #5d9cec;
+            }
+
+        .c-checkbox input[type=checkbox]:disabled + span,
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=checkbox]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            border-color: #ddd !important;
+            background-color: #ddd !important;
+        }
+
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            background-color: #fff !important;
+        }
+
+            .c-checkbox input[type=radio]:disabled + span:before,
+            .c-radio input[type=radio]:disabled + span:before {
+                color: #ddd;
+            }
+
+        .c-radio.c-radio-nofont {
+            /* override for radio */
+            /* Disable state */
+            /* override for radio */
+        }
+
+            .c-radio.c-radio-nofont span:before {
+                content: "";
+                width: 10px;
+                height: 10px;
+                top: 50%;
+                left: 50%;
+                margin-top: -5px;
+                margin-left: -5px;
+                border-radius: 500px;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                color: #fff;
+                opacity: 1;
+                transition: color .3s ease-out;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                border-color: #5d9cec;
+                background-color: #5d9cec;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                background-color: #fff;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                    background-color: #5d9cec;
+                }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                border-color: #ddd !important;
+                background-color: #ddd !important;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                background-color: #fff !important;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:disabled + span:before {
+                    background-color: #ddd;
+                }
+</style>
+
+
+<link rel="stylesheet" href="~/assets/css/smoothness-jquery-ui.css">
+@section Scripts {
+    <script src="~/assets/js/jquery-1.12.4.js"></script>
+    <script src="~/assets/js/jquery-ui.js"></script>
+    <script>
+        var operationName = "PROFILE_UPDATE";
+        var FidoStatus = '@Model.FidoStatus'
+        $(document).ready(function () {
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Profile');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+
+
+
+            var today = new Date();
+            $('#Dob').datepicker({
+                dateFormat: "yy-mm-dd",
+                yearRange: "-100:+0",
+                changeMonth: true,
+                changeYear: true,
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
+            });
+
+            $('#Dob').on('change', function () {
+                if (checkvalues()) {
+                    $('#submitFormBtn').attr("disabled", true);
+                    $('#submitFormBtn').css('opacity', '0.5');
+                } else {
+                    $('#submitFormBtn').css('opacity', '1');
+                    $('#submitFormBtn').attr("disabled", false);
+                }
+            });
+
+            getAllValue();
+
+        });
+
+        function submitForm() {
+            var form = $("#uform");
+            form.submit();
+        }
+
+        var getCredentialOptionsUrl = '@Url.Action("CredentialOptions", "UserDashboard")';
+        var SaveCredentialUrl = '@Url.Action("SaveCredentials", "UserDashboard")';
+    </script>
+    <script src="~/lib/UserProvision/helpers.js"></script>
+    <script src="~/lib/UserProvision/passwordless.register.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

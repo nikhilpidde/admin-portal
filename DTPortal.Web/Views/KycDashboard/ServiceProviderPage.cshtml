@@ -1,0 +1,1645 @@
+﻿@model DTPortal.Core.DTOs.ServiceProviderPageViewModel
+@{
+    ViewData["Title"] = "Service Providers";
+}
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+@{
+    var kafkaUrl = Configuration["SignalR:KafkaLogHubUrl"];
+}
+@using Newtonsoft.Json
+@using System.Text.Json
+
+<script src="~/assets/js/chart.js"></script>
+
+@{
+    // Defensive: handle null OrgData or monthlyStats
+    var orgData = Model.OrgData;
+    var lastSixMonths = (orgData != null && orgData.monthlyStats != null)
+        ? orgData.monthlyStats.OrderBy(entry => DateTime.ParseExact(entry.Key, "MMMM yyyy", null)).TakeLast(6).ToList()
+        : new List<KeyValuePair<string, DTPortal.Core.DTOs.MonthlyStat>>();
+
+    var labels = lastSixMonths.Select(x => x.Key).ToList();
+    var successData = lastSixMonths.Select(x => x.Value.successCount).ToList();
+    var failedData = lastSixMonths.Select(x => x.Value.failedCount).ToList();
+}
+
+
+<style>
+    .dashboard-header {
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .dashboard-row-1 {
+        flex: 1;
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1%;
+    }
+
+    .dashboard-row-2 {
+        flex: 2;
+        display: flex;
+        flex-direction: column; /* STACK rows vertically */
+        gap: 1rem;
+    }
+
+    .row-30 {
+        flex: 3;
+        display: flex;
+        gap: 1rem;
+    }
+
+        .row-30 > div {
+            flex: 1;
+        }
+
+    .row-70 {
+        flex: 7;
+    }
+
+    .kpi-card {
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 1rem;
+        background: #fff;
+        text-align: center;
+        height: 100%;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .kpi-label {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+
+    .shimmer-wrapper .shimmer-item {
+        height: 90px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background: #f3f3f3;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @@media screen and (max-width:1200px) {
+        .shimmer-wrapper .shimmer-item {
+            height: 150px;
+        }
+    }
+
+    /* Shimmer band */
+    .shimmer-wrapper .shimmer-item::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient( to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100% );
+        animation: shimmer-horizontal 1.6s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+
+
+    @@keyframes shimmer-horizontal {
+        0% {
+            left: -100%;
+        }
+
+        100% {
+            left: 100%;
+        }
+    }
+
+    .service-provider-card {
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        color: #212529;
+        border: 1px solid #dee2e6 !important;
+        cursor: pointer;
+    }
+
+        .service-provider-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+    /* Backgrounds by status */
+    .status-active {
+        background-color: #e8f5e9 !important;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da !important;
+    }
+
+    .status-registered {
+        background-color: #fff3cd !important;
+    }
+
+    /* Status badge */
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        min-width: 100px;
+        text-align: center;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        text-transform: capitalize;
+    }
+
+    .status-badge-active {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .status-badge-inactive {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    .sp-label-heading {
+        font-family: 'Arial', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .custom-modal-body {
+        max-height: 400px;
+        overflow-y: auto;
+        overflow-x:hidden;
+        padding: 1rem;
+        word-break: break-word;
+    }
+
+    .signed-response-content {
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 14px;
+        border-radius: 6px;
+        margin-top: 10px;
+        color: #333;
+    }
+
+
+    .custom-modal-width {
+        max-width: 700px; /* Adjust as needed, e.g., 500px, 600px */
+        width: 90%; /* Optional: Responsive width */
+    }
+
+    .modal-header {
+        background-color: #f0f0f0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        font-size: 18px;
+        color: #333;
+    }
+
+    #verificationTabs .nav-link {
+        border: none;
+        border-radius: 30px;
+        background: #f1f3f5;
+        color: #495057;
+        padding: 10px 20px;
+        margin-right: 10px;
+        font-weight: 600;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+        #verificationTabs .nav-link:hover {
+            background: #dee2e6;
+            color: #212529;
+        }
+
+        #verificationTabs .nav-link.active {
+            background: linear-gradient(135deg, #4e73df, #1cc88a) !important; /* gradient bg */
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+
+    .response-tabs-wrapper .nav-link {
+        border-radius: 22px;
+        border: 1px solid transparent;
+        padding: 6px 16px;
+        transition: 0.3s;
+    }
+
+        .response-tabs-wrapper .nav-link:not(.active) {
+            border: 1px solid #ccc;
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .response-tabs-wrapper .nav-link.active {
+            background-color: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+
+    .device-card:hover {
+        background-color: #e6f0ff; /* Light gray */
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+
+</style>
+<style>
+    .verified-response-content {
+        overflow-x: hidden;
+        padding-right: 5px;
+    }
+
+        .verified-response-content strong {
+            min-width: 140px;
+            display: inline-block;
+            color: #333;
+        }
+
+        .verified-response-content div {
+            word-break: break-word;
+        }
+
+        .verified-response-content img {
+            display: block;
+            margin-top: 5px;
+        }
+
+    .me-3 {
+        margin-right: 1rem !important; /* Bootstrap 5 spacing */
+    }
+</style>
+
+<link rel="stylesheet" href="~/assets/css/font-awesome-6.4.2/css/all.min.css" />
+
+
+<div class="dashboard-header container-fluid" style="padding:15px;overflow-y:auto;scrollbar-width:none">
+    <!-- First Row (Two equal columns) -->
+    <div class="dashboard-row-1">
+
+        <div class="kpi-card w-50 d-flex align-items-center p-3" style="gap: 1rem;">
+            <img src="data:image/png;base64,@Model.OrgData.orgLogo" alt="Logo" style="
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 2px solid #e1e5ee;
+        margin-left:5%
+    ">
+
+            <div class="d-flex flex-column justify-content-center text-start" style="margin-left:5%;text-align:left">
+                <div style="font-weight: 600; font-size: 1.8rem; color: #222;">@Model.OrgData.orgName</div>
+
+                <div style="color: #6c757d; font-size: 1.1rem;">
+                    <span style="font-weight: 600; color: #343a40;">SPOC Name:</span> @Model.OrgData?.spocName
+                </div>
+                <div style="color: #6c757d; font-size: 1.1rem;">
+                    <span style="font-weight: 600; color: #343a40;">SPOC Email:</span> @Model.OrgData?.spocEmail
+                </div>
+                <div style="color: #6c757d; font-size: 1.1rem;">
+                    <span style="font-weight: 600; color: #343a40;">SPOC Contact:</span> @Model.OrgData?.spocMobileNumber
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="kpi-card w-50 d-flex flex-column justify-content-between">
+            <h5 class="mb-3">IDs Verified Per Month</h5>
+            <div style="flex: 1; position: relative;">
+                <canvas id="kycChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <!-- Second Row (Stacked vertically: 30% height, 70% height) -->
+    <div class="dashboard-row-2">
+        <!-- 30% height row with 4 equal columns -->
+        <div class="row-30">
+            <!-- Box 1: Total KYCs this month -->
+            <div class="kpi-card d-flex flex-column justify-content-center align-items-center">
+                <div id="totalKycCountSuccessfulCurrentMonth" class="kpi-value">@Model.OrgData.totalKycCountSuccessfulCurrentMonth</div>
+                <div class="kpi-label" style="font-weight:600">IDs Verified This Month</div>
+            </div>
+
+            <!-- Box 2: Total KYCs till today -->
+            <div class="kpi-card d-flex flex-column justify-content-center align-items-center">
+                <div id="totalKycCountSuccessful" class="kpi-value">@Model.OrgData.totalKycCountSuccessful</div>
+                <div class="kpi-label" style="font-weight:600">Total IDs Verified</div>
+            </div>
+
+            <!-- Box 3: Failed KYCs -->
+            <div class="kpi-card d-flex flex-column justify-content-center align-items-center">
+                <div id="totalKycCountFailed" class="kpi-value text-danger">@Model.OrgData.totalKycCountFailed</div>
+                <div class="kpi-label" style="font-weight:600">Failed ID Proofings</div>
+            </div>
+
+            <!-- Box 4: Success Rate -->
+            <div class="kpi-card d-flex flex-column justify-content-center align-items-center">
+                <div id="verificationSuccessRate" class="kpi-value text-success">
+                    @{
+                        var success = Model.OrgData?.totalKycCountSuccessful ?? 0;
+                        var total = (Model.OrgData?.totalKycCountSuccessful + Model.OrgData?.totalKycCountFailed) ?? 1; // prevent division by zero
+                        var rate = total > 0 ? (int)Math.Round((double)success / total * 100) : 0;
+                    }
+                    @($"{rate}%")
+                </div>
+                <div class="kpi-label" style="font-weight:600">Verification Success Rate</div>
+            </div>
+
+            <!-- Box 5: Device Ids -->
+            <div class="kpi-card device-card d-flex flex-column justify-content-center align-items-center" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#deviceModal">
+                <div id="TotalKycDevices" class="kpi-value">@Model.OrgData.TotalKycDevices</div>
+                <div class="kpi-label" style="font-weight:600">Devices Registered</div>
+            </div>
+
+        </div>
+
+
+        <!-- 70% height row -->
+        <div class="row-70 d-flex flex-column">
+            <div class="kpi-card flex-grow-1 d-flex flex-column">
+                <!-- Heading -->
+                <h5 class="mb-3" style="text-align:left">Latest IDs Verified</h5>
+
+                <div class="bg-white pt-2 pb-2 mb-4 ">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+                        <!-- Search Input with Icon -->
+                        <div class="flex-grow-1 d-flex align-items-center bg-light rounded-pill px-3"
+                             style="max-width: 55%; border: 1px solid #ced4da; border-radius: 12px;">
+                            <i class="fa fa-search text-muted me-2"></i>
+                            <input type="text"
+                                   id="spSearchInput"
+                                   class="form-control border-0 bg-transparent shadow-none"
+                                   placeholder="Search by ID Number or Passport" />
+                        </div>
+
+                        <!-- Filters Section -->
+                        <div class="d-flex align-items-center gap-2">
+
+                            <i class="fa fa-filter text-secondary mr-2" style="font-size: 16px;"></i>
+
+                            <!-- Date Filter -->
+                            <input type="date"
+                                   id="spDateFilter"
+                                   max=""
+                                   class="form-control py-2 px-3 rounded-pill shadow-sm border border-secondary-subtle mr-3"
+                                   style="width: 160px;" />
+
+                            <!-- Status Filter -->
+                            <select id="spStatusFilter"
+                                    class="form-select py-2 px-3 rounded-pill shadow-sm border border-secondary-subtle">
+                                <option value="" selected>All Status</option>
+                                <option value="SUCCESS">Success</option>
+                                <option value="FAILURE">Failure</option>
+                            </select>
+
+                            <!-- Reset Filter Button -->
+                            <button id="resetFilters"
+                                    class="btn btn-secondary ml-3"
+                                    style="width:100px; font-size: 13px; font-weight: 500; ">
+                                <i class="fa fa-rotate-left"></i>
+                                Reset
+                            </button>
+
+
+
+                            
+                        </div>
+                    </div>
+
+                </div>
+
+                <ul class="nav nav-tabs mb-4" id="verificationTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button style="border-radius:22px;" class="nav-link active" id="ids-tab" data-bs-toggle="tab" data-tab="ids" type="button">IDs Verified</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="batch-tab" data-bs-toggle="tab" data-tab="batch" type="button">Batch Verified</button>
+                    </li>
+                </ul>
+
+
+                <div id="serviceProvidersList" class="space-y-4" style="display:block;"></div>
+                <div id="batchServiceProvidersList" class="space-y-4" style="display:none;"></div>
+
+
+
+                <div class="d-flex justify-content-end w-100">
+                    <a href="javascript:void(0);" id="serviceProviderShowMoreBtn" class="toggle-link me-4 mb-3" style="display: none;color:#4e5e6a;font-size:1.1rem;cursor:pointer;">
+                        Show More <i class="bi bi-chevron-down"></i>
+                    </a>
+                </div>
+
+
+                <div id="noDataMessageServiceProvider" class="text-center mt-2 mb-2" style="display:none;">
+                    <div style="color:#4e5e6a;font-size:1.2rem;">No ID Proofing's found.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog custom-modal-width modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header d-flex align-items-center justify-content-between response-tabs-wrapper">
+                <ul class="nav nav-tabs" id="responseTabs" role="tablist">
+                    <li class="nav-item mr-2" role="presentation" style="cursor:pointer;">
+                        <button class="nav-link active" id="request-tab" data-bs-toggle="tab" data-bs-target="#requestContent" type="button" role="tab">Request</button>
+                    </li>
+                    <li class="nav-item mr-2" role="presentation" style="cursor:pointer;">
+                        <button class="nav-link" id="signed-tab" data-bs-toggle="tab" data-bs-target="#signedContent" type="button" role="tab">Response</button>
+                    </li>
+                    <li class="nav-item d-none" role="presentation" id="verified-tab-wrapper" style="cursor:pointer;">
+                        <button class="nav-link" id="verified-tab" data-bs-toggle="tab" data-bs-target="#verifiedContent" type="button" role="tab">Verified Response</button>
+                    </li>
+                </ul>
+            </div>
+
+
+            <div class="modal-body custom-modal-body pt-1">
+                
+                <div class="tab-content mt-3" id="responseTabContent">
+                    <div class="tab-pane fade show active" id="requestContent" role="tabpanel" aria-labelledby="request-tab">
+                        <div class="request-response-content" style="word-break: break-word;"></div>
+                    </div>
+                    <div class="tab-pane fade" id="signedContent" role="tabpanel" aria-labelledby="signed-tab">
+                        <div class="signed-response-content" style="word-break: break-word;"></div>
+                    </div>
+                    <div class="tab-pane fade" id="verifiedContent" role="tabpanel" aria-labelledby="verified-tab">
+                        <div class="verified-response-content" style="word-break: break-word;">Verification pending...</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <div id="verifyResultBadge" class="mr-2" style="display: none;"></div>
+                <button type="button" class="btn btn-primary" id="verifySignedResponseBtn">Verify</button>
+                <!-- Print Button with Icon -->
+                <button type="button" class="btn btn-info" id="printBtn" style="display: none;">
+                    Report
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Register Device ID Modal -->
+<div class="modal fade" id="deviceModal" tabindex="-1" aria-labelledby="deviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <!-- Increased width & scrollable -->
+        <div class="modal-content" style="max-height: 80vh;">
+            <!-- Optional: Set modal height -->
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-size:15px !important; font-weight:600;" id="deviceModalLabel">
+                    Registered Devices for ID Validation
+                </h5>
+            </div>
+            <div class="modal-body" id="deviceList" style="overflow-y: auto; max-height: 60vh;">
+                <!-- Scrolls if content exceeds height -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<form id="serviceProviderForm" method="post" action="@Url.Action("ServiceProviderPage", "KycDashboard")">
+    <input type="hidden" name="id" id="serviceProviderId" />
+    <input type="hidden" name="page" id="serviceProviderPageNo" />
+    <input type="hidden" name="perpage" id="serviceProviderPerPage" />
+</form>
+
+
+<form id="printForm" method="post" action="@Url.Action("PrintIdValidationData", "KycDashboard")">
+    <input type="hidden" name="SignedData" id="printSignedData" />
+    <input type="hidden" name="VerificationResponse" id="printVerificationResponse" />
+</form>
+
+
+
+
+<script>
+
+    const allServiceProviders = @Html.Raw(Json.Serialize(Model.Reports));
+    // const orgData = @Html.Raw(Json.Serialize(Model.OrgData));
+    let pageSize = 10;
+    let currentPage = 0;
+    let totalServiceProviders = 0;
+    let firstPageLoadedFromModel = true;
+    let currentSignedResponse = null;
+    let currentUserData = null;
+    let lastVerificationResponse = null;
+
+    let activeTab = 'ids';
+    let kycChart = null;
+
+    //let prevSearchInput="";
+
+
+
+    const deviceIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.OrgData.KycDevices));
+    //const deviceIds =[",wvhjevh","hvjfvhhhhgjg"];
+
+
+    $(document).ready(function () {
+        $('#kycDashboardMenu').addClass('active');
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+        $('#mainMenu').addClass('breadcrumb-item').append('Service Providers');
+        $('#subMenu').removeClass('breadcrumb-item');
+
+        document.getElementById('backtohome').style.display = 'block';
+        document.getElementById('backtohome').addEventListener('click', function() {
+           window.location.href = '@Url.Action("Index", "KycDashboard")' + "?tab=org";
+        });
+
+        const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+        document.getElementById("spDateFilter").setAttribute("max", today);
+
+        $('#serviceProvidersList').empty();
+
+        if (allServiceProviders && allServiceProviders.length > 0) {
+            renderAndAppendServiceProviders(allServiceProviders);
+
+            // If there's more data in initial model
+            if (allServiceProviders.length < @Model.TotalCount) {
+                $('#serviceProviderShowMoreBtn').show();
+            }
+        } else {
+            // Fallback to AJAX if no model data
+            firstPageLoadedFromModel = false;
+            applyFiltersAndRender();
+        }
+
+        // "Show More" button
+        $('#serviceProviderShowMoreBtn').on('click', function () {
+            $('#serviceProviderShowMoreBtn').hide();
+            currentPage++;
+            firstPageLoadedFromModel = false; 
+            if (activeTab === 'ids') {
+                   applyFiltersAndRender();
+            } else if (activeTab === 'batch') {
+                   applyBatchFiltersAndRender();
+            }
+            
+        });
+
+        // $('#spSearchInput').on('keyup', function (e) {
+        //     const searchValue = $(this).val().trim();
+
+        //     // Case 1: Field is cleared and previously had a value
+        //     if (searchValue === "" && prevSearchInput !== "") {
+        //         prevSearchInput = searchValue; // reset to empty
+        //         if (activeTab === 'ids') {
+        //             resetServiceProviderList();
+        //         } else if (activeTab === 'batch') {
+        //             resetBatchServiceProviderList();
+        //         }
+        //         return;
+        //     }
+
+        //     // Case 2: Pressing Enter triggers validation & search
+        //     if (e.key === 'Enter') {
+        //         e.preventDefault(); // avoid accidental form submit
+
+        //         if (searchValue.length < 3) {
+        //             swal({
+        //                 type: 'info',
+        //                 title: "Info",
+        //                 text: "Please Enter valid Id",
+        //                 showCancelButton: false,
+        //                 closeOnConfirm: true
+        //             });
+        //             return;
+        //         }
+
+        //         prevSearchInput = searchValue;
+        //         if (activeTab === 'ids') {
+        //             resetServiceProviderList();
+        //         } else if (activeTab === 'batch') {
+        //             resetBatchServiceProviderList();
+        //         }
+        //     }
+        // });
+
+
+
+
+        // Search on every keypress
+        $('#spSearchInput').on('input', function () {
+            if (activeTab === 'ids') {
+                resetServiceProviderList();
+            } else if (activeTab === 'batch') {
+                resetBatchServiceProviderList();
+            }
+        });
+
+
+
+        // Status filter
+        $('#spStatusFilter').on('change', function () {
+            if (activeTab === 'ids') {
+                resetServiceProviderList();
+            } else if (activeTab === 'batch') {
+                resetBatchServiceProviderList();
+            }
+        });
+
+        // Date Filter
+        $('#spDateFilter').on('change', function () {
+            if (activeTab === 'ids') {
+                resetServiceProviderList();
+            } else if (activeTab === 'batch') {
+                resetBatchServiceProviderList();
+            }
+        });
+
+
+        $('#resetFilters').on('click', function () {
+            // Clear search input
+            $('#spSearchInput').val('');
+
+            // Reset date picker
+            $('#spDateFilter').val('');
+
+            // Reset status filter to default (first option)
+            $('#spStatusFilter').prop('selectedIndex', 0);
+            if (activeTab === 'ids') {
+                resetServiceProviderList();
+            } else if (activeTab === 'batch') {
+                resetBatchServiceProviderList();
+            }
+        });
+
+
+    $('#printBtn').on('click', function () {
+        if (!lastVerificationResponse || !currentUserData) {
+            alert("No verified response to print.");
+            return;
+        }
+
+        // Fill hidden inputs
+        $('#printSignedData').val(JSON.stringify(lastVerificationResponse));
+        $('#printVerificationResponse').val(JSON.stringify(currentUserData));
+
+        // $('#printForm').submit();
+        $('#printForm')
+        .attr('target', '_blank') // ✅ forces new page
+        .submit();
+    });
+
+
+
+
+    $(document).on('click', '.view-response-btn', function () {
+        const encoded = $(this).data('item');
+        const item = JSON.parse(atob(encoded));
+        currentSignedResponse = item.signedResponse;
+        currentUserData = item;
+        currentKycMethod = item.kycMethod;
+
+        //set request body
+        appendRequestBody(item);
+
+        // Set signed response
+        $('#responseModal .signed-response-content').html(
+            item.signedResponse && item.signedResponse.trim() ? item.signedResponse : 'No Data Found'
+        );
+
+        // Hide verified tab initially
+        $('#verified-tab-wrapper').addClass('d-none');
+        $('#verifiedContent').removeClass('show active');
+
+        // Ensure request tab is active
+        $('#request-tab').addClass('active');
+        $('#requestContent').addClass('show active');
+
+        // Ensure signed tab is inactive
+        $('#signed-tab').removeClass('active');
+        $('#signedContent').removeClass('show active');
+
+        $('#verified-tab').removeClass('active');
+        $('#signed-tab').removeClass('d-none');
+
+        $("#printBtn").hide();
+        $('#verifyResultBadge').hide().html('');
+
+        // Toggle verify button visibility
+        if (!item.signedResponse || item.signedResponse.trim() === '') {
+            $('#verifySignedResponseBtn').hide();
+        } else {
+            $('#verifySignedResponseBtn').show();
+        }
+
+        const modalEl = document.getElementById('responseModal');
+        responseModalInstance = new bootstrap.Modal(modalEl);
+        responseModalInstance.show();
+    });
+
+
+       function appendRequestBody(item) {
+        const req = item.request || {};
+        const imageSectionParts = [];
+
+        // Field-to-label mapping
+        const fieldLabels = {
+            idNumber: "ID Number",
+             name: "Name",
+            dateOfBirth: "Date of Birth",
+            customerPhoneNumber: "Customer Phone Number",
+            customerEmail: "Customer Email",
+            cardNumber: "Card Number",
+            documentType: "Document Type",
+            documentNumber: "Document Number",
+            documentNationality: "Document Nationality",
+            expiryDate: "Expiry Date",
+            width: "Width",
+            height: "Height",
+            fingerIndex: "Finger Index",
+            remoteVerificationdata: "Remote Verification Data",
+            manualEntry: "Manual Entry",
+            authentication: "Authentication",
+            
+        };
+
+        // Handle images
+        if (req.faceImage?.trim()) {
+            imageSectionParts.push(`<div class="mb-3">
+                <img src="data:image/jpeg;base64,${req.faceImage}"
+                     alt="Face Image"
+                     style="width: 100px; height: 120px;  object-fit: cover;">
+            </div>`);
+        }
+        // if (req.capturedFingerImage?.trim()) {
+        //     imageSectionParts.push(`<div class="mb-3 ml-4">
+        //         <img src="data:image/jpeg;base64,${req.capturedFingerImage}"
+        //              alt="Finger Image"
+        //              style="width: 100px; height: 120px;  border-radius: 8px; object-fit: cover;">
+        //     </div>`);
+        // }
+        if (req.capturedFingerImage?.trim()) {
+            imageSectionParts.push(`<div class="mb-3 ml-4">
+                <img src="@Url.Content("~/images/fingerprint.png")"
+                     alt="Finger Image"
+                     style="width: 80px; height: 90px;  border-radius: 8px; object-fit: cover;">
+            </div>`);
+        }
+        if (req.passportImage?.trim()) {
+            imageSectionParts.push(`<div class="mb-3 ml-4">
+                <img src="data:image/jpeg;base64,${req.passportImage}"
+                     alt="Passport Image"
+                     style="width: 100px; height: 120px;  border-radius: 8px; object-fit: cover;">
+            </div>`);
+        }
+
+        // Prepare details section
+        let detailsSection = "";
+        for (const [field, label] of Object.entries(fieldLabels)) {
+            const value = req[field];
+            if (value !== undefined && value !== null && value.toString().trim() !== "") {
+                detailsSection += `
+                    <div class="mb-2 col-12 d-flex">
+                        <strong style="width: 200px;white-space:nowrap;">${label}:</strong>
+                        <span style="padding:2px;">${value}</span>
+                    </div>
+                `;
+            }
+        }
+
+        const html = `
+            <div class="d-flex flex-column gap-4 ml-2">
+                <div class="image-section d-flex gap-3">
+                    ${imageSectionParts.join("")}
+                </div>
+                <div class="flex-grow-1 row mt-1">
+                    ${detailsSection }
+                </div>
+            </div>
+        `;
+
+        $('#responseModal .request-response-content').html(html);
+    }
+
+
+
+
+
+        // Modal close handler
+        $(document).on('click', '#responseModal .btn-close, #responseModal .btn-secondary', function () {
+            if (responseModalInstance) {
+                responseModalInstance.hide();
+            }
+        });
+
+
+        $('#verificationTabs .nav-link').on('click', function () {
+            const selectedTab = $(this).data('tab');
+            activeTab = selectedTab; // 🔴 Track active tab
+            toggleVerifiedSections(selectedTab);
+
+            $('#serviceProvidersList').empty();
+            $('#batchServiceProvidersList').empty();
+            $('#serviceProviderShowMoreBtn').hide();
+
+            if (selectedTab === 'ids') {
+                resetServiceProviderList();
+            } else if (selectedTab === 'batch') {
+                resetBatchServiceProviderList();
+            }
+        });
+
+
+          //load data into devices ids modal
+        $('.device-card').on('click', function () {
+            loadDevicesIntoModal(deviceIds);
+        });
+
+    });
+
+
+    function updateServiceProviderDashboard() {
+        hasNewUpdates = false;
+        lastRefreshTime = Date.now();
+        $.ajax({
+            url: '@Url.Action("UpdateServiceProviderPage", "KycDashboard")',
+            method: 'POST',
+            data: {
+                id: "@Model.OrgData.orgId",
+                page: 1,
+                perpage: 10
+            },
+            success: function (response) {
+                const data = response.orgData;
+
+                const totalSuccess = data.totalKycCountSuccessful || 0;
+                const totalThisMonth = data.totalKycCountSuccessfulCurrentMonth || 0;
+                const failed = data.totalKycCountFailed || 0;
+                const total = totalSuccess + failed;
+                const successRate = total > 0 ? Math.round((totalSuccess / total) * 100) : 0;
+                const devices = data.totalKycDevices || 0;
+
+                $('#totalKycCountSuccessfulCurrentMonth').text(totalThisMonth);
+                $('#totalKycCountSuccessful').text(totalSuccess);
+                $('#totalKycCountFailed').text(failed);
+                $('#verificationSuccessRate').text(successRate + '%');
+                $('#TotalKycDevices').text(devices);
+
+                // Update chart
+                if (kycChart !== null) {
+                    kycChart.destroy();
+                }
+
+                const ctx = document.getElementById('kycChart').getContext('2d');
+
+                kycChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: (data.monthlyLabels || []).slice(-6),
+                        datasets: [
+                            {
+                                label: 'Success',
+                                data: (data.monthlySuccessCounts || []).slice(-6),
+                                backgroundColor: '#28A745',
+                                borderRadius: 6,
+                                barThickness: 15
+                            },
+                            {
+                                label: 'Failure',
+                                data: (data.monthlyFailureCounts || []).slice(-6),
+                                backgroundColor: '#DC3545',
+                                borderRadius: 6,
+                                barThickness: 15
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 10
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            },
+
+            error: function () {
+                console.error('Failed to fetch KPI data');
+            }
+        });
+    }
+
+
+
+      function loadDevicesIntoModal(ids) {
+        let html = "";
+
+        if (!ids || ids.length === 0) {
+            html = `<div class="text-center" style="font-size:15px;">No devices registered.</div>`;
+        } else {
+            html = "<ul class='list-group'>";
+            ids.forEach((id, index) => {
+                html += `
+                    <li class=" d-flex justify-content-between align-items-center p-2 mb-2">
+                        <div style="flex: 1; max-width: 80%; word-wrap: break-word; font-size:14px; color:#4e5e6a; font-weight:500;">
+                            ${index + 1}. ${id}
+                        </div>
+                        <button class="btn btn-danger" style="border-radius:14px;" onclick="deregisterDevice('${id}')">
+                            Block
+                        </button>
+                    </li>`;
+            });
+            html += "</ul>";
+        }
+
+        $('#deviceList').html(html);
+    }
+
+
+
+    function deregisterDevice(id) {
+        $.ajax({
+            url: '@Url.Action("DeregisterDevice", "KycDashboard")',
+            method: 'POST',
+            data: { deviceId: id },
+            success: function (response) {
+                 $('#deviceModal').modal('hide');
+                 swal({
+                        title: 'Success',
+                        text: response.message,
+                        type: 'success',
+                    }, function (isConfirm) {
+                         document.getElementById("serviceProviderId").value = "@Model.OrgData.orgId";
+                        document.getElementById("serviceProviderPageNo").value = 1;
+                        document.getElementById("serviceProviderPerPage").value = 10;
+                        document.getElementById("serviceProviderForm").submit();
+                 });
+            },
+            error: function (xhr) {
+                const response = xhr.responseJSON;
+                 $('#deviceModal').modal('hide');
+                swal({
+                        title: 'Error',
+                        text: response.message,
+                        type: 'error',
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            document.getElementById("serviceProviderId").value = "@Model.OrgData.orgId";
+                            document.getElementById("serviceProviderPageNo").value = 1;
+                            document.getElementById("serviceProviderPerPage").value = 10;
+                            document.getElementById("serviceProviderForm").submit();
+                        }
+                });
+            }
+        });
+    }
+
+
+
+    function toggleVerifiedSections(activeTab) {
+            if (activeTab === 'ids') {
+                $('#serviceProvidersList').show();
+                $('#batchServiceProvidersList').hide();
+            } else if (activeTab === 'batch') {
+                $('#serviceProvidersList').hide();
+                $('#batchServiceProvidersList').show();
+            }
+    }
+
+
+
+    const ctx = document.getElementById('kycChart').getContext('2d');
+    kycChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(JsonConvert.SerializeObject(labels)),
+            datasets: [
+                {
+                    label: 'Success',
+                    data: @Html.Raw(JsonConvert.SerializeObject(successData)),
+                    backgroundColor: '#28A745',
+                    borderRadius: 6,
+                    barThickness: 15
+                },
+                {
+                    label: 'Failure',
+                    data: @Html.Raw(JsonConvert.SerializeObject(failedData)),
+                    backgroundColor: '#DC3545',
+                    borderRadius: 6,
+                    barThickness: 15
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 10
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+
+
+
+    $('#verifySignedResponseBtn').on('click', function () {
+        if (!currentSignedResponse) {
+            alert("No signed response available.");
+            return;
+        }
+        $('#networkOverlay').show();
+
+        $.ajax({
+            url: '@Url.Action("ValidateSignedData", "IdValidation")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ SignedData: currentSignedResponse , KycMethod: currentKycMethod}),
+               success: function (response) {
+                    const badgeContainer = $('#verifyResultBadge');
+                    const verifyBtn = $('#verifySignedResponseBtn');
+                    badgeContainer.show();
+                    $('#networkOverlay').hide();
+
+                    if (response.success) {
+                        $("#printBtn").show();
+                        lastVerificationResponse = response.result; // store response for print
+                        badgeContainer.html(`
+                            <span class="p-2" style="background-color:green;color:white;font-size: 0.95rem;padding:5px 10px !important;border-radius:16px;">
+                                VERIFIED
+                            </span>
+                        `);
+                        verifyBtn.hide();
+
+                        // Show and activate the Verified tab
+                        $('#verified-tab-wrapper').removeClass('d-none');
+                        const verifiedHtml = formatVerifiedData(response.result);
+                        $('.verified-response-content').html(verifiedHtml);
+
+                       
+
+                    } else {
+                        swal({
+                            type: 'info',
+                            title: "Info",
+                            text: `Signed Response verified Failed`,
+                            showCancelButton: false,
+                            closeOnConfirm: true
+                        });
+                    }
+                },
+
+            error: function (xhr, status, error) {
+                $('#networkOverlay').hide();
+                alert("❌ Error occurred during verification:\n" + error);
+            }
+        });
+    });
+
+
+    function cropFileNames(full) {
+           let start, end;
+           start = 25;
+           end = 25;
+
+           if (full && full.length > start + end) {
+               return full.slice(0, start) + '...' + full.slice(-end);
+           } else {
+               return full
+           }
+       }
+
+
+    // Format the response.result into HTML
+       function formatVerifiedData(response) {
+            const fallbackImage = '@Url.Content("~/images/user.png")';// Use your actual default image path
+
+            const originalName = response.name?.trim() || 'N/A';
+            const croppedName = cropFileNames(originalName);
+            const titleAttr = croppedName !== originalName ? ` title="${originalName}"` : '';
+
+            const nationality = response.nationality?.trim() || 'N/A';
+            const idNumber = response.idNumber?.trim() || 'N/A';
+            const issueDate = response.issueDate?.trim() || 'N/A';
+            const expiryDate = response.expiryDate?.trim() || 'N/A';
+            const gender = response.gender?.trim() || 'N/A';
+            const dob = response.dob?.trim() || 'N/A';
+        const documentStatus = response.documentStatus?.trim() || '';
+
+
+            const rawPhoto = response.photo;
+            const photoSrc = rawPhoto
+                ? (rawPhoto.startsWith('data:image') ? rawPhoto : `data:image/jpeg;base64,${rawPhoto}`)
+                : fallbackImage;
+
+                        return `
+                <h5 class="mb-3" style="font-size:20px !important;margin:0;">Verified Details:</h5>
+                <div class="d-flex row flex-wrap align-items-start gap-3" style="padding-left:4%">
+                    <div class="col-2 text-center me-3">
+                        <img src="${photoSrc}"
+                             alt="Cardholder Photo"
+                             style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 2px solid #ccc;">
+                    </div>
+                    <div class="col-9" style="padding-left:4%">
+                            <div class="mb-2 d-flex "><div><strong>Name:</strong></div><div ${titleAttr}>${croppedName}</div></div>
+                        <div class="mb-2"><strong>Nationality:</strong> ${nationality}</div>
+                        <div class="mb-2"><strong>ID Number:</strong> ${idNumber}</div>
+                        <div class="mb-2"><strong>Issue Date:</strong> ${issueDate}</div>
+                        <div class="mb-2"><strong>Expiry Date:</strong> ${expiryDate}</div>
+                        <div class="mb-2"><strong>Gender:</strong> ${gender}</div>
+                        <div class="mb-2"><strong>Date of Birth:</strong> ${dob}</div>
+                ${documentStatus ? `<div class="mb-2"><strong>Document Status:</strong> ${documentStatus}</div>` : ''}
+                    </div>
+                </div>
+            `;}
+
+
+    function resetBatchServiceProviderList() {
+        hasNewUpdates = false;
+        lastRefreshTime = Date.now();
+        currentPage = 0;
+        firstPageLoadedFromModel = false;
+        $('#batchServiceProvidersList').empty(); // make sure it's cleared
+        applyBatchFiltersAndRender();
+    }
+
+
+
+    function applyBatchFiltersAndRender() {
+        const searchValue = $('#spSearchInput').val().trim();
+        const selectedStatus = $('#spStatusFilter').val();
+        const id = "@Model.OrgData.orgId";
+
+        let selectedDate = $('#spDateFilter').val(); // e.g., "2025-08-24"
+        let fromDate = "";
+        let toDate = "";
+
+        if (selectedDate) {
+            // Local start & end of selected day
+            let localStart = new Date(selectedDate + "T00:00:00");
+            let localEnd = new Date(selectedDate + "T23:59:59");
+
+            // Format function for UTC date
+            function formatToUtcString(date) {
+                return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')} ${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}:${String(date.getUTCSeconds()).padStart(2, '0')}`;
+            }
+
+            fromDate = formatToUtcString(localStart);
+            toDate = formatToUtcString(localEnd);
+        }
+
+
+        const shimmer = showBatchShimmer(6); // loading effect for batch list
+
+        $.ajax({
+            url: '@Url.Action("GetBatchPaginatedIdUsers", "KycDashboard")', // 👈 your batch API endpoint
+            method: 'POST',
+            data: {
+                searchValue: searchValue,
+                status: selectedStatus,
+                fromDate:fromDate,
+                toDate:toDate,
+                page: currentPage,
+                id: id
+            },
+            success: function (res) {
+                shimmer.remove();
+                const data = res.data || [];
+                totalServiceProviders = res.totalCount || 0;
+
+                if (currentPage === 0) {
+                    $('#batchServiceProvidersList').empty();
+                }
+
+                renderAndAppendBatchServiceProviders(data);
+
+                if ((currentPage + 1) * pageSize < totalServiceProviders) {
+                    $('#serviceProviderShowMoreBtn').show(); // Optional: handle separate button
+                } else {
+                    $('#serviceProviderShowMoreBtn').hide();
+                }
+
+                if (data.length === 0 && currentPage === 0) {
+                    $('#noDataMessageServiceProvider').show(); // Optional: separate message for batch
+                } else {
+                    $('#noDataMessageServiceProvider').hide();
+                }
+            },
+            error: function (err) {
+                shimmer.remove();
+                console.error('Error fetching batch data:', err);
+            }
+        });
+    }
+
+
+    function renderAndAppendBatchServiceProviders(data) {
+        const container = $('#batchServiceProvidersList');
+        const cards = data.map(item => generateServiceProviderCardHtml(item)); // reuse the same card
+        container.append(cards.join(''));
+        updateDateStamps();
+        updateDateTimeStamps();
+    }
+
+
+    function showBatchShimmer(count) {
+        let shimmerHtml = `<div class="shimmer-wrapper">`;
+        for (let i = 0; i < count; i++) {
+            shimmerHtml += `<div class="shimmer-item"></div>`;
+        }
+        shimmerHtml += `</div>`;
+        const $shimmer = $(shimmerHtml);
+        $('#batchServiceProvidersList').append($shimmer);
+        return $shimmer;
+    }
+
+
+
+
+
+
+    function applyFiltersAndRender() {
+        const searchValue = $('#spSearchInput').val().trim();
+        const selectedStatus = $('#spStatusFilter').val();
+        const id="@Model.OrgData.orgId";
+
+        let selectedDate = $('#spDateFilter').val(); // e.g., "2025-08-08"
+         let fromDate = "";
+        let toDate = "";
+
+        if (selectedDate) {
+            // Local start & end of selected day
+            let localStart = new Date(selectedDate + "T00:00:00");
+            let localEnd = new Date(selectedDate + "T23:59:59");
+
+            // Format function for UTC date
+            function formatToUtcString(date) {
+                return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')} ${String(date.getUTCHours()).padStart(2, '0')}:${String(date.getUTCMinutes()).padStart(2, '0')}:${String(date.getUTCSeconds()).padStart(2, '0')}`;
+            }
+
+            fromDate = formatToUtcString(localStart);
+            toDate = formatToUtcString(localEnd);
+        }
+
+        if (firstPageLoadedFromModel) {
+            return; // already loaded from Razor Model
+        }
+        const shimmer=showShimmer(6); // Optional loading indicator
+
+        $.ajax({
+            url: '@Url.Action("GetPaginatedIdUsers", "KycDashboard")',
+            method: 'POST',
+            data: {
+                searchValue: searchValue,
+                status: selectedStatus,
+                fromDate:fromDate,
+                toDate:toDate,
+                page: currentPage,
+                id:id
+            },
+            success: function (res) {
+                shimmer.remove();
+                if (currentPage === 0) {
+                    $('#serviceProvidersList').empty();
+                }
+
+                const data = res.data || [];
+                totalServiceProviders = res.totalCount || 0;
+
+                renderAndAppendServiceProviders(data);
+
+                // Show/Hide "Show More" button
+                if ((currentPage + 1) * pageSize < totalServiceProviders) {
+                    $('#serviceProviderShowMoreBtn').show();
+                } else {
+                    $('#serviceProviderShowMoreBtn').hide();
+                }
+
+                if (data.length === 0 && currentPage === 0) {
+                    $('#noDataMessageServiceProvider').show();
+                } else {
+                    $('#noDataMessageServiceProvider').hide();
+                }
+            },
+            error: function (err) {
+                shimmer.remove();
+                console.error('Error fetching paginated data:', err);
+            }
+        });
+    }
+
+
+
+    function resetServiceProviderList() {
+        hasNewUpdates = false;
+        lastRefreshTime = Date.now();
+        currentPage = 0;
+        firstPageLoadedFromModel = false;
+        $('#noDataMessageServiceProvider').hide();
+        $('#serviceProvidersList').empty();
+        applyFiltersAndRender();
+    }
+
+    function renderAndAppendServiceProviders(data) {
+        const container = $('#serviceProvidersList');
+        const cards = data.map(item => generateServiceProviderCardHtml(item));
+        container.append(cards.join(''));
+        updateDateStamps();
+        updateDateTimeStamps();
+    }
+
+    function showShimmer(count) {
+        let shimmerHtml = `<div class="shimmer-wrapper">`;
+        for (let i = 0; i < count; i++) {
+            shimmerHtml += `<div class="shimmer-item"></div>`;
+        }
+        shimmerHtml += `</div>`;
+        const $shimmer = $(shimmerHtml);
+        $('#serviceProvidersList').append($shimmer);
+        return $shimmer;
+    }
+
+       function generateServiceProviderCardHtml(item) {
+        const status = item.status.toLowerCase();
+        let cardClass = '', badgeClass = '';
+        const encodedData = btoa(JSON.stringify(item));
+        let base64Image = item.photo || '';
+        let fullDataUrl = '';
+
+        if (base64Image.startsWith('data:image')) {
+            fullDataUrl = base64Image; // Already a complete data URL
+        } else {
+            const imageType = 'png'; // or dynamically detect type
+            fullDataUrl = `data:image/${imageType};base64,${base64Image}`;
+        }
+
+
+        switch (status) {
+            case 'success':
+                cardClass = 'status-active';
+                badgeClass = 'status-badge-active';
+                break;
+            case 'failure':
+                cardClass = 'status-inactive';
+                badgeClass = 'status-badge-inactive';
+                break;
+
+        }
+
+           // const kycMethodsHtml = `
+           //    <span class="badge bg-success text-white mr-3 mb-1 d-flex justify-content-center align-items-center" style="padding:10px 12px !important;font-size:10px !important;">
+           //      ${item.kycMethod}
+           //    </span>
+           //  `;
+
+                   let icon = '';
+    let customClass = 'bg-success text-white'; // default
+    let customStyle = 'padding:10px 12px !important; font-size:10px !important;'; // default
+
+    if (item.kycMethod.toUpperCase().includes('FACE')) {
+      icon = `<img src="@Url.Content("~/images/face.png")" alt="Face" style="width:14px; height:14px; margin-right:6px;">`;
+      customClass = '';
+      customStyle += 'background-color:#f1f410b3; color:black;';
+    } else if (item.kycMethod.toUpperCase().includes('FINGERPRINT')) {
+      icon = `<img src="@Url.Content("~/images/fingerprint.png")" alt="Fingerprint" style="width:14px; height:14px; margin-right:6px;">`;
+      customClass = '';
+      customStyle += 'background-color:#f1f410b3; color:black;';
+    }
+
+    const kycMethodsHtml = `
+      <span class="badge ${customClass} mr-3 mb-1 d-flex justify-content-center align-items-center" style="${customStyle}">
+        ${icon}${item.kycMethod}
+      </span>
+    `;
+
+
+
+            const imageHtml = base64Image
+              ? `<img src="${fullDataUrl}" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;" class="rounded border" />`
+              : `<i class="fa fa-user-circle fa-2x" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px;"></i>`;
+
+
+           return `
+    <div class="card service-provider-card  mb-3 p-3" id="sp-${item.identifier}">
+        <div class="d-flex flex-column gap-3">
+
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between flex-wrap gap-3">
+
+                <!-- Left: Logo and Org Details -->
+                <div class="d-flex gap-3 align-items-start">
+                    ${imageHtml}
+                    <div class="ml-2">
+                            <h5 class="mb-1 fw-semibold text-dark mt-1 d-flex justify-content-start" style="font-size:15px !important;"
+                                ${item.name && item.name.length > 40 ? `title="${item.name}"` : ''}>
+                                ${item.name
+                                    ? (item.name.length > 50
+                                        ? item.name.substring(0, 40) + '...'
+                                        : item.name)
+                                    : 'NA'}
+                            </h5>
+
+
+                        <div class="sp-label-heading mb-1 d-flex justify-content-start">
+                            Id Number : <span>${item.identifier}</span>
+                        </div>
+                        <div class="sp-label-heading d-flex justify-content-start">
+                            Nationality: <span>${item.nationality ? item.nationality : 'NA'}</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                     <!-- Right: Status and KYC Info (Neatly Aligned) -->
+    <div class="d-flex flex-wrap gap-3 align-items-center justify-content-end text-end ms-auto">
+
+
+        <div class="d-none flex-column mr-5" style="min-width:100px;">
+            <div style="font-weight:600;">${item.date}</div>
+            <div class="sp-label-heading">Date</div>
+        </div>
+
+        <div class="d-none flex-column mr-5" style="min-width:100px;">
+            <div style="font-weight:600;">${item.time}</div>
+            <div class="sp-label-heading">Time</div>
+        </div>
+
+         <div class="d-flex flex-column mr-5" style="min-width:100px;text-align:center">
+                        
+
+                        <div class="sp-label-heading">Card Expiry Date</div>
+                        <div style="font-weight:600;">
+                          ${
+                            item.expiryDate
+                              ? (() => {
+                                  const dateParts = item.expiryDate.split("-"); // [yyyy, mm, dd]
+                                  const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+                                  return `<span>${formattedDate}</span>`;
+                                })()
+                              : `<span>NA</span>`
+                          }
+                        </div>
+
+          </div>
+
+        <div class="d-flex flex-column justify-content-center align-items-center" style="min-width:150px;">
+            <span class="badge ${badgeClass} text-uppercase px-3 py-1 fw-semibold d-flex justify-content-center align-items-center" style="width:100px;padding:16px 8px !important;">${item.status}</span>
+        </div>
+
+    </div>
+
+            </div>
+
+            <!-- KYC Methods Section -->
+            <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
+                <div class="d-flex flex-column">
+                     <div class="text-muted small d-flex align-items-center">
+                        <span class="sp-label-heading mr-2">ID Validation Method : </span>
+                        ${kycMethodsHtml}
+                    </div>
+                    <div class="text-muted small d-flex align-items-center">
+                        <span class="sp-label-heading m-0 mr-2">Device ID : </span>
+                      <span style="color: #423a3a; font-weight:600; font-size:12px;">
+                          ${item.deviceId ? item.deviceId : 'NA'}
+                        </span>
+                    </div>
+                </div>
+               <div class="d-flex">
+                     <div class="d-flex flex-column mr-5" style="min-width:100px;text-align:center">
+                        
+                        <div class="sp-label-heading">ID Verification Date & Time</div>
+                        <div style="font-weight:600;">
+                            <span class="convert-date-time" data-datetimestamp="${item.validationDateTime}" style="font-weight:600;">${item.validationDateTime}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center" style="min-width:150px;">
+                         <button type="button" style="max-height:35px;" class="btn btn-primary view-response-btn" data-item='${encodedData}'>
+                          Response
+                        </button>
+                    </div>
+                  
+               </div>
+    
+            </div>
+        </div>
+    </div>
+    `;
+
+    }
+</script>
+
+<script>
+    const REFRESH_INTERVAL = 30000; 
+    const DEBOUNCE_DELAY = 2000;
+
+    let hasNewUpdates = false;
+    let debounceTimer;
+    let lastRefreshTime = Date.now();
+
+    var kafkaHubUrl = "@kafkaUrl";
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl(kafkaHubUrl)
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    // const connection = new signalR.HubConnectionBuilder()
+    //     .withUrl("https://beta-vg.uaekyc.ae/signalr/signalr/kafkaloghub")
+    //     .withAutomaticReconnect()
+    //     .build();
+
+    connection.on("SendLog", function (data) {
+        const parsedData = JSON.parse(data);
+        if(parsedData.serviceProviderName==="@Model.OrgData.orgId"){
+
+
+            hasNewUpdates = true;
+
+    
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+              if (hasNewUpdates) {
+                updateServiceProviderDashboard();
+                if (activeTab === 'ids') {
+                       resetServiceProviderList();
+                } else if (activeTab === 'batch') {
+                      resetBatchServiceProviderList();
+                }
+              }
+            }, DEBOUNCE_DELAY);
+            
+        } 
+    });
+
+    connection.start().catch(function (err) {
+        console.error("SignalR connection error:", err.toString());
+    });
+
+    setInterval(() => {
+      const now = Date.now();
+      if (hasNewUpdates && (now - lastRefreshTime >= REFRESH_INTERVAL)) {
+        updateServiceProviderDashboard();
+        if (activeTab === 'ids') {
+               resetServiceProviderList();
+        } else if (activeTab === 'batch') {
+              resetBatchServiceProviderList();
+        }
+      }
+    }, 5000);
+</script>
+
+<script src="~/assets/js/bootstrap-5.3.3.js"></script>

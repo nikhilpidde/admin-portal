@@ -1,0 +1,106 @@
+﻿@model DTPortal.Web.ViewModel.TrustedSpoc.TrustedSopcViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+}
+@{
+    ViewData["Title"] = "View";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form id="viewSpocForm" method="post">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="SpocName" class="col-form-label">
+                                    Spoc @clientName Email <span style="color: red;">*</span>
+                                </label>
+                                <input asp-for="SpocName" class="form-control" readonly />
+                                <span asp-validation-for="SpocName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SpocEmail" id="spocEmail" class="col-form-label"></label>
+                                <input asp-for="SpocEmail" class="form-control" readonly />
+                                <span asp-validation-for="SpocEmail" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Status" id="spocStatus" class="col-form-label"></label>
+                                <input asp-for="Status" class="form-control" readonly />
+                                <span asp-validation-for="Status" class="text-danger"></span>
+                            </div>
+                            
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="MobileNo" class="col-form-label"></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <select asp-for="CountryCode" asp-items="Model.CountryCodeOptions" class="custom-select" style="height: 34px;" disabled></select>
+                                    </div>
+                                    <input asp-for="MobileNo" class="form-control" tabindex="2" readonly />
+                                </div>
+                                <span asp-validation-for="MobileNo" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="IdDocumentNo" class="col-form-label"></label>
+                                <input asp-for="IdDocumentNo" class="form-control" readonly />
+                                <span asp-validation-for="IdDocumentNo" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Hidden input to store the full mobile number -->
+                    <input type="hidden" id="fullMobileNo" name="FullMobileNo" />
+                    <div class="d-flex justify-content-end" style="padding-top: 31px;">
+                        @* <button type="submit" id="submitBtn" class="btn btn-primary">Save</button> *@
+
+                        @* @if (Model.Status == "ACTIVE")
+                        {
+                            <a type="button" asp-action="SuspendSpoc" asp-route-id="@Model.Id" class="btn btn-primary">
+                                Suspend
+                            </a>
+                        }
+                        @if (Model.Status == "INVITED" && Model.reInvite == true)
+                        {
+                            <a type="button" asp-action="InviteSpoc" asp-route-id="@Model.Id" class="btn btn-primary">
+                                Invite
+                            </a>
+                        }
+                        @if (Model.Status == "SUSPENDED")
+                        {
+                            <a type="button" asp-action="ActiveSpoc" asp-route-id="@Model.Id" class="btn btn-primary">
+                                Activate
+                            </a>
+                        } *@
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#selfServiceConfigMenu').addClass('active');
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#TrustedSpocMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Trusted User');
+        $('#subMenu').addClass('breadcrumb-item active').append('View');
+    });
+</script>

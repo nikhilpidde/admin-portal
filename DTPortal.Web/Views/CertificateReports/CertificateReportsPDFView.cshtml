@@ -1,0 +1,72 @@
+﻿@model DTPortal.Web.ViewModel.CertificateReports.CertificateReportsPDFViewModel
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    td, th {
+        border: 1px solid gray;
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    table th {
+        background-color: #AEC737;
+        color: white;
+    }
+</style>
+
+<div class="table-wrap">
+    <div class="table-responsive">
+        <table class="table display product-overview mb-30" id="support_table5">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Onboarding Method</th>
+                    <th>Document Number</th>
+                    <th>Certificate Serial Number</th>
+                    <th>Certificate Issue Date</th>
+                    <th>Cerificate Expiry Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.CertificateReports.Count() > 0)
+                {
+                    @foreach (var item in Model.CertificateReports)
+                    {
+                        <tr>
+                            <td>@item.FullName</td>
+                            <td>@item.OnboardingMethod</td>
+                            <td>@item.IdDocNumber</td>
+                            <td>@item.CertificateSerialNumber</td>
+                            <td>@item.CertificateIssueDate</td>
+                            <td>@item.CerificateExpiryDate</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" align="center" style="width:200%">No records found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

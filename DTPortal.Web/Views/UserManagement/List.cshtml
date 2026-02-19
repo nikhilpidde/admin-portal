@@ -1,0 +1,217 @@
+﻿
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+
+
+                        @if (!User.IsInRole("Users Checker"))
+                        {
+                            <div class="btn-group">
+                                <a id="addRow1" asp-action="New" class="btn btn-info"><i class="fa fa-plus"></i>Add</a>
+                            </div>
+                        }
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="List">
+                                <i class="fa fa-refresh"></i>Refresh
+                            </a>
+
+                        </div>
+                    </div>
+
+                </div>
+                <table id="user" class="table table-striped table-bordered table-hover table-checkable order-column full-width" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th hidden>Id</th>
+                            <th>Full Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .disabled {
+        color: currentColor;
+        cursor: not-allowed;
+        opacity: 0.5;
+        text-decoration: none;
+    }
+</style>
+@section scripts{
+    <script>
+        var table = '';
+
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url:  '@Url.Action("GetJson", "UserManagement")',
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                dataType: "json",
+                success: OnSuccess,
+                failure: function (response) {
+                    swal("Error", "Something went wrong,try again", "error");
+                },
+                error: ajaxErrorHandler
+            });
+        });
+        function OnSuccess(response) {
+            var ds = response
+            table = $("#user").DataTable(
+            {
+                    "bLengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "order": [[0, "desc"]],
+                    "data": response.data,
+                    "columns": [{ 'data': 'Id', 'visible': false },
+                        { 'data': 'fullName' },
+                        { 'data': 'mailId' },
+                        { 'data': 'role' },
+                        { 'data': 'status' },
+                        {
+                            "render": function (data, type, row)
+                            {
+                                var isChecker = '@User.IsInRole("Users Checker")';
+                                var editUrl ='@Url.Action("Edit", "UserManagement")'+"/"+row.id;
+                                if (isChecker == "False") {
+
+                                    return '<div class="btn-group">\
+                                       <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown" aria-expanded="false">\
+                                        Actions <i class="fa fa-angle-down"></i></button>\
+                                       <ul class="dropdown-menu pull-left" role="menu">\
+                                       <li> <a href='+editUrl +'><i class="icon-pencil"></i>Edit</a></li>\
+                                        @*<li><a class="js-delete" data-user='+ row.uuid + ' data-id=' + row.id + '><i class="fa fa-trash"></i>Delete</a></li>\
+                                       <li><a asp-action="Session" asp-route-id='+row.uuid+'><i class="icon-file-text"></i>Session</a></li>*@\
+                                       </ul></div>';
+                                } else {
+                                    return '<div class="btn-group">\
+                                       <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown" aria-expanded="false">\
+                                        Actions <i class="fa fa-angle-down"></i></button>\
+                                       <ul class="dropdown-menu pull-left" role="menu">\
+                                       <li> <a href='+ editUrl +'><i class="icon-pencil"></i>View</a></li>\
+                                        </ul></div>';
+                                }
+                            }
+                        },
+                    ]
+                });
+
+            table.on('error.dt', function (e, settings, techNote, message) {
+            });
+        };
+        $(document).ready(function () {
+
+
+            $('#administrationSidebarElement').addClass('active');
+            $('#userManagementSidebarElement').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Users');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+          //  $('#AuthenticationService').toggle();
+            $(".dataTables_filter input")
+                .unbind()
+                .bind("input", function (e) {
+                    if (this.value.length >= 3 || e.keyCode == 13) {
+                        table.search(this.value).draw();
+                    }
+                    if (this.value == "") {
+                        table.search("").draw();
+                    }
+                    return;
+                });
+
+            $.fn.dataTable.ext.errMode = 'none';
+
+            
+
+            $('#user').on('click', '.js-delete', function () {
+                var deleteButton = $(this);
+                var id = deleteButton.attr("data-id");
+                var User = deleteButton.attr("data-user");
+                var FullName = $(this).parents('tr:first').find('td:first').text();
+                if (User == "1a864620-ac5b-4ef4-8656-2d7f6fe32844" || User == "9416c17e-1b91-4ee3-a00b-1031720a1ba0") {
+                    swal("Not Allowed!", "The user " + FullName + " is default user, You can not delete this user", "info")
+                    return false;
+                }
+                swal({
+                    title: "Are you sure?",
+                    text: "Do you want to delete this record",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                    $.ajax({
+                        type: 'POST',
+                        cache: false,
+                        dataType: 'json',
+                        url: '@Url.Action("Delete", "UserManagement")',
+                        data: {
+                            id: id,
+                            uuid: User
+                        },
+                        beforeSend: function () {
+                            $('#overlay').show();
+                        },
+                        complete: function () {
+                            $('#overlay').hide();
+                        },
+                        success: function () {
+                            deleteButton.closest('tr').remove();
+                            window.location.reload();
+                            //var index = $(this).closest('td').parent()[0].sectionRowIndex;
+                            //document.getElementById("userTable").deleteRow(index);
+                        },
+                        error: ajaxErrorHandler
+                    });
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            });
+
+
+        });
+
+    </script>
+}
+

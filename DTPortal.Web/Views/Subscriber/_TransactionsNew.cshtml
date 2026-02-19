@@ -1,0 +1,250 @@
+﻿@model DTPortal.Web.ViewModel.Subscriber.SubscriberReportsSearchViewModel
+@using DTPortal.Web.Enums
+
+<style>
+    #OnboardingLogs:hover {
+        color: blue;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="card" style="padding: 0px;">
+    <div class="card-head row" style="padding: 0px 20px 0px 0px;display: inline-block;margin: auto;width: 100%;">
+        <header style="font-size:15px">Search Transactions</header>
+        <div style="float:right">
+            <a id="OnboardingLogs" class="btn-xs onboarding font-weight-normal" asp-action="SubscriberOboardingServiceReports" asp-route-fullname="@Model.SubscriberFullname" asp-route-identifier="@Model.Identifier">Show Onboarding Logs</a>
+        </div>
+    </div>
+    <div class="card-body " id="bar-parent5">
+        <form method="post" asp-action="SubscriberReports" style="height: 40px;">
+            <div class="row">
+                <input asp-for="Identifier" hidden />
+                <input asp-for="SubscriberFullname" hidden />
+                <div class=" col-lg-3 col-md-3 col-sm-3 col-3">
+                    <div class="form-group">
+                        <select asp-for="TransactionType" asp-items="Html.GetEnumSelectList<TransactionType>()" class="form-control">
+                            @* <option selected value="">Select Transaction Type</option> *@
+                        </select>
+                        <span asp-validation-for="TransactionType" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+                    <select asp-for="TransactionStatus" class="form-control">
+                        <option selected value="">Select Transaction Status</option>
+                        <option value="SUCCESS">Success</option>
+                        <option value="FAILED">Failed</option>
+                        <option value="BOTH">Both</option>
+                    </select>
+                    <span asp-validation-for="TransactionStatus" class="text-danger"></span>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+                    <input type="text" name="daterange" style="height: 34px" class="form-control" asp-for="DateRange" onfocus="onFocus()">
+                    <span id="dateRangeTypeError" asp-validation-for="DateRange" class="text-danger">Please select date range</span>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+                    <div class="row">
+                        <input type="button" id="submitBtn" class="btn btn-primary greenButton" value="Apply" />
+                        &nbsp;&nbsp;
+                        <input type="button" class="btn btn-danger" value="Clear" onclick="resetTransactionFields()" />
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            <div id="subscriberReports" class="col-md-12 col-sm-12">
+            </div>
+        </div>
+    </div>
+</div>
+
+@*<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />*@
+<link href="~/css/daterangepicker.css" rel="stylesheet" />
+@*<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>*@
+<script src="~/js/moment.min.js"></script>
+@*<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>*@
+<script src="~/js/daterangepicker.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        $('#dateRangeTypeError').hide();
+
+        $('input[name="daterange"]').daterangepicker({
+            locale: {
+                format: 'YYYY/MM/DD'
+            },
+            drops: 'auto',
+            maxDate: moment()
+        });
+        $('input[name="daterange"]').val('');
+        $('input[name="daterange"]').attr("placeholder", "Select Date Range");
+
+        $("#submitBtn").click(function (e) {
+            e.preventDefault();
+
+            const TransactionTypes = {
+                ALL: 1,
+                NON_RESIDENT_CARD_APPLICATION: 12,
+                VISA_APPLICATION: 3,
+                IMMIGRATION: 4,
+                HOTEL_CHECKING: 5,
+                SIM: 6,
+                WALLET: 2,
+                RESIDENT_CARD: 8,
+                TRADE_LICENSE: 9,
+                ESTABLISHMENT_CARD: 10,
+                SIGNING: 11,
+                AUTHENTICATION: 12
+            };
+
+            var form = $(this).closest('form');
+            form.validate();
+            var transactionType = parseInt($('#TransactionType').val());
+
+            if ($('#DateRange').val() === '') {
+                $('#dateRangeTypeError').show();
+            } else {
+                $('#dateRangeTypeError').hide();
+            }
+
+            if (form.valid()) {
+                var actionUrl = form.attr('action');
+                var dataToSend = form.serialize();
+                $('#subscriberReports').empty();
+
+                $.ajax({
+                    type: "POST",
+                    url: actionUrl,
+                    data: dataToSend,
+                    datatype: "json",
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        $('#subscriberReports').html(data);
+
+                        // Hide all tabs and export buttons by default
+                        const tabs = [
+                            '#signingReportsTab', '#visaApplicationReportsTab', '#immigrationApplicationReportsTab',
+                            '#nonResidentCardApplicationReportsTab', '#allReportsTab', '#simReportsTab',
+                            '#walletReportsTab', '#residentCardTab', '#tradeLicenseTab', '#establishmentCardTab',
+                            '#hotelReportsTab'
+                        ];
+                        const exportDivs = [
+                            '#SignExpBtnDiv', '#VISAExpBtnDiv', '#ImmigrationExpBtnDiv', '#NonResidentCardExpBtnDiv',
+                            '#AllReportsExpBtnDiv', '#SimReportsExpBtnDiv', '#WalletReportsExpBtnDiv',
+                            '#ResidentCardReportsExpBtnDiv', '#TradeLicenseReportsExpBtnDiv', '#EstablishmentReportsExpBtnDiv',
+                            '#HotelReportsExpBtnDiv'
+                        ];
+                        tabs.forEach(tab => $(tab).hide());
+                        exportDivs.forEach(div => $(div).hide());
+
+                        // Activate the specific tab and export button based on transaction type
+                        function activateTabAndExportButton(tabId, exportDivId, activeReportId) {
+                            $(tabId).show();
+                            $(exportDivId).show();
+                            $('.report-content').removeClass("active");
+                            $(activeReportId).addClass("active");
+                        }
+
+                        switch (transactionType) {
+                            case TransactionTypes.AUTHENTICATION:
+                                activateTabAndExportButton('#authenticationReportsTab', '#AuthExpBtnDiv', '#authenticationReports');
+                                break;
+                            case TransactionTypes.SIGNING:
+                                activateTabAndExportButton('#signingReportsTab', '#SignExpBtnDiv', '#signingReports');
+                                break;
+                            case TransactionTypes.VISA_APPLICATION:
+                                activateTabAndExportButton('#visaApplicationReportsTab', '#VISAExpBtnDiv', '#visaApplicationReports');
+                                break;
+                            case TransactionTypes.IMMIGRATION:
+                                activateTabAndExportButton('#immigrationApplicationReportsTab', '#ImmigrationExpBtnDiv', '#ImmigrationApplicationReports');
+                                break;
+                            case TransactionTypes.NON_RESIDENT_CARD_APPLICATION:
+                                activateTabAndExportButton('#nonResidentCardApplicationReportsTab', '#NonResidentCardExpBtnDiv', '#NonResidentCardApplicationReports');
+                                break;
+                            case TransactionTypes.ALL:
+                                activateTabAndExportButton('#allReportsTab', '#AllReportsExpBtnDiv', '#AllReports');
+                                break;
+                            case TransactionTypes.HOTEL_CHECKING:
+                                activateTabAndExportButton('#hotelReportsTab', '#HotelReportsExpBtnDiv', '#HotelReports');
+                                break;
+                            case TransactionTypes.SIM:
+                                activateTabAndExportButton('#simReportsTab', '#SimReportsExpBtnDiv', '#SimReports');
+                                break;
+                            case TransactionTypes.WALLET:
+                                activateTabAndExportButton('#walletReportsTab', '#WalletReportsExpBtnDiv', '#walletReports');
+                                break;
+                            case TransactionTypes.RESIDENT_CARD:
+                                activateTabAndExportButton('#residentCardTab', '#ResidentCardReportsExpBtnDiv', '#ResidentCard');
+                                break;
+                            case TransactionTypes.TRADE_LICENSE:
+                                activateTabAndExportButton('#tradeLicenseTab', '#TradeLicenseReportsExpBtnDiv', '#TradeLicense');
+                                break;
+                            case TransactionTypes.ESTABLISHMENT_CARD:
+                                activateTabAndExportButton('#establishmentCardTab', '#EstablishmentReportsExpBtnDiv', '#EstablishmentCard');
+                                break;
+                            default:
+                                var val = $('#ReportsTab li a.active').text();
+                                if (val === 'Authentication') {
+                                    $('#SignExpBtnDiv').hide();
+                                    $('#AuthExpBtnDiv').show();
+                                }
+                        }
+
+                        // Scroll to transaction div
+                        var bodyRect = document.body.getBoundingClientRect();
+                        var elemRect = document.getElementById("transactionDiv").getBoundingClientRect();
+                        var offset = (elemRect.top - 100) - bodyRect.top;
+                        window.scrollTo(0, offset);
+                    },
+                    error: ajaxErrorHandler,
+                    failure: function (response) {
+                        swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                    }
+                });
+            }
+        });
+
+
+        $('a.btn-xs.onboarding').click(function (e) {
+            e.preventDefault();
+            let href = $(this).attr('href');
+            $.ajax({
+                type: "GET",
+                url: href,
+                contentType: "application/json; charset=utf-8",
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        });
+    });
+
+    function onFocus(event) {
+        $('#dateRangeTypeError').hide();
+    }
+
+    function resetTransactionFields() {
+        $('#TransactionType').val('');
+        $('#TransactionStatus').val('');
+        $("#DateRange").val("");
+    }
+
+</script>

@@ -1,0 +1,145 @@
+﻿@model List<DTPortal.Web.ViewModel.Subscriber.DeviceHistoryViewModel>
+
+<style>
+    .timeline-label {
+        position: relative;
+    }
+
+        .timeline-label .timeline-item-healthy:before {
+            height: 100%;
+            /*height: 93.5%;*/
+            content: "";
+            position: absolute;
+            left: 16px;
+            width: 3px;
+            top: 0;
+            bottom: 0;
+            background-color: green;
+        }
+
+        .timeline-label .timeline-item-healthy {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+            /*margin-bottom: 1.3rem;*/
+        }
+
+        .timeline-label .timeline-item-unhealthy:before {
+            height: 100%;
+            /*height: 93.5%;*/
+            content: "";
+            position: absolute;
+            left: 16px;
+            width: 3px;
+            top: 0;
+            bottom: 0;
+            background-color: white;
+        }
+
+        .timeline-label .timeline-item-unhealthy {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+            /*margin-bottom: 1.3rem;*/
+        }
+
+        .timeline-label .healthStatus:last-child:before {
+            background-color: white !important;
+        }
+
+        .timeline-label .timeline-label {
+            width: 85px;
+            flex-shrink: 0;
+            position: relative;
+            color: #3f4254;
+        }
+
+    .column-left {
+        float: left;
+        width: 40%;
+    }
+
+    .column-right {
+        float: right;
+        width: 50%;
+    }
+
+    .column-center {
+        display: inline-block;
+        width: 10%;
+    }
+
+    .timeline-label:before {
+        background-color: white !important;
+    }
+</style>
+
+<div class="modal-dialog" role="document" style="align-content:center">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title w-100 text-center">
+                <span class="text-capitalize s3" style="font-size: 17px; align-content:flex-end">
+                    <span style="font-size: 14px;">Device History</span>
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross btclick"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <div id="project-timeline-container" class="ps" style="height:350px">
+                    <div id="spin">
+                        <div class="cv-spinner">
+                            <span class="spinner">
+
+                            </span>
+                        </div>
+                    </div>
+                    <div id="filteredServiceHealthHistoryDiv" class="card-body pt-5">
+                        <div class="timeline-label">
+                            @if (Model != null)
+                            {
+                                if (Model.Count() == 0)
+                                {
+                                    <span>No Records found</span>
+                                }
+                                else
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        <div class="timeline-item-healthy healthStatus" style="height:75px">
+                                            <div class="column"
+                                                 style="text-align: end; padding: 0px 15px; margin-left: -15px">
+                                                @* <div class="fw-bolder text-gray-800 fs-6" style="min-width:90px">@item.CreatedDate.ToString("dd-MM-yyyy")</div> *@
+                                                @* <div class="fw-bolder text-gray-800 fs-6" style="min-width:90px">@item.CreatedDate.ToString("hh:mm tt")</div> *@
+                                            </div>
+                                            <div class="timeline-badge">
+                                                <i class="fa fa-circle" style="color:black"></i>
+                                            </div>
+                                            <div class="fw-mormal timeline-content text-muted ps-3">
+                                                @* <div class="timeline-content text-gray-500 ps-3">@item.DeviceId</div> *@
+                                                <div class="timeline-content text-gray-500 ps-3">@item.CreatedDate.ToString("dd-MM-yyyy")</div>
+                                                <div class="timeline-content text-gray-500 ps-3">@item.CreatedDate.ToString("hh:mm tt")</div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary btclick" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+

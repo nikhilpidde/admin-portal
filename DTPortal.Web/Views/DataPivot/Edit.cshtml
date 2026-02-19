@@ -1,0 +1,558 @@
+﻿@model DTPortal.Web.ViewModel.DataPivot.DataPivotViewModel
+
+@{
+    ViewData["Title"] = " DataPivots Edit";
+}
+
+<style>
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+        .select2-container .select2-selection--single {
+            height: 35px !important;
+        }
+
+    .selection {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #555555b3;
+        font-size: 14px;
+        font-family: inherit;
+    }
+
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+    i {
+        color: #808080e0;
+    }
+
+    .popup {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        float: right;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        margin-bottom: 35px;
+        margin-top: -60px;
+    }
+    /* The actual popup */
+    .popup .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        /* top: -43%; */
+        /* bottom: -28%; */
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+    .popup:hover + .popuptext {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s;
+    }
+
+    .custom-check-box:hover {
+        outline: auto;
+        outline-color: #5d9ceca3;
+    }
+</style>
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Update" id="dataForm" onsubmit="return collectCheckboxValues()">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <input asp-for="Id" class="form-control" hidden />
+                            <input asp-for="DataPivotImage" class="form-control" hidden />
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-form-label s3"></label>
+                                <input asp-for="Name" class="form-control" />
+
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="OrgnizationId" class="col-form-label s3">Organization Name</label>
+                                <select asp-for="OrgnizationId" class="form-control"
+                                        asp-items="Model.OrganizatioList">
+                                    <option value="">-- Select Organization --</option>
+                                </select>
+                                <span asp-validation-for="OrgnizationId" class="text-danger"></span>
+                            </div>
+                          
+                           
+                           
+                            <div class="form-group">
+                                <label asp-for="Scopes" class="col-form-label s3">Scopes</label>
+                                <select asp-for="Scopes" class="form-control"
+                                        asp-items="Model.ScopesList">
+                                    <option value="">-- Select Scope --</option>
+                                </select>
+                                <span asp-validation-for="Scopes" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="AuthScheme" class="col-form-label s3"></label>
+                                <select asp-for="AuthScheme" class="form-control"
+                                        asp-items="@Model.AuthSchemeList">
+                                    <option value="">-- Select Authentication Scheme --</option>
+                                </select>
+
+                                <span asp-validation-for="AuthScheme" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Category" class="col-form-label s3">Category</label>
+                                <select asp-for="Category" class="form-control"
+                                        asp-items="Model.CategoryList">
+                                    <option value="">-- Select Category --</option>
+                                </select>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DisplayName" class="col-form-label s3">Description</label>
+                                <input asp-for="DisplayName" class="form-control" />
+                                <span asp-validation-for="DisplayName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="AttributeConfiguration" class="col-form-label s3">Attribute Configuration</label>
+                                <textarea asp-for="AttributeConfiguration" class="form-control" rows="1"></textarea>
+                                <span asp-validation-for="AttributeConfiguration" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label">Allowed Subscriber Types</label>
+                                <fieldset style="border: 1px solid #D3D3D3; padding: 20px; border-radius: 8px; width: 100%; max-width: 1200px;">
+                                    <label>                                        
+                                        <input type="checkbox" name="subscriberTypes" value="Visitor" class="custom-check-box"
+                                               style="margin-left:5px"
+                                        @(Model.AllowedSubscriberTypes != null && Model.AllowedSubscriberTypes.Contains("Visitor") ? "checked" : "") /> Visitor
+                                    </label>
+                                    <br />
+                                    <label>                                        
+                                        <input type="checkbox" name="subscriberTypes" value="Citizen" class="custom-check-box"
+                                               style="margin-left:5px"
+                                        @(Model.AllowedSubscriberTypes != null && Model.AllowedSubscriberTypes.Contains("Citizen") ? "checked" : "") /> Citizen
+                                    </label>
+                                    <br />
+                                    <label>
+                                        <input type="checkbox" name="subscriberTypes" value="Resident" class="custom-check-box"
+                                               style="margin-left:5px"
+                                        @(Model.AllowedSubscriberTypes != null && Model.AllowedSubscriberTypes.Contains("Resident") ? "checked" : "") /> Resident
+                                    </label>
+                                    <div id="checkboxError" class="text-danger" style="display: none;">Please select at least one subscriber type.</div>
+                                </fieldset>
+                                @* <div id="checkboxError" class="text-danger" style="display: none;">Please select at least one subscriber type.</div> *@
+                            </div>
+                            <input type="hidden" asp-for="AllowedSubscriberTypes" id="allowedSubscriberTypes" />
+                            
+                        </div>
+                        <div class="form-group col-md-6">
+
+                           
+                            <div class="form-group">
+                                <label asp-for="Serviceurl" class="col-form-label s3">Service Url</label>
+                                <textarea asp-for="Serviceurl" class="form-control" rows="1"></textarea>
+                                <span asp-validation-for="Serviceurl" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ClientId" class="col-form-label s3">Client Id</label>
+                                <input asp-for="ClientId" class="form-control"/>
+                                <span asp-validation-for="ClientId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ClientSecret" class="col-form-label s3"> Client Secret</label>
+                                <input asp-for="ClientSecret" class="form-control" />
+                                <span asp-validation-for="ClientSecret" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Cert" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">upload certificate for request signing purpose</div>
+                                <input asp-for="Cert" accept=".crt,.cer" class="form-control" />
+                                @if (Model.IsFileUploaded)
+                                {
+                                    <span class="text-info">Certificate Exist</span>
+                                }
+                                <span asp-validation-for="Cert" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DataPivotLogo" style="font-weight:bold; white-space: nowrap;">Data Pivot Logo</label>
+                                <div class="d-flex align-items-center" @* style="margin-top: 17px" *@>
+                                    <div class="custom-file form-group">
+
+                                        <label>
+                                            <input asp-for="DataPivotLogo" class="form-control custom-file-input" onchange="FileToBase64(this)" accept=".jpg,.png,.jpeg" style="width: 200px;" />
+                                            <span class="custom-file-label">Choose File...</span>
+                                        </label>
+                                        <span asp-validation-for="DataPivotLogo" class="text-danger"></span>
+                                        <div class="form-group" hidden>
+                                            <input asp-for="ResizedDataPivotLogo" id="ResizedDataPivotLogo" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if(Model.ResizedDataPivotLogo == null)
+                            {
+                                <div class="col-sm-12 text-center" style="margin-top: 10px;">
+                                    <img id="dataPivotPreviewImage" style="max-width: 250px; max-height: 250px; display:none" />
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col-sm-12 text-center" style="margin-top: 10px;">
+                                    <img id="dataPivotPreviewImage" style="max-width: 250px; max-height: 250px;" />
+                                </div>
+                            }
+                           
+                        </div>
+                        
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            <partial name="_DataPivotImagePreview" />
+                            &nbsp;&nbsp;
+                            <button class="btn btn-primary greenButton" type="submit">
+                                Update
+                            </button>
+                            &nbsp;&nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        var resizedLogo = '@Model.ResizedDataPivotLogo';
+        var allowedImageFileTypes = ['jpg', 'jpeg', 'png'];
+
+        $("#dataPivotPreviewImage").attr('src', 'data:image/jpg;base64,' + '@Html.Raw(Model.ResizedDataPivotLogo)');
+
+        $(document).ready(function () {
+
+            $('#multiPivotMenu').addClass('active');
+            //$('#OauthSamlSidebarElement').addClass('active');
+            $('#DataPivotSidebarElement').addClass('active');
+
+            $('#multiPivot').addClass('show');
+            //$('#OauthSamlSubmenu').addClass('show');
+
+            $("li#multiPivotMenu a:first").attr('aria-expanded', 'true');
+            // $("li#OauthSamlSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Multi Pivots Service');
+            $('#mainMenu').addClass('breadcrumb-item active').append('DataPivots > Edit');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            $("#OrganizationId").select2();
+
+        });
+        $(document).on("change", '.custom-file-input', function () {
+            debugger;
+            var id = this.id;
+            $('span[data-valmsg-for=' + id + ']').text("");
+            var file = $(this).get(0).files[0];
+            if (file == undefined) {
+                fileName = "Choose File...";
+            } else {
+                fileName = file.name;
+                var ext = this.value.match(/\.(.+)$/)[1];
+                if (!allowedImageFileTypes.includes(ext)) {
+                    $(this).val('');
+                    fileName = "Choose File...";
+                    $('.custom-file #DataPivotLogo-error').text("");
+                    $('span[data-valmsg-for="DataPivotLogo"]').text("Only files with extensions: " + allowedImageFileTypes.join(',') + " are allowed");
+                }
+                else if (file.size >= 50 * 1024) {
+                    $(this).val('');
+                    fileName = "Choose File...";
+                    swal({ type: 'error', title: "Error", text: "File size cannot be greater than 50 kb" });
+                }
+                else {
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        showImagePreview(reader.result);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+            $(this).next('.custom-file-label').html(fileName);
+            $(this).closest('.help-block').remove();
+        });
+
+        function collectCheckboxValues() {
+            debugger;
+            var selectedValues = [];
+            var checkboxes = document.querySelectorAll('input[name="subscriberTypes"]:checked');
+            checkboxes.forEach(function (checkbox) {
+                selectedValues.push(checkbox.value);
+            });
+            if (selectedValues.length === 0) {
+                swal({
+                    type: 'error',
+                    title: "Error",
+                    text: 'Please select at least one subscriber type.',
+                });
+                return false;
+            } else {
+                document.getElementById('checkboxError').style.display = 'none';
+            }
+            document.getElementById('allowedSubscriberTypes').value = selectedValues.join(',');
+            return true;
+        }
+
+        function ImagePreview(data) {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("MakeTransparentImage", "DataPivot")',
+                    data: data,
+                    error: function (xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        reject(error);
+                    },
+                    success: function (data) {
+                        resolve(data);
+                    }
+                });
+            });
+        }
+
+        function showImagePreview(PrvImageData) {
+            if (PrvImageData) {
+                var imgEl = document.createElement('img');
+                imgEl.addEventListener('load', function () {
+
+                    var resizedImage = resizeImage(imgEl);
+                    var base64EsealImage = "";
+                    if (resizedImage.startsWith("data:image/jpg;base64,"))
+                        base64EsealImage = resizedImage.replace("data:image/jpg;base64,", "");
+
+                    else if (resizedImage.startsWith("data:image/jpeg;base64,"))
+                        base64EsealImage = resizedImage.replace("data:image/jpeg;base64,", "");
+
+                    else
+                        base64EsealImage = resizedImage.replace("data:image/png;base64,", "");
+                    const postData = { "base64": base64EsealImage };
+
+                    ImagePreview(postData)
+                        .then(data => {
+                            if (data.success) {
+                                var resizedImgElement = document.getElementById('previewImage');
+                                resizedImgElement.src = "data:image/png;base64," + data.result;
+
+                                var esealImagePopup = document.getElementById('esealImagePopup');
+                                esealImagePopup.style.display = 'flex';
+                            }
+                            else {
+                                var resizedImgElement = document.getElementById('previewImage');
+                                resizedImgElement.src = resizedImage;
+
+                                var esealImagePopup = document.getElementById('esealImagePopup');
+                                esealImagePopup.style.display = 'flex';
+                            }
+                        })
+                        .catch(error => {
+                            // Handle any errors that occurred during the API call
+                            console.error('Error:', error);
+                        });
+
+
+
+                });
+
+                imgEl.src = PrvImageData;
+            }
+        }
+
+        $(document).on("click", '#agreeButton', function (e) {
+            e.preventDefault();
+            var imgSrc = document.getElementById('previewImage').getAttribute('src');
+            handelEsealImagePreview(imgSrc, true);
+        });
+        $(document).on("click", '#uploadAgainButton', function (e) {
+            e.preventDefault();
+            handelEsealImagePreview(false);
+        });
+
+        $(document).on("click", '#hideImagePreview', function (e) {
+            e.preventDefault();
+            handelEsealImagePreview(false);
+        });
+
+        function handelEsealImagePreview(resizedImage, agreed) {
+            if (agreed) {
+                var base64EsealImage = "";
+                if (resizedImage.startsWith("data:image/jpg;base64,"))
+                    base64EsealImage = resizedImage.replace("data:image/jpg;base64,", "");
+
+                else if (resizedImage.startsWith("data:image/jpeg;base64,"))
+                    base64EsealImage = resizedImage.replace("data:image/jpeg;base64,", "");
+
+                else
+                    base64EsealImage = resizedImage.replace("data:image/png;base64,", "");
+
+
+
+                $('#ResizedDataPivotLogo').val(base64EsealImage);
+                
+                $('#dataPivotPreviewImage').attr('src', resizedImage);
+                if (resizedLogo == null){
+                    $('#dataPivotPreviewImage').css('display', 'none');
+                }
+                else{
+                    $('#dataPivotPreviewImage').css('display', 'block');
+                }
+            } else {
+                $('.custom-file-input').val('');
+                $('#esealFileLable').html('Choose File...');
+                //$('#eSealPreviewImage').attr('src', '');
+            }
+
+            var esealImagePopup = document.getElementById('esealImagePopup');
+            esealImagePopup.style.display = 'none';
+        }
+
+        function resizeImage(imgEl) {
+
+            const maxWidth = 250; // Set the desired width for the resized image
+            const maxHeight = 250; // Set the desired height for the resized image
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = imgEl.width;
+            let height = imgEl.height;
+
+            // Calculate the new dimensions while maintaining the aspect ratio
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+
+            var xPadding = 0;
+            var yPadding = 0;
+
+            if (width < 250) {
+                var widthDiff = 250 - width;
+                xPadding = widthDiff / 2;
+            }
+            if (height < 250) {
+                var heightDiff = 250 - height;
+                yPadding = heightDiff / 2;
+            }
+
+
+            canvas.width = 250;// width;
+            canvas.height = 250;// height;
+
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+            ctx.drawImage(imgEl, xPadding, yPadding, width, height);
+
+            return canvas.toDataURL();
+        }
+
+        function FileToBase64(element) {
+            var file = element.files[0];
+
+            var maxSizeKB = 50;
+            var maxSize = maxSizeKB * 1024;
+            if (file.size > maxSize) {
+                return swal({ type: 'error', title: "Max size exceeded", text: "File must be less than 50 Kb" });
+            }
+
+            var reader = new FileReader();
+
+            reader.onloadend = function () {
+                var base64String = reader.result.split(',')[1]; // Extract base64 string from data URL
+                $("#dataPivotPreviewImage").val(base64String);
+                $("#DataPivotImage").val(base64String);
+            }
+
+            reader.readAsDataURL(file);
+        }
+
+    </script>
+}

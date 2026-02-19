@@ -1,0 +1,207 @@
+﻿@model JArray
+@using Newtonsoft.Json.Linq;
+
+<style>
+    #roleManagementActivitesFieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 20px;
+        margin-bottom: 15px;
+        overflow-y: auto;
+        height: 300px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .jstree-default .jstree-disabled.jstree-clicked {
+        background: #ffffff00;
+    }
+
+    .jstree-default .jstree-disabled > .jstree-icon {
+        -webkit-filter: grayscale(20%);
+    }
+
+    a.jstree-anchor {
+        padding-left: 0px !important;
+    }
+</style>
+
+<fieldset id="roleManagementActivitesFieldset">
+    <div id="ActivityTree">
+    </div>
+</fieldset>
+<link rel="stylesheet" href="~/assets/css/jstree.min.css" />
+<script src="~/assets/js/jstree.min.js"></script>
+
+@* <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script> *@
+<script>
+        $(function () {
+
+            var data = @Html.Raw(Model)
+                $('#ActivityTree').on('loaded.jstree', function (e, data) {
+
+                    var isCheker1 = "@User.IsInRole("Roles Checker")";
+                    if (isCheker1 == "True") {
+                        $('#ActivityTree').jstree(true).disable_node($('#ActivityTree').jstree(true).get_json(null, { flat: true }));
+                    }
+
+                    $('#ActivityTree').jstree("disable_node", 'ul > li:first');
+                    $('#ActivityTree').jstree("select_node", 'ul > li:first');
+
+                }).jstree({
+                "plugins": ["checkbox"],
+                    "checkbox": {
+                        "keep_selected_style": true,
+                        "three_state": true
+                },
+                "core": {
+                    "data":data
+                }
+                });
+
+
+            $('#ActivityTree').on('changed.jstree', function (e, data) {
+
+                if (data.node != undefined) {
+
+                    if (data.node.state.selected) {
+                        if (data.node.parent == "#") {
+                            HasCheckerActiviti(data.node.children_d, true)
+                        }
+                        if (data.node.parent != "#" && data.node.children_d.length != 0) {
+                            HasCheckerActiviti(data.node.children_d, true)
+                        }
+                        else {
+                            var checkerNode = $(".IsChecker_" + data.node.id)
+                            if (checkerNode.length != 0) {
+                                checkerNode.removeClass('hideChecker');
+                                checkerNode.addClass('showChecker');
+                            }
+                        }
+                    }
+                    if (!data.node.state.selected) {
+                        if (data.node.parent == "#") {
+                            HasCheckerActiviti(data.node.children_d, false)
+                        }
+                        if (data.node.parent != "#" && data.node.children_d.length != 0) {
+                            HasCheckerActiviti(data.node.children_d, false)
+                        }
+                        else {
+                            var checkerNode = $(".IsChecker_" + data.node.id)
+                            if (checkerNode.length != 0) {
+                                checkerNode.removeClass('showChecker');
+                                checkerNode.addClass('hideChecker');
+                            }
+                        }
+                    }
+
+                    var VisibleChecker = $(".showChecker")
+                    if (VisibleChecker.length == 0)
+                        $(".Checkerkbox").css("display", "none");
+                    else
+                        $(".Checkerkbox").css("display", "block");
+                }
+                else {
+                    if (data.action == "model")
+                        HasCheckerActiviti(data.selected, true)
+
+                    var VisibleChecker = $(".showChecker")
+                    if (VisibleChecker.length == 0)
+                        $(".Checkerkbox").css("display", "none");
+                    else
+                        $(".Checkerkbox").css("display", "block");
+
+                }
+
+                if (data.action == "ready")
+                    getAllValue()
+                else
+                    setActicityValues(data.action);
+               
+            }).jstree();
+
+
+            function HasCheckerActiviti(array,ShowChecker) {
+                for (var i = 0; i < array.length; i++) {
+                    var checkerNode = $(".IsChecker_" + array[i])
+                   
+                    if (checkerNode.length != 0) {
+                        var isChecked = $("#IsChecker_" + array[i]).prop("checked");
+                        if (ShowChecker) {
+                            checkerNode.removeClass('hideChecker');
+                            checkerNode.addClass('showChecker');
+                        } else {
+                            if (isChecked)
+                                $("#IsChecker_" + array[i]).prop('checked', false);
+
+                            checkerNode.removeClass('showChecker');
+                            checkerNode.addClass('hideChecker');
+                        }
+                    }
+                }
+            }
+
+    });
+</script>
+
+
+
+
+
+
+@*@model List<DTPortal.Web.ViewModel.RoleManagement.ActivityListItem>
+        <fieldset style="        padding: 5px;
+            border: groove 2px;
+            padding-top: 20px;
+            margin-bottom: 15px;
+            overflow-y:scroll;
+            height:350px;
+    ">
+            <ul style="list-style:none; margin-left: -25px;">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    <li>
+                        <input type="checkbox" asp-for="@Model[i].IsSelected" class="parent_chkbx" />
+                        <label asp-for="@Model[i].IsSelected">&nbsp;@Model[i].Display</label>
+                        <input type="hidden" asp-for="@Model[i].Id" />
+                        <input type="hidden" asp-for="@Model[i].Display" />
+                        @if (Model[i].IsChecker != null)
+                        {
+                            <ul style="list-style: none;" >
+                                <li>
+                                    <input type="checkbox" asp-for="@Model[i].IsChecker.IsSelected" class="child_chkbx" disabled="@(Model[i].IsSelected == false)" />
+                                    <label asp-for="@Model[i].IsChecker.IsSelected">&nbsp;@Model[i].IsChecker.Display</label>
+                                </li>
+                            </ul>}
+                    </li>
+                }
+            </ul>
+        </fieldset>
+
+        <style>
+          /*  .parent_chkbx, .child_chkbx {
+                width: 20px;
+                height: 20px;
+                vertical-align: sub;
+            }*/
+            input[type=checkbox]{
+                width: 20px;
+                height: 20px;
+                vertical-align: sub;
+            }
+                input[type=checkbox]:disabled {
+                    width: 20px;
+                    height: 20px;
+                    vertical-align: sub;
+                }
+            li {
+                list-style: none;
+            }
+
+            li, label {
+                font-size: 15px;
+            }
+
+
+        </style>*@

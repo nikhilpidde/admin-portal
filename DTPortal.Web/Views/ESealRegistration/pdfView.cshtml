@@ -1,0 +1,712 @@
+﻿@model DTPortal.Web.ViewModel.ESealRegistration.PDFViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+}
+<style>
+    .pdfView table {
+        border-collapse: collapse;
+    }
+
+    .pdfView {
+        max-width: 800px;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #eee;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+        font-size: 16px;
+        line-height: 24px;
+        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        color: #555;
+    }
+
+        .pdfView table td {
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .pdfView table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+        }
+
+    .logo {
+        width: 100%;
+        height: 150px;
+        text-align: center;
+    }
+
+    .container {
+        display: inline;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 16px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: #eee;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .container input:checked ~ .checkmark {
+        background-color: #2196F3;
+        border-radius: 5px;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .container .checkmark:after {
+        left: 7px;
+        top: 3px;
+        width: 3px;
+        height: 8px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+
+    label {
+        display: inline-block;
+        width: 200px;
+        height: 10px;
+    }
+
+    .col12 {
+        border-bottom: 1px solid black;
+    }
+
+        .col12:last-child {
+            border-bottom: none;
+        }
+</style>
+
+<div>
+    <div class="logo">
+        <img style='width:342px;height:93px' src="@Model.PdfLogo" />
+    </div>
+    <div class="pdfView">
+        <table align='center'>
+            <tr>
+                <th style="min-width:210px"></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>Organization Name</td>
+                <td>:</td>
+                <td>
+                    @if (string.IsNullOrEmpty(Model.OrganizationName))
+                    {
+                        <label>NA</label>
+                    }
+                    else
+                    {
+                        <label>@Model.OrganizationName</label>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>Organization Email</td>
+                <td>:</td>
+                <td>
+                    @if (string.IsNullOrEmpty(Model.OrganizationEmail))
+                    {
+                        <label>NA</label>
+                    }
+                    else
+                    {
+                        <label>@Model.OrganizationEmail</label>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>Unique Registered Number</td>
+                <td>:</td>
+                <td>
+                    @if (string.IsNullOrEmpty(Model.UniqueRegdNo))
+                    {
+                        <label>NA</label>
+                    }
+                    else
+                    {
+                        <label>@Model.UniqueRegdNo</label>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>Tax Number (TAN)</td>
+                <td>:</td>
+                <td>
+                    @if (string.IsNullOrEmpty(Model.TaxNo))
+                    {
+                        <label>NA</label>
+                    }
+                    else
+                    {
+                        <label>@Model.TaxNo</label>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>Corporate Office Address</td>
+                <td>:</td>
+                <td>
+                    @Model.CorporateOfficeAddress1, @Model.CorporateOfficeAddress2, @Model.Country, Zipcode: @Model.Pincode
+                </td>
+            </tr>
+            <tr>
+                <td>SPOC @clientName Email</td>
+                <td>:</td>
+                <td>@Model.SPOCUgPassEmail</td>
+            </tr>
+            <tr>
+                <td>Enable Post Paid</td>
+                <td>:</td>
+                <td style="text-align: center; ">
+                    <label class="container">
+                        <input type="checkbox" checked="@Model.EnablePostPaidOption" />
+                        <span style="margin-left:15px" class="checkmark"></span>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Signature Template</td>
+                <td>:</td>
+                <td>@Model.SignatureTemplate</td>
+            </tr>
+            <tr>
+                <td>ESeal Template</td>
+                <td>:</td>
+                <td>@Model.ESealTemplate</td>
+            </tr>
+            <tr>
+                <td>Email Domain</td>
+                <td>:</td>
+                <td>
+                    @if (string.IsNullOrEmpty(Model.EmailDomain))
+                    {
+                        <label>NA</label>
+                    }
+                    else
+                    {
+                        <label>@Model.EmailDomain</label>
+                    }
+                </td>
+
+            </tr>
+        </table>
+
+        <table align='center'>
+            <tr>
+                <td><div style="float:left">Business Users</div><div style="margin-left:33%; padding-left:3px"></div></td>
+
+            </tr>
+            <table class="split-table" style="border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, .15);">
+
+
+                @foreach (var orgUser in Model.OrganizationUsersList)
+                {
+
+
+                    <tr class="col12">
+                        <td>
+                            <table align='center'>
+                                <tr>
+                                    <td><label style="padding:10px;">UAEID Email</label> </td>
+                                    <td> : </td>
+
+                                    <td>
+                                        @if (string.IsNullOrEmpty(orgUser.UgpassEmail))
+                                        {
+                                            <label>NA</label>
+                                        }
+                                        else
+                                        {
+                                            <label>@orgUser.UgpassEmail</label>
+                                        }
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label style="padding:10px;">Organization Email</label> </td>
+                                    <td> : </td>
+                                    <td>
+                                        @if (string.IsNullOrEmpty(orgUser.EmployeeEmail))
+                                        {
+                                            <label>NA</label>
+                                        }
+                                        else
+                                        {
+                                            <label>@orgUser.EmployeeEmail</label>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="box" style="width:700px; margin:10px;display:table; border:none; height:100px;">
+                                <div class="box-row" style="display:table-row;">
+                                    <div class="box-cell" style=" display:table-cell;   width:60%; height:60%;">
+                                        <table align='center'>
+                                            <tr>
+                                                <td><label>NIN</label></td>
+                                                <td> : </td>
+                                                <td>
+                                                    @if (string.IsNullOrEmpty(orgUser.NationalIdNumber))
+                                                    {
+                                                        <label>NA</label>
+                                                    }
+                                                    else
+                                                    {
+                                                        <label>@orgUser.NationalIdNumber</label>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td> <label>Passport Number</label> </td>
+                                                <td> : </td>
+                                                <td>
+                                                    @if (string.IsNullOrEmpty(orgUser.PassportNumber))
+                                                    {
+                                                        <label>NA</label>
+                                                    }
+                                                    else
+                                                    {
+                                                        <lable>@orgUser.PassportNumber</lable>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>Mobile Number</label></td>
+                                                <td> : </td>
+                                                <td>
+                                                    @if (string.IsNullOrEmpty(orgUser.MobileNumber))
+                                                    {
+                                                        <label>NA</label>
+                                                    }
+                                                    else
+                                                    {
+                                                        <lable>@orgUser.MobileNumber</lable>
+                                                    }
+                                                </td>
+
+                                            </tr>
+                                            <tr>
+                                                <td><label>Designation</label></td>
+                                                <td> : </td>
+                                                <td>
+                                                    @if (string.IsNullOrEmpty(orgUser.Designation))
+                                                    {
+                                                        <label>NA</label>
+                                                    }
+                                                    else
+                                                    {
+                                                        <label>@orgUser.Designation</label>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="box-cell" style=" display:table-cell; width:20%; padding:0px; ">
+                                        <table align='center'>
+                                            <tr>
+                                                <td><label>AffixEseal</label></td>
+                                                <td> : </td>
+                                                <td>
+                                                    <label class="container">
+                                                        <input type="checkbox" checked="@orgUser.ESealSignatory" />
+                                                        <span style="margin-left:8px" class="checkmark"></span>
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>Preparatory</label></td>
+                                                <td> : </td>
+                                                <td>
+                                                    <label class="container">
+                                                        <input type="checkbox" checked="@orgUser.ESealPrepatory" />
+                                                        <span style="margin-left:8px" class="checkmark"></span>
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><label>BulkSigner</label></td>
+                                                <td> : </td>
+                                                <td>
+                                                    <label class="container">
+                                                        <input type="checkbox" checked="@orgUser.Bulksign" />
+                                                        <span style="margin-left:8px" class="checkmark"></span>
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </td>
+
+
+
+                    </tr>
+
+                }
+            </table>
+
+        </table>
+
+        <table align='center'>
+
+            <tr>
+                <td>Board Directors</td>
+                <td>:</td>
+                <td>
+                    @string.Join(", ", Model.DirectorsEmailList)
+                </td>
+            </tr>
+            <tr>
+                <td>Verification Checklist</td>
+                <td>:</td>
+                <td>
+                    @foreach (var item in Model.DocumentListCheckbox)
+                    {
+                        <label class="container">
+                            @item.DisplayName
+                            <input type="checkbox" checked="@item.IsSelected" />
+                            <span class="checkmark"></span>
+                        </label>
+                        <br />
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-top:40px">
+        <span style="margin-left:20px; margin-top:30px; font-size:20px">I hereby declare the above organization details have been verified by me.</span>
+    </div>
+    <div align="right" style="margin-right:50px;margin-top:40px">
+        <span style="font-size:20px">@Model.UserName</span>
+    </div>
+</div>
+
+
+
+
+
+
+@*@model DTPortal.Web.ViewModel.ESealRegistration.PDFViewModel
+
+<style>
+    .pdfView table {
+        border-collapse: collapse;
+    }
+
+    .pdfView {
+        max-width: 800px;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #eee;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+        font-size: 16px;
+        line-height: 24px;
+        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        color: #555;
+    }
+
+        .pdfView table td {
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        .pdfView table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+        }
+
+    .logo {
+        width: 100%;
+        height: 150px;
+        text-align: center;
+    }
+
+    .container {
+        display: inline;
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        font-size: 16px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 20px;
+        width: 20px;
+        background-color: #eee;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .container input:checked ~ .checkmark {
+        background-color: #2196F3;
+        border-radius: 5px;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .container .checkmark:after {
+        left: 7px;
+        top: 3px;
+        width: 3px;
+        height: 8px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+</style>
+
+<div>
+    <div class="logo">
+        <img style='width:342px;height:93px' src="@Model.PdfLogo" />
+    </div>
+    <div class="pdfView">
+        <table align='center'>
+            <tr>
+                <th style="min-width:210px"></th>
+                <th></th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>Organization Name</td>
+                <td>:</td>
+                <td>@Model.OrganizationName</td>
+            </tr>
+            <tr>
+                <td>Organization Email</td>
+                <td>:</td>
+                <td>@Model.OrganizationEmail</td>
+            </tr>
+            <tr>
+                <td>Unique Registered Number</td>
+                <td>:</td>
+                <td>@Model.UniqueRegdNo</td>
+            </tr>
+            <tr>
+                <td>Tax Number (TAN)</td>
+                <td>:</td>
+                <td>@Model.TaxNo</td>
+            </tr>
+            <tr>
+                <td>Corporate Office Address</td>
+                <td>:</td>
+                <td>@Model.CorporateOfficeAddress1, @Model.CorporateOfficeAddress2, @Model.Country, Zipcode: @Model.Pincode</td>
+            </tr>
+            <tr>
+                <td>SPOC MyTrust Email</td>
+                <td>:</td>
+                <td>@Model.SPOCUgPassEmail</td>
+            </tr>
+            <tr>
+                <td>Enable Post Paid</td>
+                <td>:</td>
+                <td style="text-align: center; ">
+                    <label class="container">
+                        <input type="checkbox" checked="@Model.EnablePostPaidOption" />
+                        <span style="margin-left:15px" class="checkmark"></span>
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <td>Signature Template</td>
+                <td>:</td>
+                <td>@Model.SignatureTemplate</td>
+            </tr>
+            <tr>
+                <td>ESeal Template</td>
+                <td>:</td>
+                <td>@Model.ESealTemplate</td>
+            </tr>
+        </table>
+
+        <table align='center'>
+            <tr>
+                <td><div style="float:left">Business Users</div><div style="margin-left:33%; padding-left:3px">:</div></td>
+                
+            </tr>
+            <tr>
+                <td>
+                    <table>
+                        <thead>
+                            <tr>
+                                <td style="text-align: center; ">Email</td>
+                                <td style="text-align: center; ">Eseal Signatory</td>
+                                <td style="text-align: center; ">Eseal Preparatory</td>
+                                <td style="text-align: center; ">Template</td>
+                                <td style="text-align: center; ">Bulksign</td>
+                                <td style="text-align: center; ">Designation</td>
+                                <td style="text-align: center; ">Signature Photo</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var orgUser in Model.OrganizationUsersList)
+                            {
+                                <tr>
+                                    <td>@orgUser.EmployeeEmail</td>
+                                    <td style="text-align: center; ">
+                                        <label class="container">
+                                            <input type="checkbox" checked="@orgUser.ESealSignatory" />
+                                            <span style="margin-left:8px" class="checkmark"></span>
+                                        </label>
+                                    </td>
+                                    <td style="text-align: center; ">
+                                        <label class="container">
+                                            <input type="checkbox" checked="@orgUser.ESealPrepatory" />
+                                            <span style="margin-left:6px" class="checkmark"></span>
+                                        </label>
+                                    </td>
+                                    <td style="text-align: center; ">
+                                        <label class="container">
+                                            <input type="checkbox" checked="@orgUser.Template" />
+                                            <span style="margin-left:10px" class="checkmark"></span>
+                                        </label>
+                                    </td>
+                                    <td style="text-align: center; ">
+                                        <label class="container">
+                                            <input type="checkbox" checked="@orgUser.Bulksign" />
+                                            <span style="margin-left:8px" class="checkmark"></span>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        @orgUser.Designation
+                                    </td>
+                                    <td>
+                                        @if (string.IsNullOrEmpty(orgUser.SignaturePhoto))
+                                        {
+                                            <label class="container">
+                                                <input type="checkbox" />
+                                                <span style="margin-left:8px" class="checkmark"></span>
+                                            </label>
+                                        }
+                                        else
+                                        {
+                                            <label class="container">
+                                                <input type="checkbox" checked="checked" />
+                                                <span style="margin-left:8px" class="checkmark"></span>
+                                            </label>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+
+        </table>
+
+        <table align='center'>
+
+            <tr>
+                <td>Board Directors</td>
+                <td>:</td>
+                <td>
+                    @string.Join(", ", Model.DirectorsEmailList)
+                </td>
+            </tr>
+            <tr>
+                <td>Verification Checklist</td>
+                <td>:</td>
+                <td>
+                    @foreach (var item in Model.DocumentListCheckbox)
+                    {
+                        <label class="container">
+                            @item.DisplayName
+                            <input type="checkbox" checked="@item.IsSelected" />
+                            <span class="checkmark"></span>
+                        </label>
+                        <br />
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="margin-top:40px">
+        <span style="margin-left:20px; margin-top:30px; font-size:20px">I here by declare the above organization details have been verified by me.</span>
+    </div>
+    <div align="right" style="margin-right:50px;margin-top:40px">
+        <span style="font-size:20px">@Model.UserName</span>
+    </div>
+</div>
+*@

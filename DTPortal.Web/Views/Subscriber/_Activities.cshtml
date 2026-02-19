@@ -1,0 +1,475 @@
+﻿@model DTPortal.Core.DTOs.SubscriberDetailsDTO
+
+<style>
+    .activities {
+        /*display: flex;*/
+        display: inline-block;
+        flex-direction: column;
+        align-content: center;
+        align-items: flex-start;
+        /*justify-content: center;*/
+    }
+
+    .activities1 {
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+    }
+
+    .activity {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 3px;
+    }
+
+    @@media (min-width: 1000px) {
+        .activities {
+            flex: 0 0 25%;
+        }
+    }
+
+    @@media (max-width: 1000px) {
+        .activities1 {
+            gap: 5px;
+        }
+    }
+
+    @@media (min-width: 1000px) and (max-width: 1100px) {
+        .activities {
+            flex: 0 0 50%;
+        }
+    }
+
+
+    p {
+        text-align: left;
+    }
+</style>
+
+<div id="biography" style="padding: 0px 15px;">
+    <div class="row" style="margin-bottom:1rem;">
+        <div class="activities  col-6 b-r">
+            <strong>Subscriber Type</strong>
+            <p class="text-muted">@Model.SubscriberType</p>
+        </div>
+        <div class="activities   col-6 b-r">
+            <strong>OnBoarding Method</strong>
+            <p class="text-muted">@Model.OnBoardingMethod</p>
+        </div>
+        <div class="activities   col-6 b-r">
+            <strong>OnBoarding Time</strong>
+            <p class="text-muted">@Model.LastOnBoardingDate</p>
+        </div>
+        <div class="activities   col-6">
+            <strong>Level Of Assurance</strong>
+            <p class="text-muted">@Model.LevelOfAssurance</p>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom:1rem;">
+        <div class="activities   col-6 b-r">
+            <strong>Document Type</strong>
+            <p class="text-muted">@Model.DocumentType</p>
+        </div>
+        <div class="activities   col-6 b-r">
+            <strong>Document Number</strong>
+            <p class="text-muted">@Model.IdDocNumber</p>
+        </div>
+        <div class="activities   col-6 b-r">
+            <strong>Device Registration Time</strong>
+            <p class="text-muted">@Model.DeviceRegistrationTime</p>
+        </div>
+        <div class="activities   col-6">
+            <strong>Location</strong>
+            @if (!String.IsNullOrEmpty(Model.Address))
+            {
+                <p class="text-muted">@Model.Address</p>
+            }
+            else
+            {
+                <p class="text-muted">Not Available</p>
+            }
+        </div>
+    </div>
+    @* <div class="row"> *@
+        @* <div class="activities col-6">
+            <strong>Certificate Issue Date</strong>
+            <p class="text-muted">@(!string.IsNullOrWhiteSpace(Model.CertificateIssueDate) ? Model.CertificateIssueDate : "N/A")</p>
+        </div>
+        <div class="activities col-6 b-r">
+            <strong>Certificate Expiry Date</strong>
+            <p class="text-muted">@(!string.IsNullOrWhiteSpace(Model.CertificateExpiryDate) ? Model.CertificateExpiryDate : "N/A")</p>
+        </div> *@
+      @*   <div class="activities col-6 b-r">
+            <strong>Sign Pin Set Date</strong>
+            <p class="text-muted">@(!string.IsNullOrWhiteSpace(Model.SignPinSetDate) ? Model.SignPinSetDate : "N/A")</p>
+        </div>
+        <div class="activities col-6 b-r">
+            <strong>Auth Pin Set Date</strong>
+            <p class="text-muted">@(!string.IsNullOrWhiteSpace(Model.AuthPinSetDate) ? Model.AuthPinSetDate : "N/A")</p>
+        </div> *@
+    @* </div> *@
+
+
+    <div class="row" style="margin-bottom:1rem;">
+        @if (Model.RevocationDate != null)
+        {
+            <div class="activities col-6">
+                <strong>Revokation Date</strong>
+                <p class="text-muted">@Model.RevocationDate</p>
+            </div>
+        }
+        <div class="activities col-6 b-r">
+            <strong>Subscriber Status</strong>
+            <p class="text-muted">@(!string.IsNullOrWhiteSpace(Model.SubscriberStatus) ? Model.SubscriberStatus : "N/A")</p>
+        </div>
+      @*   <div class="activities col-6 b-r">
+            <strong>Certificate Status</strong>
+            <p class="text-muted">@(!string.IsNullOrWhiteSpace(Model.CertificateStatus) ? Model.CertificateStatus : "N/A")</p>
+        </div> *@
+        <div class="activities col-6 b-r">
+            <strong>Device Status</strong>
+            <p class="text-muted">@(!string.IsNullOrWhiteSpace(Model.DeviceStatus) ? Model.DeviceStatus : "N/A")</p>
+        </div>
+    </div>
+    @*<br />*@
+    <div class="activities1 row d-flex flex-wrap gap-2" style="margin-top:2rem;">
+        <a id="DeviceHistory" class="activity btn  btn-action-outline btn-primary">Device History</a>
+        &nbsp;
+
+     @*    <a id="OrganizaionDetails" class="activity btn btn-action-outline btn-primary">Organisation Details</a> *@
+        &nbsp;
+        @if (Model.SubscriberStatus == "SUSPENDED")
+        {
+            <a class="activity  btn btn-action-outline btn-primary" id="activateSuspendedAccount">Activate Account</a>
+        }
+
+        &nbsp;
+      @*   <a style="min-width: 85px;"
+           class="activity btn btn-action-outline btn-primary" id="playLivelinessVideoBtn" data-subscriberUniqueId="@Model.SubscriberUid">
+            <svg class="action-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 54 54">
+                <g id="Group_617" data-name="Group 617" transform="translate(-3142 -5107)" style="">
+                    <circle id="Ellipse_87" data-name="Ellipse 87" cx="27" cy="27" r="27" transform="translate(3142 5107)" class="svg-muted"
+                            style=""></circle>
+                    <path id="Polygon_1" data-name="Polygon 1" d="M11.409,4.442a3,3,0,0,1,5.183,0l8.777,15.046A3,3,0,0,1,22.777,24H5.223a3,3,0,0,1-2.591-4.512Z" transform="translate(3185 5120) rotate(90)" class="svg-white"></path>
+                </g>
+            </svg>Play
+        </a> *@
+        @if (!User.IsInRole("Subscriber Checker"))
+        {
+            @:&nbsp;
+            @if (!string.IsNullOrEmpty(Model.CertificateStatus) && Model.CertificateStatus.ToLower() == "active")
+            {
+                <a style="min-width: 180px;"
+                   class="activity btn  btn-action-outline btn-primary" id="revokeCertificateBtn" data-subscriberUniqueId="@Model.SubscriberUid">
+                    <svg class="action-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 54 54">
+                        <g id="Group_670" data-name="Group 670" transform="translate(-4022 -3919)">
+                            <circle id="Ellipse_87" data-name="Ellipse 87" cx="27" cy="27" r="27" transform="translate(4022 3919)" fill="#fff" />
+                            <g id="Group_668" data-name="Group 668" transform="translate(3623.039 3870.577)">
+                                <g id="Group_655" data-name="Group 655" transform="translate(415.897 53.959)">
+                                    <path id="Path_73672" data-name="Path 73672" d="M445.31,62.5V92.166H419.4V57.459h21.457Z" transform="translate(-418.287 -56.348)" fill="#fff" />
+                                    <path id="Path_73673" data-name="Path 73673" d="M444.031,90.887H415.9V53.959h23.069l5.065,5.732Zm-25.913-2.221H441.81V60.532l-3.846-4.352H418.118Z" transform="translate(-415.897 -53.959)" class="svg-icon" />
+                                </g>
+                                <g id="Group_656" data-name="Group 656" transform="translate(436.971 55.002)">
+                                    <path id="Path_73674" data-name="Path 73674" d="M488.262,63.308h-4.373a1.578,1.578,0,0,1-1.576-1.576l0-.068.314-4.417,1.9.135-.285,4.023h4.02Z" transform="translate(-482.313 -57.247)" class="svg-icon" />
+                                </g>
+                                <g id="Group_657" data-name="Group 657" transform="translate(423.364 62.783)">
+                                    <path id="Path_73675" data-name="Path 73675" d="M448.585,83.038h-8.522a.635.635,0,1,1,0-1.269h8.522a.635.635,0,0,1,0,1.269Z" transform="translate(-439.429 -81.769)" class="svg-icon" />
+                                </g>
+                                <g id="Group_658" data-name="Group 658" transform="translate(422.276 65.594)">
+                                    <path id="Path_73676" data-name="Path 73676" d="M452.772,91.9H436.635a.635.635,0,0,1,0-1.269h16.137a.635.635,0,0,1,0,1.269Z" transform="translate(-436 -90.626)" class="svg-icon" />
+                                </g>
+                                <g id="Group_659" data-name="Group 659" transform="translate(422.276 68.585)">
+                                    <path id="Path_73677" data-name="Path 73677" d="M452.772,101.324H436.635a.635.635,0,0,1,0-1.269h16.137a.635.635,0,0,1,0,1.269Z" transform="translate(-436 -100.055)" class="svg-icon" />
+                                </g>
+                                <g id="Group_660" data-name="Group 660" transform="translate(422.276 71.788)">
+                                    <path id="Path_73678" data-name="Path 73678" d="M453.5,111.418H436.635a.635.635,0,0,1,0-1.269H453.5a.635.635,0,0,1,0,1.269Z" transform="translate(-436 -110.149)" class="svg-icon" />
+                                </g>
+                                <g id="Group_661" data-name="Group 661" transform="translate(429.959 75.815)">
+                                    <path id="Path_73679" data-name="Path 73679" d="M466.129,134.671a5.915,5.915,0,1,1,5.915-5.915A5.922,5.922,0,0,1,466.129,134.671Zm0-10.879a4.964,4.964,0,1,0,4.964,4.964A4.969,4.969,0,0,0,466.129,123.792Z" transform="translate(-460.214 -122.84)" class="svg-icon" />
+                                </g>
+                                <g id="Group_667" data-name="Group 667" transform="translate(432.917 78.443)">
+                                    <g id="Group_663" data-name="Group 663" transform="translate(0)">
+                                        <g id="Group_662" data-name="Group 662">
+                                            <path id="Path_73680" data-name="Path 73680" d="M470.092,136.4a.554.554,0,0,1-.481-.829l2.38-4.174a.548.548,0,0,1,.478-.28h0a.549.549,0,0,1,.478.274l2.425,4.148a.554.554,0,0,1-.475.834l-4.8.026Zm4.806-.224h0Zm-2.427-4.662h0a.155.155,0,0,0-.136.08l-2.379,4.174a.155.155,0,0,0,0,.158.15.15,0,0,0,.137.078l4.8-.026a.158.158,0,0,0,.135-.238l-2.425-4.148A.155.155,0,0,0,472.471,131.517Z" transform="translate(-469.536 -131.121)" class="svg-icon" />
+                                        </g>
+                                    </g>
+                                    <g id="Group_666" data-name="Group 666" transform="translate(2.243 1.177)">
+                                        <g id="Group_664" data-name="Group 664" transform="translate(0.339 1.464)">
+                                            <rect id="Rectangle_314" data-name="Rectangle 314" width="0.566" height="2.231" class="svg-icon" />
+                                        </g>
+                                        <g id="Group_665" data-name="Group 665">
+                                            <circle id="Ellipse_94" data-name="Ellipse 94" cx="0.623" cy="0.623" r="0.623" class="svg-icon" />
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                            <g id="Group_669" data-name="Group 669" transform="translate(3861.104 3915.265)">
+                                <path id="Path_73681" data-name="Path 73681" d="M172.966,112.149l.929,2.139h16.172l.851-2.139Z" transform="translate(-4.11 -66.09)" fill="#656668" />
+                                <path id="Path_73682" data-name="Path 73682" d="M186,41.865h-4.959a14.266,14.266,0,0,1-.265-4.1c.155-1.52.373-2.852.578-3.9a1.232,1.232,0,0,0,.584-1.049V29.871a1.239,1.239,0,0,0-1.24-1.238h-5.647a1.237,1.237,0,0,0-1.238,1.238v2.942a1.234,1.234,0,0,0,.823,1.164,18.27,18.27,0,0,1,.106,7.888h-5.08a1.9,1.9,0,0,0-1.9,1.9v2.824H187.9V43.761A1.9,1.9,0,0,0,186,41.865Z" transform="translate(0 -0.062)" class="svg-icon" />
+                                <path id="Path_73683" data-name="Path 73683" d="M203.6,28.588l-6.209-.033a.835.835,0,0,0-.727.83l-.229.813a.717.717,0,0,1,.738-.689h6.616a.717.717,0,0,1,.738.689l-.18-1.042C204.352,28.777,204.011,28.588,203.6,28.588Z" transform="translate(-22.669)" fill="#efefef" opacity="0.29" />
+                                <path id="Path_73684" data-name="Path 73684" d="M185.822,91.71H169.841a2.048,2.048,0,0,0-2.074,2.008v.795a2.08,2.08,0,0,1,1.925-1.268h15.981a2.048,2.048,0,0,1,2.074,2.008v.737h.058a.09.09,0,0,0,.091-.088V93.718A2.048,2.048,0,0,0,185.822,91.71Z" transform="translate(0 -49.931)"  class="svg-muted" opacity="0.25" />
+                                <rect id="Rectangle_315" data-name="Rectangle 315" width="5.638" height="1.22" transform="translate(175.116 38.466)" class="svg-rect" />
+                            </g>
+                        </g>
+                    </svg>
+                    Revoke Certificate
+                </a>
+            }
+            @:&nbsp;
+
+            @if (!string.IsNullOrEmpty(Model.DeviceStatus) && Model.DeviceStatus.ToLower() == "active")
+            {
+                <a style="min-width: 172px;"
+                   class="activity btn btn-action-outline btn-primary" id="deRegisterDeviceBtn" data-subscriberUniqueId="@Model.SubscriberUid">
+                    <svg class="action-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 54 54">
+                        <g id="Group_654" data-name="Group 654" transform="translate(-4092 -3919)">
+                            <circle id="Ellipse_87" data-name="Ellipse 87" cx="27" cy="27" r="27" transform="translate(4092 3919)" fill="#fff" />
+                            <g id="Group_653" data-name="Group 653" transform="translate(4108 3927)">
+                                <path id="Path_65" data-name="Path 65" d="M35.831,5.452H21.614a3.482,3.482,0,0,0-3.471,3.471V40.292a3.482,3.482,0,0,0,3.471,3.474H35.831a3.485,3.485,0,0,0,3.474-3.474V8.923A3.484,3.484,0,0,0,35.831,5.452ZM25.861,7.27h5.723a.87.87,0,1,1,0,1.74H25.861a.87.87,0,0,1,0-1.74Zm2.863,35.364a2.172,2.172,0,1,1,2.17-2.17A2.173,2.173,0,0,1,28.724,42.634Zm7.8-4.662H20.928V10.463H36.521Z" transform="translate(-18.143 -5.452)" class="svg-icon" />
+                                <g id="Group_208" data-name="Group 208" transform="translate(5.261 11.339)">
+                                    <path id="Path_66" data-name="Path 66" d="M25.147,9.088a5.317,5.317,0,1,0,5.32,5.317A5.324,5.324,0,0,0,25.147,9.088Zm0,10.048a4.731,4.731,0,1,1,4.734-4.731A4.736,4.736,0,0,1,25.147,19.136Z" transform="translate(-19.83 -9.088)" class="svg-path" />
+                                    <path id="Path_67" data-name="Path 67" d="M25.522,9.952l-2.206,2.206L21.262,10.1l-.417.412L22.9,12.573,20.694,14.78l.417.417,2.207-2.207,2.055,2.056.417-.412-2.057-2.058,2.206-2.206Z" transform="translate(-17.999 -7.257)" class="svg-path" />
+                                </g>
+                            </g>
+                        </g>
+                    </svg>
+                    Deregister Device
+                </a>
+            }
+        }
+    </div>
+</div>
+
+<script>
+
+    $(function () {
+        window.addEventListener('resize', function () {
+            const width = window.innerWidth;
+            if (width <= 1045) {
+                $('#sidebar').toggleClass('');
+            }
+        });
+    });
+
+    $(function () {
+        $('#playLivelinessVideoBtn').click(function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("PlayLivelinessVideo", "Subscriber")',
+                data: { 'subscriberUniqueId': '@Model.SubscriberUid' },
+                contentType: "application/json; charset=utf-8",
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        });
+    })
+
+    $(function () {
+        $("#revokeCertificateBtn").click(function () {
+            var revokeButton = $(this);
+            subscriberUniqueId = revokeButton.attr('data-subscriberUniqueId');
+            action = "revoke";
+            operationName = "REVOKE_CERTIFICATION";
+            swal({ type: 'info', title: "Revoke Certificate", text: "Are you sure to revoke the certificate?", showCancelButton: true, closeOnConfirm: true }, function (isConfirm) {
+                if (isConfirm) {
+                    isAuthenticationRequired();
+                }
+            });
+        });
+    });
+
+    $(function () {
+        $("#OrganizaionDetails").click(function () {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetOrganizationDetails", "Subscriber")',
+                data: { 'subscriberUniqueId': '@Model.SubscriberUid' },
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                beforeSend: function () {
+                    $('#overlay1').show();
+                },
+                complete: function () {
+                    $('#overlay1').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        });
+    });
+
+    $(function () {
+        $("#DeviceHistory").click(function () {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetDeviceHistory", "Subscriber")',
+                data: { 'subscriberUniqueId': '@Model.SubscriberUid' },
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                beforeSend: function () {
+                    $('#overlay1').show();
+                },
+                complete: function () {
+                    $('#overlay1').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        });
+    });
+
+    $(function () {
+        $("#activateSuspendedAccount").click(function () {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ActivateSubscriber", "Subscriber")',
+                data: { 'subscriberId': '@Model.SubscriberUid' },
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                beforeSend: function () {
+                    $('#overlay1').show();
+                },
+                success: function (data) {
+                    swal({
+                        type: 'info',
+                        title: "Activate Account",
+                        text: "Are you sure you want to activate the suspended account?",
+                        showCancelButton: true,
+                        closeOnConfirm: false // Disable automatic closing
+                    }, function (isConfirm) {
+                        if (data.status == "Success") {
+                            type = 'success';
+                            text = data.message;
+                        }
+                        else {
+                            type = 'error';
+                            text = data.message;
+                        }
+                        swal({ type: type, title: "Activate Suspended Account", text: text }, function (isConfirm) {
+                            if (isConfirm) {
+                                if (type == 'success') {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+
+                    });
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                    // Hide overlay on error
+                    $('#overlay1').hide();
+                }
+            });
+        });
+    });
+
+
+    $(function () {
+        $("#deRegisterDeviceBtn").click(function () {
+            var revokeButton = $(this);
+            subscriberUniqueId = revokeButton.attr('data-subscriberUniqueId');
+            action = "deRegisterDevice";
+            operationName = "DEREGISTER_DEVICE";
+            swal({ type: 'info', title: "De-Register Device", text: "Are you sure to de-register the device?", showCancelButton: true, closeOnConfirm: true }, function (isConfirm) {
+                if (isConfirm) {
+                    isAuthenticationRequired();
+                }
+            });
+        });
+    });
+
+    function submitForm() {
+        if (action == "revoke") {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("RevokeCertificate", "Subscriber")',
+                contentType: "application/json; charset=utf-8",
+                data: { "subscriberUniqueId": subscriberUniqueId },
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay1').hide();
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+                }
+            });
+        }
+        else {
+            var actionUrl = '@Url.Action("DeregisterDevice", "Subscriber")';
+            var postRequestUrl = actionUrl + '?subscriberUniqueId=' + subscriberUniqueId;
+            $.ajax({
+                type: "POST",
+                url: postRequestUrl,
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                beforeSend: function () {
+                    $('#overlay1').show();
+                },
+                complete: function () {
+                    $('#overlay1').hide();
+                }
+            }).done(function (response) {
+                if (response.status == "Success") {
+                    type = 'success';
+                    text = response.message;
+                }
+                else {
+                    type = 'error';
+                    text = response.message;
+                }
+                swal({ type: type, title: "De-Register Device Status", text: text }, function (isConfirm) {
+                    if (isConfirm) {
+                        if (type == 'success') {
+                            window.location.reload();
+                        }
+                    }
+                });
+            }).fail(ajaxErrorHandler)
+        }
+
+    }
+</script>

@@ -1,0 +1,463 @@
+﻿@model DTPortal.Web.ViewModel.Saml2Clients.Saml2ClientsEditViewModel
+
+@{
+    ViewData["Title"] = "Saml2 Edit";
+}
+
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <!-- <div class="card-header">
+                                <h5 class="card-title">Form row</h5>
+                                <h6 class="card-subtitle text-muted">Bootstrap column layout.</h6>
+                            </div> -->
+            <div class="card-body updateForm">
+                <form id="uform" enctype="multipart/form-data" asp-action="Update">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="id" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ApplicationType" class="col-form-label"></label>
+                                <select asp-for="ApplicationType" class="form-control"
+                                        asp-items="Model.ApplcationTypeList">
+                                </select>
+                                <span asp-validation-for="ApplicationType" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ClientId" class="col-form-label"></label>
+                                <input asp-for="ClientId" class="form-control" readonly />
+                                <span asp-validation-for="ClientId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ApplicationName" class="col-form-label"></label>
+                                <input asp-for="ApplicationName" class="form-control" />
+                                <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ApplicationUrl" class="col-form-label"></label>
+                                <input asp-for="ApplicationUrl" class="form-control" />
+                                <span asp-validation-for="ApplicationUrl" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="entityID" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext" style="margin-bottom: 0px;">The application-defined unique identifier that is the intended audience of the SAML assertion. This is most often the SP Entity ID of your application.</div>
+                                <input asp-for="entityID" class="form-control" />
+                                <span asp-validation-for="entityID" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="assertionConsumerServiceUrl" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">The location where the SAML assertion is sent with a HTTP POST.</div>
+                                <input asp-for="assertionConsumerServiceUrl" class="form-control" />
+                                <span asp-validation-for="assertionConsumerServiceUrl" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label asp-for="nameIDFormat" class="col-form-label"></label>
+                                <select asp-for="nameIDFormat" class="form-control"
+                                        asp-items="Model.nameIDFormatList">
+                                </select>
+                                <span asp-validation-for="nameIDFormat" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="singleLogoutService" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">provide url for send logout responce</div>
+                                <input asp-for="singleLogoutService" class="form-control" />
+                                <span asp-validation-for="singleLogoutService" class="text-danger"></span>
+                            </div>
+                            @*<div class="form-group">
+                                    <label asp-for="authnRequestsSigned" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">Select signed for login request signed purpose</div>
+                                    <select asp-for="authnRequestsSigned" class="form-control"
+                                            asp-items="Model.list">
+                                        <option>--select--</option>
+                                    </select>
+                                    <span asp-validation-for="authnRequestsSigned" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="wantLogoutRequestSigned" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">Select signed if you want logout request signed from idp</div>
+                                    <select asp-for="wantLogoutRequestSigned" class="form-control"
+                                            asp-items="Model.list">
+                                        <option>--select--</option>
+                                    </select>
+                                    <span asp-validation-for="wantLogoutRequestSigned" class="text-danger"></span>
+                                </div>*@
+
+                        </div>
+                        <div class="form-group col-md-6">
+
+                            <div class="form-group">
+                                <label asp-for="RequestSigned" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">Select signed if you want the signed message from idp</div>
+                                <select asp-for="RequestSigned" class="form-control"
+                                        asp-items="Model.list">
+                                </select>
+                                <span asp-validation-for="RequestSigned" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ResponceSigned" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">Select signed if you want to send logout response signed to idp</div>
+                                <select asp-for="ResponceSigned" class="form-control"
+                                        asp-items="Model.list">
+                                </select>
+                                <span asp-validation-for="ResponceSigned" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="assertionSignature" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">Select signed to enable signing request using ceritificate</div>
+                                <select asp-for="assertionSignature" class="form-control"
+                                        asp-items="Model.list">
+                                </select>
+                                <span asp-validation-for="assertionSignature" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group signing">
+                                <label asp-for="signingCert" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">upload certificate for request signing purpose</div>
+                                <input asp-for="signingCert" type="file" accept=".crt,.cer" class="form-control" />
+                                <span asp-validation-for="signingCert" class="text-danger"></span>
+                            </div>
+                            @*<div class="form-group signing">
+                                    <label asp-for="requestSignatureAlgorithm" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">Select alogorithm for signing request</div>
+                                    <select asp-for="requestSignatureAlgorithm" class="form-control"
+                                            asp-items="Model.requestSignatureAlgorithmList">
+                                        <option>--select--</option>
+                                    </select>
+                                    <span asp-validation-for="requestSignatureAlgorithm" class="text-danger"></span>
+                                </div>*@
+                            @*<div class="form-group">
+                                    <label asp-for="assertionEncryption" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">Select signed to enable encrypt request</div>
+                                    <select asp-for="assertionEncryption" class="form-control"
+                                            asp-items="Model.elist">
+                                    </select>
+                                    <span asp-validation-for="assertionEncryption" class="text-danger"></span>
+                                </div>
+                                <div class="form-group encryptOption">
+                                    <label asp-for="encryptCert" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">upload certificate for request encryption purpose</div>
+                                    <input asp-for="encryptCert" type="file" class="form-control" />
+                                    <span asp-validation-for="encryptCert" class="text-danger"></span>
+                                </div>*@
+                            @*<div class="form-group encryptOption">
+                                    <label asp-for="dataEncryptionAlgorithm" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">Select algorithm for request data encryption purpose</div>
+                                    <select asp-for="dataEncryptionAlgorithm" class="form-control"
+                                            asp-items="Model.dataEncryptionAlgorithmList">
+                                    </select>
+                                    <span asp-validation-for="dataEncryptionAlgorithm" class="text-danger"></span>
+                                </div>
+                                <div class="form-group encryptOption">
+                                    <label asp-for="keyEncryptionAlgorithm" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">Select algorithm for request encryption purpose</div>
+                                    <select asp-for="keyEncryptionAlgorithm" class="form-control"
+                                            asp-items="Model.keyEncryptionAlgorithmList">
+                                    </select>
+                                    <span asp-validation-for="keyEncryptionAlgorithm" class="text-danger"></span>
+                                </div>*@
+
+
+
+
+                            @*<div class="form-group messageOrder">
+                                    <label asp-for="messageSigningOrder" class="col-form-label"></label>
+                                    <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                    <div class="popuptext">Select the message signing order from idp</div>
+                                    <select asp-for="messageSigningOrder" class="form-control"
+                                            asp-items="Model.messageSigningOrderList">
+                                    </select>
+                                    <span asp-validation-for="messageSigningOrder" class="text-danger"></span>
+                                </div>*@
+
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            @if (!User.IsInRole("Saml2 Checker"))
+                            {
+                                <button class="btn btn-primary" id="getIDPInfo" type="button" style="background-color: #3dc5c2;margin-right:5px;">
+                                    IDP Info
+                                </button>
+                                <button class="btn btn-primary" id="submitFormBtn" type="button" style="opacity: 0.5;" disabled>
+                                    Update
+                                </button>
+                            }
+                            @*else
+                                {
+                                    <a class="btn btn-primary js-delete" href="" onclick="ChangeStatus('@Url.Action("UpdateStatus", "Saml2Clients")',@Model.id, true); return false; ">Approve</a>
+                                    @if (Model.State != "BLOCKED")
+                                    {
+                                        <a class="btn btn-primary js-delete" href="" style="margin-left:10px;" onclick="ChangeStatus('@Url.Action("UpdateStatus", "Saml2Clients")',@Model.id, false); return false;">Declined</a>
+                                    }
+                                }*@
+                            &nbsp; &nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-body IDPInfo" style="display:none;">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <div class="form-group">
+                            <label asp-for="entityIDIDP" class="col-form-label"></label>
+                            <textarea asp-for="entityIDIDP"  class="form-control" readonly ></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="singleSignOnServiceIDP" class="col-form-label"></label>
+                            <textarea asp-for="singleSignOnServiceIDP"  class="form-control" readonly></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="singleLogoutServiceIDP" class="col-form-label"></label>
+                            <textarea asp-for="singleLogoutServiceIDP"  class="form-control" readonly></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <div class="form-group">
+                            <label asp-for="signingCertIDP" class="col-form-label"></label>
+                            <textarea asp-for="signingCertIDP" class="form-control"
+                                      style="white-space: pre;height: 250px;" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end ">
+                    <button class="btn btn-primary" id="download" type="button" style="margin-right:5px; background-color: #3dc5c2;">
+                        Download Certificate
+                    </button>
+                    <button id="Back" type="button" class="btn btn-primary">
+                        Back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+
+    i {
+        color: #808080e0;
+    }
+
+    .popup {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        float: right;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        margin-bottom: 35px;
+        margin-top: -60px;
+    }
+    /* The actual popup */
+    .popup .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        /* top: -43%; */
+        /* bottom: -28%; */
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+    .popup:hover + .popuptext {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+    <script>
+
+        var operationName = "UPDATE_CLIENT";
+    $(document).ready(function () {
+
+
+
+        $('#digitalAuthSidebarElement').addClass('active');
+        $('#OauthSamlSidebarElement').addClass('active');
+        $('#SAMLSidebarElement').addClass('active');
+
+        $('#homeSubmenu').addClass('show');
+        $('#OauthSamlSubmenu').addClass('show');
+
+        $("li#digitalAuthSidebarElement a:first").attr('aria-expanded', 'true');
+        $("li#OauthSamlSidebarElement a:first").attr('aria-expanded', 'true');
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Digital Authentication');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Service Providers > SAML2 > Edit');
+        $('#subMenu').removeClass('breadcrumb-item');
+
+           var isCheker = "@User.IsInRole("Saml2 Checker")";
+            if (isCheker == "True") {
+                $('form *').prop('disabled', true);
+            }
+
+            var authnRequestsSigned = document.getElementById("RequestSigned");
+            var authnResponseSigned = document.getElementById("ResponceSigned");
+            var assertionSignature = document.getElementById("assertionSignature");
+           // var assertionEncryption = document.getElementById("assertionEncryption");
+
+
+            document.getElementById("download")
+                .addEventListener("click", function () {
+                    // Generate download of hello.txt
+                    // file with some content
+                    var text = document.getElementById("signingCertIDP").value;
+                    var filename = "SigningCert.cer";
+
+                    download(filename, text);
+                }, false);
+
+            authnRequestsSigned.addEventListener("change", showSigningOption);
+            authnResponseSigned.addEventListener("change", showSigningOption);
+            assertionSignature.addEventListener("change", showSigningOption);
+           // assertionEncryption.addEventListener("change", showSigningOption);
+
+            showSigningOption();
+
+            function showSigningOption() {
+                var isauthnRequestsSigned = authnRequestsSigned.options[authnRequestsSigned.selectedIndex].text;
+                var isauthnResponseSigned = authnResponseSigned.options[authnResponseSigned.selectedIndex].text;
+                var isassertionSignature = assertionSignature.options[assertionSignature.selectedIndex].text;
+                //var isassertionEncryption = assertionEncryption.options[assertionEncryption.selectedIndex].text;
+
+                if (isauthnRequestsSigned == "Unsigned" && isassertionSignature == "Unsigned" && isauthnResponseSigned == "Unsigned") {
+                    $(".signing").hide();
+                }
+                else {
+                    $(".signing").show();
+                }
+
+                //if (isassertionEncryption == "Unencrypted") {
+                //    $(".encryptOption").hide();
+                //}
+                //else {
+                //    $(".encryptOption").show();
+                //}
+
+                //if (isassertionSignature == "Signed" && isassertionEncryption == "Encrypted") {
+                //    $(".messageOrder").show();
+                //}
+                //else {
+                //    $(".messageOrder").hide();
+                //}
+
+
+                //if (iswantMessageSigned == "false") {
+                //    $(".messageOrder").hide();
+                //}
+                //else {
+                //    $(".messageOrder").show();
+                //}
+            }
+
+
+            $('#getIDPInfo').click(function () {
+                $('.updateForm').css('display', 'none');
+                $('.IDPInfo').css('display', 'block');
+                $("#title").html("IDP Configuration");
+            });
+            $('#Back').click(function () {
+                $('.updateForm').css('display', 'block');
+                $('.IDPInfo').css('display', 'none');
+                $("#title").html("Saml2Client Edit");
+            });
+
+        getAllValue();
+    });
+
+        function download(file, text) {
+
+            //creating an invisible element
+            var element = document.createElement('a');
+            element.setAttribute('href',
+                'data:text/plain;charset=utf-8, '
+                + encodeURIComponent(text));
+            element.setAttribute('download', file);
+
+            // Above code is equivalent to
+            // <a href="path of file" download="file name">
+
+            document.body.appendChild(element);
+
+            //onClick property
+            element.click();
+
+            document.body.removeChild(element);
+        }
+
+        function submitForm() {
+            var form = $("#uform");
+            form.submit();
+        }
+    </script>
+}

@@ -1,0 +1,238 @@
+﻿@model DTPortal.Web.ViewModel.PKIConfiguration.HSMSettingsAddViewModel
+@using DTPortal.Web.ExtensionMethods
+@using DTPortal.Web.Enums
+@using DTPortal.Core.Domain.Models
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    bool isReadOnly = false;
+    var pluginConfiguration = HttpContextAccessor.HttpContext.Session.Get<PkiPluginDatum>("PKIPluginData");
+    if (pluginConfiguration != null)
+    {
+        //var state = pluginConfiguration.State;
+        var status = pluginConfiguration.Status;
+        //isReadOnly = (state == State.Active.GetValue() && status == Status.Inactive.GetValue()) ? true : false;
+        isReadOnly = status == Status.Active.GetValue();
+    }
+}
+
+<style>
+    .text-danger div {
+        text-align: center;
+    }
+
+    .customDropdown {
+        width: 100%;
+    }
+
+    .input-box .toggle-password {
+        font-weight: 300;
+        font-size: 15px;
+        margin-right: 5px;
+        padding: 0px 16px 0px 0px;
+    }
+
+    .pwd {
+        -webkit-text-security: disc;
+    }
+</style>
+
+<form asp-action="AddHSMSettings" asp-controller="PKIConfiguration"
+      data-ajax="true"
+      data-ajax-method="POST"
+      data-ajax-mode="replace"
+      data-ajax-update="#wizardContainer"
+      data-ajax-begin="OnBegin"
+      data-ajax-complete="OnComplete">
+    <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-left:41%"></div>
+
+    <div class="form-card">
+        <div class="form-group row ">
+            <label asp-for="CMAPIUrl" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="CMAPIUrl" class="form-control" />
+                @*<span asp-validation-for="CMAPIUrl" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="ClientPath" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="ClientPath" class="form-control " />
+                @*<span asp-validation-for="ClientPath" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="ClientEnvironmentPath" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="ClientEnvironmentPath" class="form-control " />
+                @*<span asp-validation-for="ClientEnvironmentPath" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="AdminUserId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="AdminUserId" class="form-control " />
+                @*<span asp-validation-for="AdminUserId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="AdminPassword" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <div class="input-box">
+                    @if (Model.AdminPassword != null)
+                    {
+                        <input asp-for="AdminPassword" value="@Model.AdminPassword" class="form-control pwd" />
+                        <span class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="AdminPassword" class="form-control pwd" />
+                        <span class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    }
+                </div>
+                @*<span asp-validation-for="AdminPassword" class="text-danger"> </span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="KeyGenerationTimeout" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="KeyGenerationTimeout" class="form-control " min="0" oninput="validity.valid||(value='');" />
+                @*<span asp-validation-for="KeyGenerationTimeout" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="SlotId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="SlotId" class="form-control " min="0" oninput="validity.valid||(value='');" />
+                @*<span asp-validation-for="SlotId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="KeyAlgorithmId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <select asp-for="KeyAlgorithmId" id="KeyAlgorithmId" class="form-control  customDropdown"
+                        asp-items="@(new SelectList(Model.KeyAlgorithms, "Id", "Name"))">
+                    <option>Select</option>
+                </select>
+                @*<span asp-validation-for="KeyAlgorithmId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="KeySizeId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <select asp-for="KeySizeId" id="KeySizeId" class="form-control  customDropdown">
+                </select>
+                @*<span asp-validation-for="KeySizeId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="HashAlgorithmId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <select asp-for="HashAlgorithmId" class="form-control  customDropdown"
+                        asp-items="@(new SelectList(Model.HashAlgorithms, "Id", "Name"))">
+                    <option>Select</option>
+                </select>
+                @*<span asp-validation-for="HashAlgorithmId" class="text-danger"></span>*@
+            </div>
+
+        </div>
+        <div class="form-group row">
+            <label asp-for="HSMPluginId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <select asp-for="HSMPluginId" class="form-control  customDropdown"
+                        asp-items="@(new SelectList(Model.HSMPlugins, "Id", "Name"))">
+                    <option>Select</option>
+                </select>
+                @*<span asp-validation-for="HSMPluginId" class="text-danger"></span>*@
+            </div>
+        </div>&nbsp;&nbsp;
+    </div>
+    <div style="padding-right: 10px">
+        <div style="float: left;">
+
+        </div>
+        <div class="d-flex justify-content-end ">
+            <input type="submit" name="nextBtn" class="next action-button btn btn-primary" value="Next" />
+            &nbsp;&nbsp;
+            <a asp-action="List" class="btn btn-danger">
+                Cancel
+            </a>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    $(document).ready(function () {
+        $('#KeyAlgorithmId').on('change', function () {
+            $('#KeySizeId').empty();
+            var keyAlgorithmId = $(this).val();
+            $.ajax({
+                type: 'GET',
+                cache: false,
+                url: '@Url.Action("GetKeysSize", "PKIConfiguration")',
+                data: { keyAlgorithmId: keyAlgorithmId },
+                contentType: 'application/json; charset=utf-8',
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (response) {
+                    var options = '';
+                    options += '<option>Select</option>';
+                    for (var i = 0; i < response.length; i++) {
+                        options += '<option value="' + response[i].id + '">' + response[i].size + '</option>';
+                    }
+                    $('#KeySizeId').append(options);
+                    //$('#KeySizeId option:eq(@Model.KeySizeId)').prop('selected', true)
+                    $('#KeySizeId option[value="' + @Model.KeySizeId + '"]').prop('selected', true)
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        });
+
+        $('input[type=text]:not([readonly]),input[type=url]:not([readonly]),input[type=tel]:not([readonly]),input[type=password]:not([readonly]),input[type=radio]:not([readonly]),textarea:not([readonly]),select:not([readonly]),input[type=email]:not([readonly]),input[type=number]:not([readonly])').each(function () {
+            //$('input[type=text],select,input[type=email]').each(function () {
+            var req = $(this).attr('data-val-required');
+            var exclude = $(this).attr('data-exclude');
+            if (undefined != req && undefined == exclude) {
+                var label = $('label[for="' + $(this).attr('id') + '"]');
+                var text = label.text();
+                if (text.length > 0) {
+                    label.append(' <span style="color:#ff0000b3;">*</span>');
+                }
+            }
+        });
+
+        $(".toggle-password").click(function () {
+                $(this).toggleClass("fa-eye fa-eye-slash");
+                var input = $($(this).attr("toggle"));
+
+            if($("#AdminPassword").hasClass("pwd")){
+                $("#AdminPassword").removeClass("pwd");
+            }else{
+                $("#AdminPassword").addClass("pwd");
+            }
+            });
+
+        $('#KeyAlgorithmId').change();
+
+        //Remove class active
+        $("#progressbar li").removeClass("active");
+
+        //Add Class Active
+        $("#progressbar li").eq(0).addClass("active");
+    });
+
+        function OnBegin() {
+            $('#overlay').show();
+        }
+        function OnComplete() {
+            $('#overlay').hide();
+        }
+</script>

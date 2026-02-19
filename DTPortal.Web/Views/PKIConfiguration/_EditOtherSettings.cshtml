@@ -1,0 +1,395 @@
+﻿@model DTPortal.Web.ViewModel.PKIConfiguration.OtherSettingsEditViewModel
+@using DTPortal.Web.ExtensionMethods
+@using DTPortal.Web.Enums
+@using DTPortal.Core.Domain.Models
+@inject IHttpContextAccessor HttpContextAccessor
+@*@{
+        bool isReadOnly = false;
+        string state = null;
+        string status = null;
+        var pluginConfiguration = HttpContextAccessor.HttpContext.Session.Get<PkiPluginDatum>("PKIPluginData");
+        if (pluginConfiguration != null)
+        {
+            state = pluginConfiguration.State;
+            status = pluginConfiguration.Status;
+            isReadOnly = (state == State.Active.GetValue() && status == Status.Inactive.GetValue()) ? true : false;
+        }
+    }*@
+@{
+    bool isReadOnly = false;
+    string status = null;
+    var pluginConfiguration = HttpContextAccessor.HttpContext.Session.Get<PkiPluginDatum>("PKIPluginData");
+    if (pluginConfiguration != null)
+    {
+        //var state = pluginConfiguration.State;
+        status = pluginConfiguration.Status;
+        //isReadOnly = (state == State.Active.GetValue() && status == Status.Inactive.GetValue()) ? true : false;
+        isReadOnly = status == Status.Active.GetValue();
+    }
+}
+
+<style>
+    .text-danger div {
+        text-align: center;
+    }
+
+    .custom-file-label {
+        display: flex;
+        justify-content: left;
+        white-space: nowrap;
+        padding: 5px 0px 5px 10px;
+        margin-left: 14px;
+    }
+
+    .customDropdown {
+        width: 100%;
+    }
+
+    .input-box .toggle-password {
+        font-weight: 300;
+        font-size: 15px;
+        margin-right: 5px;
+        padding: 0px 16px 0px 0px;
+    }
+
+    .pwd {
+        -webkit-text-security: disc;
+    }
+</style>
+
+<form asp-action="EditOtherSettings" asp-controller="PKIConfiguration" enctype="multipart/form-data"
+      data-ajax="true"
+      data-ajax-success="onSuccess"
+      data-ajax-method="POST"
+      data-ajax-mode="replace"
+      data-ajax-update="#wizardContainer"
+      data-ajax-begin="OnBegin"
+      data-ajax-complete="OnComplete" autocomplete="off">
+    <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-left:41%"></div>
+
+    <div class="form-card">
+        <div class="form-group row ">
+            <label asp-for="LogPath" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="LogPath" class="form-control " />
+            </div>
+        </div>
+
+        <div class="form-group row ">
+            <label asp-for="LogLevel" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <select asp-for="LogLevel" asp-items="Model.LogLevels" class="form-control  customDropdown">
+                    <option value="">select </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="ConfigDirectoryPath" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="ConfigDirectoryPath" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="LogQueueIP" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="LogQueueIP" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="LogQueuePort" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="LogQueuePort" class="form-control " min="0" oninput="validity.valid||(value='');" />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="LogQueueUserName" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="LogQueueUserName" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="LogQueuePassword" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <div class="input-box">
+                    @if (Model.LogQueuePassword != null)
+                    {
+                        <input asp-for="LogQueuePassword" class="form-control pwd" value="@Model.LogQueuePassword" />
+                        <span class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="LogQueuePassword" class="form-control pwd" />
+                        <span class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="SigningLogQueue" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="SigningLogQueue" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="RALogQueue" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="RALogQueue" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="CentralLogQueue" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="CentralLogQueue" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="Jre64BitDirectory" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="Jre64BitDirectory" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="IDPUrl" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="IDPUrl" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="TSAUrl" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="TSAUrl" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="OCSPUrl" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="OCSPUrl" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="PKIServiceUrl" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="PKIServiceUrl" class="form-control  " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="SignatureServiceUrl" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="SignatureServiceUrl" class="form-control  " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="ClientId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="ClientId" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row mb-4">
+            <label asp-for="ClientSecret" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="ClientSecret" class="form-control " />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="SignatureImageFile" class="col-4 col-form-label"></label>
+            <div class="col-sm-5" style="padding-left:1px">
+                <div class="custom-file">
+                    <input asp-for="SignatureImageFile" class="form-control custom-file-input" accept=".png,.jpg,.jpeg">
+                    <label class="custom-file-label"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+    &nbsp; &nbsp;
+    <div>
+        <div class="row">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="EnableDss">
+                            <input asp-for="EnableDss" />
+                            Enable Dss
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="DssClient">
+                            <input asp-for="DssClient" />
+                            Dss Client
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" hidden>
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="SignLocally">
+                            <input asp-for="SignLocally" />
+                            Sign Locally
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <div class="form-group ">
+                    <div class="checkbox">
+                        <label asp-for="LogCallStack">
+                            <input asp-for="LogCallStack" />
+                            Log Call Stack
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <div class="form-group ">
+                    <div class="checkbox">
+                        <label asp-for="StagingEnvironment">
+                            <input asp-for="StagingEnvironment" />
+                            Staging Environment
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="Introspect">
+                            <input asp-for="Introspect" />
+                            Introspect
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label asp-for="HandSignature">
+                            <input asp-for="HandSignature" />
+                            Hand Signature
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="padding-right: 10px">
+        <div style="float: left;">
+            <input type="submit" name="prevBtn" value="Previous" class="previous action-button-previous btn btn-primary" />
+        </div>
+        <div class="d-flex justify-content-end ">
+            @if (!User.IsInRole("Configuration Checker"))
+            {
+                <input type="submit" name="nextBtn" class="btn btn-primary" value="Update" />
+                @:&nbsp; &nbsp;
+            }
+            <a asp-action="List" class="btn btn-danger">
+                Cancel
+            </a>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    $(document).ready(function () {
+        //Remove class active
+        $("#progressbar li").removeClass("active");
+
+        //Add Class Active
+        $("#progressbar li").eq(0).addClass("active");
+        $("#progressbar li").eq(1).addClass("active");
+        $("#progressbar li").eq(2).addClass("active");
+
+        $('.custom-file-input').on("change", function () {
+            var allowedFileTypes = ['png', 'jpg', 'jpeg'];
+            if ($.inArray($(this).val().split('.').pop().toLowerCase(), allowedFileTypes) == -1) {
+                swal({ type: 'error', title: "Error", text: "File is not supported.\nFiles with extensions: " + allowedFileTypes.join(',') + " are only supported" });
+            }
+            else {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).next('.custom-file-label').html(fileName);
+            }
+        });
+
+        $('input[type=text]:not([readonly]),input[type=url]:not([readonly]),input[type=tel]:not([readonly]),input[type=password]:not([readonly]),input[type=radio]:not([readonly]),textarea:not([readonly]),select:not([readonly]),input[type=email]:not([readonly]),input[type=number]:not([readonly]),input[type=file]:not([readonly])').each(function () {
+            //$('input[type=text],select,input[type=email]').each(function () {
+            var req = $(this).attr('data-val-required');
+            var exclude = $(this).attr('data-exclude');
+            if (undefined != req && undefined == exclude) {
+                var label = $('label[for="' + $(this).attr('id') + '"]');
+                var text = label.text();
+                if (text.length > 0) {
+                    label.append(' <span style="color:#ff0000b3;">*</span>');
+                }
+            }
+        });
+    });
+
+    $(".toggle-password").click(function () {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+
+            if($("#LogQueuePassword").hasClass("pwd")){
+                $("#LogQueuePassword").removeClass("pwd");
+            }else{
+                $("#LogQueuePassword").addClass("pwd");
+            }
+    });
+
+    var onSuccess = function (result) {
+        if (result.url) {
+            // if the server returned a JSON object containing an url
+            // property we redirect the browser to that url
+            window.location.href = result.url;
+        }
+    }
+
+    function OnBegin() {
+        $('#overlay').show();
+    }
+    function OnComplete() {
+        $('#overlay').hide();
+    }
+</script>

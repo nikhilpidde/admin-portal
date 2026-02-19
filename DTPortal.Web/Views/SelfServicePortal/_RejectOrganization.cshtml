@@ -1,0 +1,103 @@
+﻿@model DTPortal.Web.ViewModel.SelfServicePortal.RejectOrganizationViewModel
+
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title s3">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    Reject Organization
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <form asp-action="Reject" asp-controller="SelfServicePortal" id="rejectOrgForm">
+                    <input asp-for="OrgFormId" hidden />
+                    <div class="form-group">
+                        <select asp-for="RejectedReason" class="form-control">
+                            <option value="">select a reason</option>
+                            @foreach (var reason in Model.RejectedReasonList)
+                            {
+                                <option value="@reason">@reason</option>
+                            }
+                        </select>
+                        <span asp-validation-for="RejectedReason" class="text-danger"></span>
+                    </div>
+                   <div class="form-group">
+                        <textarea asp-for="Remarks" class="form-control" text-wrap:normal" type="text" placeholder="Type remarks..."
+                                  style="height:100px"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" id="rejectOrgFormSubmitBtn" form="rejectOrgForm" class="btn btn-primary greenButton" data-submit="modal">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#modalDialogDiv').on('hide.bs.modal', function () {
+            $('span[data-valmsg-for="Remarks"]').removeClass("field-validation-error");
+            $('span[data-valmsg-for="Remarks"]').addClass("field-validation-valid");
+        })
+    });
+
+    $('#rejectOrgFormSubmitBtn').click(function () {
+        if ($("#rejectOrgForm").valid()) { //check if form is valid using model annotation
+            $('#rejectOrgForm').submit();
+        }
+        else {
+            return false;
+        }
+    });
+
+   
+
+    $("#rejectOrgForm").on("submit", function (event) {
+        event.preventDefault();
+        $('#rejectOrgFormSubmitBtn').attr('disabled', 'disabled');
+        var url = $(this).attr("action");
+        var formData = $(this).serialize();
+
+        $('#modalDialogDiv').modal('hide');
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            dataType: "json",
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#rejectOrgFormSubmitBtn').removeAttr('disabled');
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message }, function (isConfirm) {
+                if (isConfirm) {
+                    if (type == 'success') {
+                        window.location.reload();
+                    }
+                }
+            });
+        });
+</script>

@@ -1,0 +1,144 @@
+﻿@model DTPortal.Web.ViewModel.AllPaymentHistory.AllPaymentHistoryViewModel
+@using DTPortal.Web.Enums
+
+@{
+    ViewData["Title"] = "All Payment History";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="height: 70px;z-index:1;">
+            @*<form method="post" asp-action="ExportAllPaymentHistory">*@
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <div class="form-group col-md-12">
+                            <input asp-for="PaymentHistoryDate" class="form-control datepicker" type="text" placeholder="Choose date"/>
+                            <span asp-validation-for="PaymentHistoryDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <div class="form-group col-md-12">
+                            <select asp-for="Status" asp-items="Html.GetEnumSelectList<PaymentStatus>()" class="form-control">
+                                <option value="">select</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="button" class="btn btn-primary" onclick="ExportToPdf()" value="Export" />
+                        @*<input type="submit" class="btn btn-primary" value="Export" />*@
+                        &nbsp;&nbsp;
+                        <input type="button" class="btn btn-danger" value="Clear" onclick="resetFields()" />
+                    </div>
+                </div>
+            @*</form>*@
+        </div>
+    </div>
+</div>
+
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+
+@section Scripts {
+
+    <script src="~/assets/js/jquery-1.12.4.js"></script>
+    <script src="~/assets/js/jquery-ui.js"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            $('#paymentHistoryMenuItem').addClass('active');
+            $('#AllPaymentHistorySidebarElement').addClass('active');
+
+            $('#priceModel').addClass('show');
+            $('#PaymentHistorySubmenu').addClass('show');
+
+            $("li#paymentHistoryMenuItem a:first").attr('aria-expanded', 'true');
+            $("li#AllPaymentHistorySidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Payment History');
+            $('#subMenu').addClass('breadcrumb-item active').append('All Payments');
+            /*For Beadcrum End*/
+
+            var today = new Date();
+            $('.datepicker').datepicker({
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
+            });
+        });
+
+        function resetFields() {
+        $('select').val('');
+        $("input:text").val("");
+        $('.text-danger').text('');
+    }
+
+        function ExportToPdf(){
+            
+            var paymentHistoryDate = $('#PaymentHistoryDate').val();
+            var status = $('#Status option:selected').text();
+
+            $.ajax({
+                type: "POST",
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                url: '@Url.Action("ExportAllPaymentHistory", "AllPaymentHistory")',
+                data: {
+                    PaymentHistoryDate: paymentHistoryDate,
+                    Status: status
+                },
+                //data: JSON.stringify(dataToSend),
+                //data: '@Html.Raw(Json.Serialize(Model))',
+                //contentType: 'application/json',
+                dataType: "json",
+                error: ajaxErrorHandler,
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    if (data.status == "Success") {
+                        saveByteArray(paymentHistoryDate, data.result)
+                    }
+                    if (data.status == "Failed") {
+                        swal({ type: 'error', title: "Error", text: data.message });
+                    }
+                }
+            });
+        }
+
+        function saveByteArray(name, bytes) {
+            var myBytes = base64ToArrayBuffer(bytes);
+            var blob = new Blob([myBytes], { type: "application/pdf" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            let fileName = name + ".pdf";
+            link.download = fileName;
+            link.click();
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+    </script>
+}

@@ -1,0 +1,334 @@
+
+/* ---------------------------------------------------
+    SIDEBAR jquery yellow
+----------------------------------------------------- */
+
+.list-unstyled {
+    padding-left: 0;
+    list-style: none;
+    font-size: 13px;
+}
+/*Hover Styling*/
+#sidebar ul li a:hover {
+    color: #ffb400;
+    background-color: #1f1b1b;
+}
+
+#pageSubmenu li a:hover {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#pageSubmenu li a {
+    margin-left: 20px;
+}
+#adminSubmenu li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+#adminSubmenu li a {
+    margin-left: 10px;
+}
+    #adminSubmenu li a:hover {
+        color: #ffb400;
+        background: transparent !important;
+    }
+
+#homeSubmenu li a:hover {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#registrationAuthority li a {
+    margin-left: 10px;
+}
+
+#homeSubmenu li a {
+    margin-left: 10px;
+}
+
+#SessionSubmenu li a {
+    margin-left: 0px;
+}
+
+#OauthSamlSubmenu li a {
+    margin-left: 0px;
+}
+
+#AccessFilterSubmenu li a {
+    margin-left: 0px;
+}
+
+#ConfigurationSubmenu li a {
+    margin-left: 0px;
+}
+
+#electronicSignature li a {
+    margin-left: 10px;
+}
+
+#priceModel li a {
+    margin-left: 10px;
+}
+
+#activityReports li a {
+    margin-left: 10px;
+}
+
+#portalSettings li a {
+    margin-left: 10px;
+}
+
+#sidebar ul li a:hover i.dashboard-icon {
+    content: url(../../assets/images/dashboard_icon_yellow.svg)
+}
+
+#sidebar ul li a:hover i.subscribers-icon {
+    padding:0px 8px !important;
+    content: url(../../assets/images/ic_Subscribers_Orange.svg)
+}
+
+#sidebar ul li a:hover i.digital-authentication-icon {
+    content: url(../../assets/images/digital_authentication_icon_yellow.svg)
+}
+
+#sidebar ul li a:hover i.electronic-signature-icon {
+    content: url(../../assets/images/electronic_signature_icon_yellow.svg)
+}
+
+#sidebar ul li a:hover i.price-model-icon {
+    content: url(../../assets/images/price_model_icon_yellow.svg)
+}
+
+#sidebar ul li a:hover i.activity-reports-icon {
+    content: url(../../assets/images/activity_reports_icon_yellow.svg)
+}
+
+#sidebar ul li a:hover i.portal-settings-icon {
+    content: url(../../assets/images/settings_icon_yellow.svg)
+}
+#sidebar ul li a:hover i.general-services-icon {
+    content: url(../../assets/images/general_services_orange.svg)
+}
+#sidebar ul li a:hover i.eseal-registration-icon {
+    content: url(../../assets/images/esealYellow.svg)
+}
+
+#sidebar ul li a:hover i.multi-pivot-icon {
+    content: url(../../assets/images/multi_pivot_servic-O.svg)
+}
+#sidebar ul.list-unstyled li.active i.administration-icon {
+    padding: 0px 8px !important;
+    width: 40px;
+    content: url(../../assets/images/administration_icon_orange.png);
+}
+#sidebar ul.list-unstyled li i.administration-icon {
+    padding: 0px 8px !important;
+    width: 40px;
+    content: url('../../assets/images/administration_icon_white.png');
+}
+#sidebar ul li a:hover i.administration-icon {
+    padding: 0px 8px !important;
+    content: url(../../assets/images/administration_icon_orange.png)
+}
+
+/*Active Styling*/
+#sidebar ul li.active {
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffb400;
+}
+
+#sidebar ul.list-unstyled li.active {
+    color: #ffb400;
+    background: #00000075;
+}
+
+#pageSubmenu li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#homeSubmenu li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#electronicSig li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#reports li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+#settings li.active {
+    color: #ffb400;
+    background: transparent !important;
+}
+
+
+
+
+#sidebar ul.list-unstyled li i.dashboard-icon {
+    width: 40px;
+    content: url(../../assets/images/dashboard_icon.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.dashboard-icon {
+    width: 40px;
+    content: url(../../assets/images/dashboard_icon_yellow.svg)
+}
+
+
+
+#sidebar ul.list-unstyled li i.subscribers-icon {
+    padding:0px 8px  !important;
+     width: 40px;
+    content: url(../../assets/images/ic_Subscribers_White.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.subscribers-icon {
+    padding:0px 8px !important;
+     width: 40px;
+    content: url(../../assets/images/ic_Subscribers_Orange.svg)
+}
+
+
+
+#sidebar ul.list-unstyled li i.digital-authentication-icon {
+    width: 40px;
+    content: url(../../assets/images/digital_authentication_icon.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.digital-authentication-icon {
+    width: 40px;
+    content: url(../../assets/images/digital_authentication_icon_yellow.svg)
+}
+
+
+
+#sidebar ul.list-unstyled li i.electronic-signature-icon {
+    width: 40px;
+    content: url(../../assets/images/electronic_signatures_icon.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.electronic-signature-icon {
+    width: 40px;
+    content: url(../../assets/images/electronic_signature_icon_yellow.svg)
+}
+
+
+
+#sidebar ul.list-unstyled li i.price-model-icon {
+    width: 40px;
+    content: url(../../assets/images/price_model_icon.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.price-model-icon {
+    width: 40px;
+    content: url(../../assets/images/price_model_icon_yellow.svg)
+}
+
+
+
+#sidebar ul.list-unstyled li i.activity-reports-icon {
+    width: 40px;
+    content: url(../../assets/images/activity_reports_icon.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.activity-reports-icon {
+    width: 40px;
+    content: url(../../assets/images/activity_reports_icon_yellow.svg)
+}
+
+#sidebar ul.list-unstyled li i.multi-pivot-icon {
+    width: 40px;
+    content: url(../../assets/images/multi_pivot_servic-W.svg);
+}
+
+
+#sidebar ul.list-unstyled li i.portal-settings-icon {
+    width: 40px;
+    content: url(../../assets/images/Settings.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.portal-settings-icon {
+    width: 40px;
+    content: url(../../assets/images/settings_icon_yellow.svg)
+}
+
+#sidebar ul.list-unstyled li i.general-services-icon {
+    width: 40px;
+    content: url(../../assets/images/general_services_white.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.general-services-icon {
+    width: 40px;
+    content: url(../../assets/images/general_services_orange.svg)
+}
+#sidebar ul.list-unstyled li i.eseal-registration-icon {
+    width: 40px;
+    content: url(../../assets/images/eseal.svg);
+}
+
+#sidebar ul.list-unstyled li.active i.eseal-registration-icon {
+    width: 40px;
+    content: url(../../assets/images/esealYellow.svg)
+}
+
+#sidebar ul.list-unstyled li.active i.multi-pivot-icon {
+    width: 40px;
+    content: url(../../assets/images/multi_pivot_servic-O.svg)
+}
+
+
+
+
+#sidebar ul .nav-item.active {
+    background: rgba(0, 0, 0, 0);
+    color: #ffb400;
+}
+
+#sidebar ul li ul li a.active {
+    background: #000000;
+    color: #ffb400;
+}
+
+#sidebar ul li ul li {
+    color: #fff;
+}
+
+.background-image {
+    background-image: url(../../assets/images/background.png);
+    background-repeat: no-repeat;
+    background-size: 100% 480px;
+}
+
+.nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
+    border-color: #ffb400 !important;
+    border-radius: 22px !important;
+}
+.svg-icon {
+    fill: #188ae2;
+}
+
+.svg-rect {
+    fill: #fdfeff;
+}
+
+.svg-muted {
+    fill: #fff;
+}
+
+.svg-differ {
+    fill: #188ae2;
+}
+
+.svg-path {
+    fill: #136cbe;
+}
+.svg-white {
+    fill: #188ae2;
+}

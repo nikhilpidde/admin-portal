@@ -1,0 +1,88 @@
+﻿@model IEnumerable<DTPortal.Web.ViewModel.RoleManagement.CheckerListItem>
+
+    <style>
+        #checkerActivityFieldset {
+            padding: 15px 5px 15px 10px;
+            border: groove 2px;
+            margin-bottom: 15px;
+            overflow-y: auto;
+            height: auto;
+            max-height: 250px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .showChecker {
+            display: block;
+        }
+
+        .hideChecker {
+            display: none;
+        }
+
+        .Checkerkbox label {
+            white-space: nowrap;
+        }
+
+        .custom-check-box {
+            margin-right: 5px;
+            -webkit-print-color-adjust: exact;
+            vertical-align: top;
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-size: contain;
+            position: relative !important;
+            width: 1.125rem;
+            height: 1.125rem;
+            background-color: #fff;
+            border: .125rem solid rgba(0,0,0,0.3);
+        }
+
+            .custom-check-box:hover {
+                outline: auto;
+                outline-color: #5d9ceca3;
+            }
+    </style>
+
+<fieldset id="checkerActivityFieldset">
+    <div style="margin-left: 10px; margin-top:5px;">
+        @foreach (var item in Model)
+        {
+        <label class="@item.id hideChecker">
+            <input type="checkbox" class="custom-check-box" id="@item.id" name="CheckerActivitie" value="@item.id" @(item.IsSelected ? "checked" : "") onClick="return false;"/>
+            @item.Display
+        </label>
+
+        }
+    </div>
+</fieldset>
+
+<script>
+
+    $(".custom-check-box").on("click", function (e) {
+        setActicityValues();
+    });
+
+
+    function setActicityValues(action) {
+        var selectedActiviti = $('#ActivityTree').jstree("get_selected").join(",");////
+
+        //var getPartialeSelectedActiviti = "";
+        //$("#jstree_privileges").find(".jstree-undetermined").each(function (i) {
+        //    getPartialeSelectedActiviti = getPartialeSelectedActiviti + "#" + $(this).parent().parent().attr("id");
+        //});
+
+        //selectedActiviti = selectedActiviti + getPartialeSelectedActiviti;
+
+        var selectedCheckerActiviti = Array.from($(".custom-check-box:checked")).map(e => e.value).join(",");
+
+        if (selectedCheckerActiviti != "")
+            selectedActiviti = selectedActiviti + "," + selectedCheckerActiviti
+
+        if (action == "model")
+            $("#Activitie").val(selectedActiviti)
+        else
+            $("#Activitie").val(selectedActiviti).trigger("change");
+       // document.getElementById('Activitie').value = selectedActiviti;
+    }
+</script>

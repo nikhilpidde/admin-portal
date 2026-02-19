@@ -1,0 +1,240 @@
+﻿@model DTPortal.Web.ViewModel.OrganizationKycMethods.OrganizationKycMethodsViewModel
+
+@{
+    ViewData["Title"] = "ID Validation Service";
+}
+
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+
+        .select2-container .select2-selection--single {
+            height: 35px !important;
+        }
+
+    .selection {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #555555b3;
+        font-size: 14px;
+        font-family: inherit;
+    }
+
+    #kycMethodsContainer {
+        padding: 5%;
+        padding-top: 2%;
+        padding-bottom: 2%;
+        background: white;
+        border: 1px solid #555555b3;
+        border-radius: 7px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        overflow-y: auto;
+        max-height: 250px; /* scroll if too many checkboxes */
+    }
+
+    .form-check {
+        padding: 4px !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="OrganizationId" class="col-form-label s3"></label>
+                            <select asp-for="OrganizationId" class="form-control"
+                                    asp-items="Model.OrganizationList">
+                                <option value="">-- Select Organization Name --</option>
+                            </select>
+                            <span asp-validation-for="OrganizationId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Side by side Profiles & Methods -->
+                    <div class="form-row" id="KycDataContainer" hidden>
+                        <!-- KYC Methods -->
+                        <div class="form-group col-md-6" id="KycContainer">
+                            <label style="font-weight:600">ID Validation Methods</label>
+                            <div id="kycMethodsContainer"></div>
+                        </div>
+
+                        <!-- KYC Profiles -->
+                        <div class="form-group col-md-6" id="KycProfilesContainer">
+                            <label style="font-weight:600">ID Validation Profile</label>
+                            <select id="SelectedKycProfile" class="form-control">
+                                <option value="">-- Select Profile --</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-primary" id="saveBtn">Update</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $('#kycServicesMenu').addClass('active');
+            $('#kycOrganizationMethodsSidebarElement').addClass('active');
+            $('#kycService').addClass('show');
+            $("li#kycServicesMenu a:first").attr('aria-expanded', 'true');
+            $('#homeMenu').addClass('breadcrumb-item').append('ID Validation Service');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Organization Configurations');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            // Apply select2
+            $("#OrganizationId").select2();
+
+            function loadOrgKycData(orgId) {
+                $.ajax({
+                    url: '@Url.Action("GetKycMethodsByOrgId", "OrganizationKycMethods")',
+                    type: 'GET',
+                    data: { orgId: orgId },
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+
+                        $('#overlay').hide();
+                    },
+                    success: function (response) {
+                        $("#KycDataContainer").removeAttr("hidden");
+
+                        var methodsContainer = $("#kycMethodsContainer");
+                        var profileDropdown = $("#SelectedKycProfile");
+
+                        methodsContainer.empty();
+                        profileDropdown.empty();
+
+                        if (response.error) {
+                            methodsContainer.append(`<div class="text-danger">${response.error}</div>`);
+                            return;
+                        }
+
+                        // Render Methods (checkboxes)
+                        $.each(response.methods, function (index, method) {
+                            var isChecked = method.isSelected ? 'checked' : '';
+                            var checkboxHtml = `
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"
+                                        name="SelectedKycMethodNames" value="${method.name}" id="method_${index}" ${isChecked}>
+                                    <label class="form-check-label" for="method_${index}">${method.displayName}</label>
+                                </div>`;
+                            methodsContainer.append(checkboxHtml);
+                        });
+
+                        // Render Profiles
+                        var selectedProfile = null;
+                        var otherProfiles = [];
+
+                        $.each(response.profiles, function (index, profile) {
+                            if (profile.isSelected) {
+                                selectedProfile = profile;
+                            } else {
+                                otherProfiles.push(profile);
+                            }
+                        });
+
+                        profileDropdown.append('<option value="">-- Select Profile --</option>');
+
+                        if (selectedProfile) {
+                            profileDropdown.append(`<option value="${selectedProfile.name}" selected>${selectedProfile.displayName}</option>`);
+                        }
+
+                        $.each(otherProfiles, function (index, profile) {
+                            profileDropdown.append(`<option value="${profile.name}">${profile.displayName}</option>`);
+                        });
+
+                        // ✅ Apply select2 to profiles
+                        $("#SelectedKycProfile").select2({ width: '100%' });
+                    },
+                    error: ajaxErrorHandler
+                });
+            }
+
+            // When org changes → load data
+            $("#OrganizationId").change(function () {
+                var orgId = $(this).val();
+                if (orgId) {
+                    loadOrgKycData(orgId);
+                } else {
+                    $("#kycMethodsContainer").empty();
+                    $("#SelectedKycProfile").empty().append('<option value="">-- Select Profile --</option>');
+                }
+            });
+
+            // Save Button
+            $("#saveBtn").click(function () {
+                var orgId = $("#OrganizationId").val();
+                var selectedMethods = [];
+                var selectedProfiles = [];
+
+                $("input[name='SelectedKycMethodNames']:checked").each(function () {
+                    selectedMethods.push($(this).val());
+                });
+
+                var selectedProfile = $("#SelectedKycProfile").val();
+                if (selectedProfile) {
+                    selectedProfiles.push(selectedProfile);
+                }
+
+                if (!orgId) {
+                    swal({ type: 'info', title: "Info", text: 'Please select an organization.' });
+                    return;
+                }
+
+                if (selectedMethods.length === 0 && selectedProfiles.length === 0) {
+                    swal({ type: 'info', title: "Info", text: 'Select at least one ID Validation methods or profile' });
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("UpdateKycMethods", "OrganizationKycMethods")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        OrganizationId: orgId,
+                        SelectedKycMethodNames: selectedMethods,
+                        SelectedKycProfileNames: selectedProfiles
+                    }),
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+
+                        $('#overlay').hide();
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            swal({ type: 'success', title: "Success", text: 'ID Validation methods and profile updated successfully.' });
+                            loadOrgKycData(orgId);
+                        } else {
+                            swal({ type: 'error', title: "Failed", text: response.message });
+                        }
+                    },
+                    error: ajaxErrorHandler
+                });
+            });
+        });
+    </script>
+}

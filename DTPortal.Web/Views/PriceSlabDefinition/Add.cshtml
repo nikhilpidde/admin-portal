@@ -1,0 +1,357 @@
+﻿@model DTPortal.Web.ViewModel.PriceSlabDefinition.PriceSlabDefinitionAddViewModel
+
+@using DTPortal.Web.Enums
+
+@using DTPortal.Core.DTOs
+
+<style>
+    #note {
+        padding-right: 10px;
+        display: flex;
+        justify-content: flex-end;
+        padding-bottom: 15px;
+    }
+</style>
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Add">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="Stakeholder" class="col-form-label"></label>
+                                <select asp-for="Stakeholder" asp-items="Html.GetEnumSelectList<UserType>()" class="form-control">
+                                    <option value="">Select</option>
+                                </select>
+                                <span asp-validation-for="Stakeholder" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="ServiceId" class="col-form-label"></label>
+                                <select asp-for="ServiceId" class="form-control" onchange="updateMinMax(this)">
+                                    <option value="">select</option>
+                                </select>
+                                <span asp-validation-for="ServiceId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-7">
+                            <partial name="_DiscountVolumeRange" for="DiscountVolumeRanges"></partial>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+<script>
+    var index;
+    $(document).ready(function () {
+        $('#priceModelMenu').addClass('active');
+        $('#priceSlabDefinitionMenuItem').addClass('active');
+        $('#genericPriceSlabDefinitionSidebarElement').addClass('active');
+
+        $('#priceModel').addClass('show');
+        $('#priceSlabDefinitionSubmenu').addClass('show');
+
+        $("li#priceSlabDefinitionMenuItem a:first").attr('aria-expanded', 'true');
+        $("li#genericPriceSlabDefinitionSidebarElement a:first").attr('aria-expanded', 'true');
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+        $('#mainMenu').addClass('breadcrumb-item').append('Price Slabs');
+        $('#subMenu').addClass('breadcrumb-item active').append('Generic Price Slab > Add');
+        /*For Beadcrum End*/
+
+        $('#Stakeholder').on('change', function () {
+            $('#ServiceId').empty();
+            var value = $(this).val();
+            if(value){
+            $.ajax({
+                type: 'GET',
+                cache: false,
+                url: '@Url.Action("GetServiceDefinitions", "PriceSlabDefinition")',
+                data: { value: value },
+                contentType: 'application/json; charset=utf-8',
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (response) {
+                    var options = '';
+                    options += '<option value="">Select</option>';
+                    if(response){
+                    for (var i = 0; i < response.length; i++) {
+                        options += '<option value="' + response[i].id + '">' + response[i].serviceDisplayName + '</option>';
+                    }
+                    }
+                    $('#ServiceId').append(options);
+                    $('#ServiceId option[value="' + @Model.ServiceId + '"]').prop('selected', true)
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+            }else{
+                var options = '';
+                    options += '<option value="">Select</option>';
+                    $('#ServiceId').append(options);
+            }
+        });
+
+        $('#Stakeholder').change();
+
+        index = $("#discountVolumeRangetbody").children("tr").length;
+    });
+
+    $(document).on("click", '.add-range', function ()
+    {
+        if (index >= 5)
+        {
+            swal({ type: 'error', title: "Error", text: "Max 5 records is allowed" });
+            return;
+        }
+
+        let row = "";
+        let isValid = true;
+
+        let previousRow = $("#discountVolumeRangetbody").children("tr").eq(index - 1);
+        let previousVolumeRangeFrom = +previousRow.find('td:eq(2) input').val();
+        let previousVolumeRangeTo = +previousRow.find('td:eq(3) input').val();
+        let previousDiscount = +previousRow.find('td:eq(4) input').val();
+
+        // if (previousVolumeRangeFrom <= 0)
+        // {
+        //     +previousRow.find('td:eq(2) span').text("This field must be a number and greater than zero");
+        //     isValid = false;
+        // }
+
+        if (previousVolumeRangeTo <= 0)
+        {
+            +previousRow.find('td:eq(3) span').text("This field must be a number and greater than zero");
+            isValid = false;
+        }
+        else if (previousVolumeRangeTo <= previousVolumeRangeFrom)
+        {
+            +previousRow.find('td:eq(3) span').text("Enter a value greater than volume range from");
+            isValid = false;
+        }
+
+        let discount = $("input[name='DiscountVolumeRanges[" + (index - 1) + "].Discount']").val();
+        if (discount == null || discount == "")
+        {
+            +previousRow.find('td:eq(4) span').text("This field must be a number and range from 0-99");
+            isValid = false;
+        }
+
+        if (previousDiscount < 0 || previousDiscount > 99)
+        {
+            +previousRow.find('td:eq(4) span').text("This field must be a number and range from 0-99");
+            isValid = false;
+        }
+
+        if (!isValid)
+        {
+            return;
+        }
+
+        let nextVolumeRangeTo = previousVolumeRangeTo + 1;
+
+        row = "<tr>" +
+                "<td style='display: none;'><input name='DiscountVolumeRanges.Index' value='" + index + "'/></td>" +
+                "<td style='display: none;'><input name='DiscountVolumeRanges[" + index + "].Id' type='text' value='0'></td>" +
+                "<td>" +
+                    "<input type='number' class='required inputWidth' name='DiscountVolumeRanges["+index+"].VolumeRangeFrom' value='"+ (nextVolumeRangeTo) +"' readonly>"+
+                    "<span class='text-danger field-validation-valid' data-valmsg-for='DiscountVolumeRanges["+index+"].VolumeRangeFrom' data-valmsg-replace='true'></span>"+
+                "</td>"+
+                "<td>" +
+                    "<input type='number' min="+(nextVolumeRangeTo+1)+" class='required inputWidth' name='DiscountVolumeRanges["+index+"].VolumeRangeTo' value=''>"+
+                    "<span class='text-danger field-validation-valid' data-valmsg-for='DiscountVolumeRanges["+index+"].VolumeRangeTo' data-valmsg-replace='true'></span>"+
+                "</td>"+
+                "<td>" +
+                    "<input type='number' class='required inputWidth' name='DiscountVolumeRanges["+index+"].Discount' value='' style='width: 30%;'>"+
+                    "<span class='text-danger field-validation-valid' data-valmsg-for='DiscountVolumeRanges["+index+"].Discount' data-valmsg-replace='true'></span>"+
+                "</td>"+
+                "<td>"+
+                    "<div class='form-row'>"+
+                        "<a class='btn btn-action-outline btn-info add-range' style='margin-left:2px'>"+
+                            "<i class='fa fa-plus'></i>"+
+                        "</a>"+
+                        "<a class='btn btn-tbl-delete delete-range' style='margin-left:2px'>"+
+                            "<i class='fa fa-minus'></i>"+
+                        "</a>"+
+                    "</div>"+
+                "</td>"+
+            "</tr>";
+            $("#discountVolumeRangetbody").append(row);
+            previousRow.css({"pointer-events": "none", "opacity": "0.6"});
+            previousRow.find('td:eq(5) div').children('a').eq(0).hide();
+            index++;
+    });
+
+    $(document).on("click", '.delete-range', function ()
+    {
+        $("#discountVolumeRangetbody tr:eq("+ (--index) +")").remove();
+        let previousRow = $("#discountVolumeRangetbody").children("tr").eq(index-1)
+        previousRow.css({"pointer-events": "", "opacity": "1"});
+        previousRow.find('td:eq(5) div').children('a').eq(0).show();
+    });
+
+
+        $(document).on('blur', '.inputWidth', function (e) {
+            var VolumeRangeTo;
+            var VolumeRangeFrom;
+            var row = index-1;
+
+            $(this).next("span").text("");
+
+            id_arr = $(this).attr('name');
+            id = id_arr.split(".");
+            if (id[1] == "VolumeRangeFrom") {
+                VolumeRangeTo = $('input[name="DiscountVolumeRanges[' + row + '].VolumeRangeTo"]').val();
+                if ($(this).val() > parseInt(VolumeRangeTo)) {
+                    e.preventDefault();
+                    //$(this).val(VolumeRangeTo - 1);
+                    $(this).next("span").text("Volume Range From cannot be greater than Volume Range To");
+                }
+                else{
+                    $('input[name="DiscountVolumeRanges[' + row + '].VolumeRangeTo"]').next("span").text("");
+                }
+            }
+            if (id[1] == "VolumeRangeTo") {
+                VolumeRangeFrom = $('input[name="DiscountVolumeRanges[' + row + '].VolumeRangeFrom"]').val();
+                if ($(this).val() < parseInt(VolumeRangeFrom)) {
+                    e.preventDefault();
+                    //$(this).val(parseInt(+VolumeRangeFrom + 1));
+                    $(this).next("span").text("Volume Range To cannot be less than Volume Range From");
+                }else{
+                    $('input[name="DiscountVolumeRanges[' + row + '].VolumeRangeFrom"]').next("span").text("");
+                }
+            }
+        });
+
+
+
+    //$(document).on('change keyup blur', '.volumeRangeFrom', function(e) {
+    //        $(this).next("span").text("");
+    //        var name_arr = $(this).attr('name').split(".");
+    //        //name_arr = $(this).attr('name');
+    //        //name = name_arr.split(".");
+    //        //var volumeRangeTo = $('#fullPayment.' + id[1]).val();
+    //        var name = name_arr[0]+'.VolumeRangeTo';
+    //        var volumeRangeTo = $('input[name="'+name+'"]').val();
+    //        var volumeRangeFrom = $(this).val();
+    //        //var volumeRangeTo = $('input[name="DiscountVolumeRanges[0].VolumeRangeTo"]').val();
+    //        //var advancePay = $('#advancePayment_' + id[1]).val();
+    //        if (parseInt(volumeRangeFrom) >= parseInt(volumeRangeTo)) {
+    //            e.preventDefault();
+    //            //$(this).val(volumeRangeTo-1);
+    //            //$(this).next("span").text("Value cannot be greater than volume range to");
+    //            $(this).next("span").removeClass('field-validation-valid');
+    //            $(this).next("span").addClass('field-validation-error');
+    //            var span = '<span id="'+$(this).attr('name')+'-error" class="">Value cannot be greater than volume range to</span>';
+    //            $(this).next("span").html(span);
+    //        }
+    //});
+
+    // $(document).on('change keyup blur', '.volumeRangeTo', function(e) {
+    //        $(this).next("span").text("");
+    //        var name_arr = $(this).attr('name').split(".");
+    //        var name = name_arr[0]+'.VolumeRangeFrom';
+    //        var volumeRangeFrom = $('input[name="'+name+'"]').val();
+    //        var volumeRangeTo = $(this).val();
+    //        if (parseInt(volumeRangeTo) <= parseInt(volumeRangeFrom)) {
+    //            e.preventDefault();
+    //            //$(this).val(volumeRangeTo+1);
+    //            //$(this).next("span").text("Value cannot be greater than volume range to");
+    //            $(this).next("span").removeClass('field-validation-valid');
+    //            $(this).next("span").addClass('field-validation-error');
+    //            //$(this).next("span").html("Value cannot be greater than volume range to");
+    //            var span = '<span id="'+name+'-error" class="">Value cannot be greater than volume range to</span>';
+    //            $(this).next("span").html(span);
+    //        }
+    //});
+
+    function updateMinMax(selectElement) 
+    {
+        var serviceId = selectElement.value;
+            var volumeRangeFromInput = $("input[name='DiscountVolumeRanges[0].VolumeRangeFrom']");
+            var volumeRangeToInput = $("input[name='DiscountVolumeRanges[0].VolumeRangeTo']");
+            var discountInput = $("input[name='DiscountVolumeRanges[0].Discount']");
+            var totalRows = $("#discountVolumeRangetbody").children("tr").length;
+            var row = $("#discountVolumeRangetbody").children("tr").eq(0);
+            //var discountRow = $("tr:gt(1)");
+               if (serviceId == 6)
+               {
+                   if (totalRows > 1){
+                        for (var i = totalRows - 1; i > 0; i--) {
+                            $("#discountVolumeRangetbody tr:eq(" + i + ")").remove();
+                        }
+                        index=1;
+                   }
+                    discountInput.attr("min", 0);
+                    discountInput.attr("max", 100);
+                    volumeRangeToInput.attr("value", 1)
+                    volumeRangeFromInput.prop("disabled", true);
+                    volumeRangeToInput.prop("disabled", true);
+                    $('.add-range').css("display", "none");
+
+                     discountInput.prop("disabled", false);
+                     discountInput.css("pointer-events",'auto');
+                     row.css('opacity', 1);
+               }
+               else {
+
+                    //volumeRangeFromInput.css("pointer-events", 'auto');
+                    volumeRangeToInput.css("pointer-events", 'auto');
+                    discountInput.css("pointer-events", 'auto');
+
+                    discountInput.attr("min", 0);
+                    discountInput.attr("max", 99);
+                    volumeRangeToInput.attr("value", 100)
+                    volumeRangeFromInput.prop("disabled", false);
+                    volumeRangeToInput.prop("disabled", false);
+                    $("#discountVolumeRangetbody tr").show();
+                    
+                    if (index == 1) {
+                        $('.add-range').css("pointer-events", 'auto');
+                        $('.add-range').css("display", "block");
+                    }
+
+               }
+    }
+</script>
+}
+
+

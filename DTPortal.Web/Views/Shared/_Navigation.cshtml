@@ -1,0 +1,330 @@
+﻿@{
+    var userRoleId = User.Claims.FirstOrDefault(c => c.Type == "UserRoleID")?.Value;
+}
+<style>
+    img {
+        cursor: pointer;
+    }
+</style>
+
+<nav id="sidebar">
+    <div class="sidebar-header fixed-top">
+        <h3 class="gap-header">
+            <img id="primaryImage" alt="" width="240" height="60"
+                 style="padding: 7px 50px 7px 50px;" />
+        </h3>
+        <strong class="gap-header"><img id="secondaryImage" alt="" width="70" height="60" /></strong>
+    </div>
+
+    <ul class="list-unstyled components" style="margin-top: 56px;">
+
+        @if (!User.IsInRole("KYC Admin"))
+        {
+            <li class="nav-item" id="dashboardMenu">
+                <a class="nav-link " asp-controller="Dashboard" asp-action="Index">
+                    <i class="dashboard-icon" style="padding:0px 12px"></i>
+                    Dashboard
+                </a>
+            </li>
+        }
+
+        @if (User.IsInRole("Subscriber"))
+
+        {
+            <li class="nav-item" id="registrationAuthorityMenu">
+                <a class="nav-link " asp-controller="Subscriber" asp-action="SearchSubscriber">
+                    <i class="subscribers-icon" style="padding:0px 12px"></i>
+                    Subscribers
+                </a>
+            </li>
+
+        }
+        @if (User.IsInRole("Organizations"))
+        {
+            <li class="dropdown" id="eSealRegistrationMenu">
+                <a class="nav-link drop-logo" href="#eSealRegistration" data-toggle="collapse" aria-expanded="false">
+                    <i class="eseal-registration-icon" style="padding:0px 12px"></i>
+                    Organizations
+                </a>
+                <ul class="collapse list-unstyled settingsColSubmenu" id="eSealRegistration">
+                    @if (User.IsInRole("Organization"))
+                    {
+                        <li class="nav-item" id="eSeal"><a asp-action="Index" asp-controller="ESealRegistration" class="nav-link">Organizations</a></li>
+                    }
+                    @if (User.IsInRole("Organization Categories"))
+                    {
+                        <li class="nav-item" id="organizationCategories"><a asp-action="Index" asp-controller="OrganizationCategories" class="nav-link">Categories</a></li>
+                    }
+                </ul>
+            </li>
+        }
+
+        @if (User.IsInRole("Digital Authentication"))
+        {
+            <li class="dropdown" id="digitalAuthSidebarElement">
+                <a class="nav-link drop-logo size" href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">
+                    <i class="digital-authentication-icon" style="padding:0px 12px"></i>
+                    Digital Authentication
+                </a>
+                <ul class="collapse list-unstyled dashColSubmenu" id="homeSubmenu">
+                    @if (User.IsInRole("Service Provider"))
+                    {
+                        <li class="nav-item" id="OauthOpenIDSidebarElement"><a asp-controller="Clients" asp-action="List" class="nav-link">Services</a></li>
+                    }
+                    @if (User.IsInRole("Attributes"))
+                    {
+                        <li class="nav-item" id="UserClaimsConfigMenuItem"><a asp-controller="UserClaims" asp-action="List" class="nav-link">Attributes</a></li>
+                    }
+                    @if (User.IsInRole("Profiles"))
+                    {
+                        <li class="nav-item" id="ScopeConfigMenuItem"><a asp-controller="Scopes" asp-action="List" class="nav-link">Profiles</a></li>
+                    }
+                    @if (User.IsInRole("RA Session"))
+                    {
+                        <li class="nav-item" id="RASessionSidebarElement"><a asp-controller="Session" asp-action="Index" asp-route-id="Subscriber" class="nav-link">Subscriber Session</a></li>
+                    }
+
+                    @if (User.IsInRole("Application Configuration"))
+                    {
+                        <li class="nav-item" id="AppConfigurationSidebarElement"><a asp-controller="Configuration" asp-action="Index" class="nav-link">Application Configuration</a></li>
+                    }
+
+                    <li class="nav-item" id="DefaultAuthenticationSidebarElement"><a asp-controller="Configuration" asp-action="DefaultAuthenticationSchema" class="nav-link">Default Authentication Scheme</a></li>
+
+
+                </ul>
+            </li>
+        }
+
+
+
+        @if (User.IsInRole("Wallet"))
+        {
+            <li class="dropdown" id="walletMenu">
+                <a class="nav-link drop-logo" href="#walletConfig" data-toggle="collapse" aria-expanded="false">
+                    <i class="electronic-signature-icon" style="padding:0px 12px"></i>
+                    Digital  Wallet
+                </a>
+                <ul class="collapse list-unstyled signatureColSubmenu" id="walletConfig">
+                    @if (User.IsInRole("Wallet Configuration"))
+                    {
+                        <li class="nav-item" id="walletconfigMenuItem"><a asp-controller="WalletConfiguration" asp-action="Index" class="nav-link">Wallet Configurations</a></li>
+                    }
+                    @if (User.IsInRole("Credential Approval"))
+                    {
+                        <li class="nav-item" id="credentialMenuItem"><a asp-controller="CredentialApproval" asp-action="Index" class="nav-link">Credential Approvals</a></li>
+                    }
+                   @*  @if (User.IsInRole("QrCredential Approval"))
+                    {
+                        <li class="nav-item" id="qrCredentialMenuItem"><a asp-controller="QrCredentialApproval" asp-action="Index" class="nav-link">QrCredential Approvals</a></li>
+                    } *@
+                    @if (User.IsInRole("Category"))
+                    {
+                        <li class="nav-item" id="CategorySidebarElement"><a asp-controller="Category" asp-action="List" class="nav-link">Credential Category</a></li>
+                    }
+                </ul>
+            </li>
+        }
+
+
+        @if (User.IsInRole("Settings"))
+        {
+            <li class="dropdown" id="portalSettingsMenu">
+                <a class="nav-link drop-logo" href="#portalSettings" data-toggle="collapse" aria-expanded="false">
+                    <i class="general-services-icon" style="padding:0px 12px"></i>
+                    Mobile App Settings
+                </a>
+                <ul class="collapse list-unstyled settingsColSubmenu" id="portalSettings">
+
+
+                    @if (User.IsInRole("Consent"))
+                    {
+                        <li class="nav-item" id="consentMenuItem"><a asp-action="List" asp-controller="Consent" class="nav-link">Consent</a></li>
+                    }
+                    @if (User.IsInRole("MobileVersionConfiguration"))
+                    {
+                        <li class="nav-item" id="mobileVersionConfigurationMenuItem"><a asp-action="List" asp-controller="MobileVersionConfiguration" class="nav-link">Mobile Version Settings</a></li>
+                    }
+
+                </ul>
+            </li>
+        }
+
+        @if (User.IsInRole("Self Service Portal"))
+        {
+            <li class="dropdown" id="selfServiceConfigMenu">
+                <a class="nav-link drop-logo" href="#selfServiceConfig" data-toggle="collapse" aria-expanded="false">
+                    <i class="eseal-registration-icon" style="padding:0px 12px"></i>
+                    Service Provider Portal
+                </a>
+                <ul class="collapse list-unstyled settingsColSubmenu" id="selfServiceConfig">
+                   @*  @if (User.IsInRole("Category"))
+                    {
+                        <li class="nav-item" id="serviceConfigurationItem"><a asp-action="Index" asp-controller="SelfServiceConfiguration" class="nav-link">Categories</a></li>
+                    } *@
+                    @if (User.IsInRole("Onboarding Approval Requests"))
+                    {
+                        <li class="nav-item" id="organzationsMenuItem"><a asp-controller="SelfServicePortal" asp-action="List" class="nav-link">Onboarding Approval Requests</a></li>
+                    }
+                    @if (User.IsInRole("License"))
+                    {
+                        <li class="nav-item" id="licenseMenuItem"><a asp-controller="License" asp-action="List" class="nav-link">License</a></li>
+                    }
+                    @if (User.IsInRole("Trusted Spoc"))
+                    {
+                        <li class="nav-item" id="TrustedSpocMenuItem"><a asp-controller="TrustedSpoc" asp-action="List" class="nav-link">Trusted Users</a></li>
+                    }
+                    @if (User.IsInRole("Software"))
+                    {
+                        <li class="nav-item" id="softwareMenuItem"><a asp-controller="Software" asp-action="List" class="nav-link">Software</a></li>
+                    }
+
+                   @*  <li class="nav-item" id="privilegeRequestElement"><a asp-controller="PrivilegeRequest" asp-action="Index" class="nav-link">Privilege Requests</a></li> *@
+
+                </ul>
+            </li>
+        }
+
+        @if (User.IsInRole("Activity Reports"))
+        {
+            <li class="dropdown" id="activityReportsMenu">
+                <a class="nav-link drop-logo" href="#activityReports" data-toggle="collapse" aria-expanded="false">
+                    <i class="activity-reports-icon" style="padding:0px 12px"></i>
+                    Activity Reports
+                </a>
+                <ul class="collapse list-unstyled signatureColSubmenu" id="activityReports">
+                    @if (User.IsInRole("Central Log Reports"))
+                    {
+                        <li class="nav-item" id="centralLogReportMenuItem"><a asp-controller="CentralLogReports" asp-action="Reports" class="nav-link" hidden>Central Log Reports</a></li>
+                    }
+                    @if (User.IsInRole("Admin Log Reports"))
+                    {
+                        <li class="nav-item" id="adminLogReportMenuItem"><a asp-controller="AdminLogReports" asp-action="Reports" class="nav-link">Admin Log Reports</a></li>
+                    }
+                    @if (User.IsInRole("Onboarding Failed Log Reports"))
+                    {
+                        <li class="nav-item" id="onboardingFailedLogReportMenuItem"><a asp-controller="OnboardingFailedLogReports" asp-action="Reports" class="nav-link">Onboarding Failed Log Reports</a></li>
+                    }
+
+                    @if (User.IsInRole("Authentication Failed Log Reports"))
+                    {
+                        <li class="nav-item" id="AuthenticationFailedLogReportMenuItem"><a asp-controller="AuthenticationFailedLogReports" asp-action="Reports" class="nav-link">Authentication Failed Logs</a></li>
+                    }
+                </ul>
+            </li>
+        }
+
+
+
+
+        @if (User.IsInRole("General Services"))
+        {
+            <li class="dropdown" id="smtpMenu">
+                <a class="nav-link drop-logo" href="#smtp" data-toggle="collapse" aria-expanded="false">
+                    <i class="portal-settings-icon" style="padding:0px 12px"></i>
+                    General Services
+                </a>
+                <ul class="collapse list-unstyled settingsColSubmenu" id="smtp">
+                    @if (User.IsInRole("SMTP"))
+                    {
+                        <li class="nav-item" id="smtpSidebarElement"><a asp-controller="SMTP" asp-action="Index" class="nav-link">SMTP</a></li>
+                    }
+
+                </ul>
+            </li>
+        }
+        @if (User.IsInRole("Administration"))
+        {
+            <li class="dropdown" id="administrationSidebarElement">
+                <a class="nav-link drop-logo size" href="#adminSubmenu" data-toggle="collapse" aria-expanded="false">
+                    <i class="administration-icon" style="padding:0px 12px"></i>
+                    Administration
+                </a>
+                <ul class="collapse list-unstyled dashColSubmenu" id="adminSubmenu">
+
+                    @if (User.IsInRole("Roles"))
+                    {
+                        <li class="nav-item" id="roleManagementSidebarElement"><a asp-controller="RoleManagement" asp-action="List" class="nav-link">Roles</a></li>
+                    }
+                    @if (User.IsInRole("Users"))
+                    {
+                        <li class="nav-item" id="userManagementSidebarElement"><a asp-controller="UserManagement" asp-action="List" class="nav-link">Users</a></li>
+                    }
+
+
+                    @if (User.IsInRole("MakerChecker Configuration"))
+                    {
+                        <li class="nav-item" id="makerCheckerConfigurationMenuItem"><a asp-action="MakerCheckerActivities" asp-controller="MakerChecker" class="nav-link">Maker-Checker Configuration</a></li>
+                    }
+                    @if (User.IsInRole("Update Logo"))
+                    {
+                        <li class="nav-item" id="logoMenuItem"><a asp-action="Update" asp-controller="Logo" class="nav-link">Update Logo</a></li>
+                    }
+
+
+                    @if (User.IsInRole("User Session"))
+                    {
+                        <li class="nav-item" id="UserSessionSidebarElement"><a asp-controller="Session" asp-action="Index" asp-route-id="User" class="nav-link">User Session</a></li>
+                    }
+
+                    @if (User.IsInRole("Password Policy"))
+                    {
+                        <li class="nav-item" id="PasswordHealthSidebarElement"><a asp-controller="PasswordHealth" asp-action="Index" class="nav-link">Password Policy</a></li>
+                    }
+                    @if (User.IsInRole("Critical Operation"))
+                    {
+                        <li class="nav-item" id="CriticalOperationSidebarElement"><a asp-controller="CriticalOperation" asp-action="List" class="nav-link">Critical Operation</a></li>
+                    }
+
+                    @if (User.IsInRole("AccessFilter"))
+                    {
+                        <li class="dropdown" id="AccessFilterSidebarElement">
+                            <a class="nav-link drop-logo" href="#AccessFilterSubmenu" data-toggle="collapse" aria-expanded="false">
+                                @*<i class="fa fa-home"></i>*@
+                                Access Filter
+                            </a>
+                            <ul class="collapse list-unstyled dashColSubmenu" id="AccessFilterSubmenu">
+                                @if (User.IsInRole("IPAddressFilter"))
+                                {
+                                    <li class="nav-item" id="IpAddFilterSidebarElement"><a asp-controller="IPAddressFilter" asp-action="List" class="nav-link">IP Address Filter</a></li>
+                                }
+                                @if (User.IsInRole("TimeBasedAccess"))
+                                {
+                                    <li class="nav-item" id="timeBasedAccessSidebarElement"><a asp-controller="TimeBasedAccess" asp-action="List" class="nav-link">Time Based Access</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+
+
+
+                </ul>
+            </li>
+        }
+
+
+
+
+
+
+
+
+
+
+
+    </ul>
+</nav>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $.get('@Url.Action("GetLogoImage", "Home")', function (data) {
+            $("#primaryImage").attr("src", data);
+            $("#secondaryImage").attr("src", data);
+        });
+
+        $("#primaryImage, #secondaryImage").click(function () {
+            window.location.href = '@Url.Action("Index", "Dashboard")'
+        });
+    });
+</script>
+

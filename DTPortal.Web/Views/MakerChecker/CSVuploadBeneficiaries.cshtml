@@ -1,0 +1,125 @@
+﻿@using Newtonsoft.Json;
+@model DTPortal.Web.ViewModel.Beneficiary.AddMultipleBeneficiariesViewModel
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                @*<table id="beneficiariesUserTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                <th>MyTrust Email</th>
+                            <th>National Id</th>
+                            <th>Passport</th>
+                            <th>Mobile Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.MultipleBeneficiaries)
+                        {
+                            <tr class="odd gradeX">
+                                <td>@(string.IsNullOrWhiteSpace(item.beneficiaryUgpassEmail) ? "N/A" : item.beneficiaryUgpassEmail)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.beneficiaryNin) ? "N/A" : item.beneficiaryNin)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.beneficiaryPassport) ? "N/A" : item.beneficiaryPassport)</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.beneficiaryMobileNumber) ? "N/A" : item.beneficiaryMobileNumber)</td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>*@
+                
+                <label class="col-form-label">Organization Name: </label>&nbsp;&nbsp; @Model.MultipleBeneficiaries[0].sponsorName
+                <br />
+            </div>
+            <div class="card-body">
+                <a class="btn btn-primary" onclick="downloadPdf(); return false;">
+                    Download Beneficiaries
+                </a>
+
+            </div>
+
+            <div style="padding-right: 10px">
+                <div class="d-flex justify-content-end ">
+                    <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                        Approve
+                    </button>
+                    &nbsp; &nbsp;
+                    <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                        Reject
+                    </button>
+                    &nbsp; &nbsp;
+                    <a asp-action="Approvals" class="btn btn-danger">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+            $('#subMenu').addClass('breadcrumb-item active').append('Beneficiaries');
+        });
+
+        function downloadPdf(){
+            //saveByteArray("Beneficiaries", '@Html.Raw(@Model.PdfFile)', "pdf")
+            DownLoadCsv('@Html.Raw(@Model.PdfFile)');
+        }
+        function DownLoadCsv(fileName) {
+            var url = '@Url.Action("DownloadCsv", "FileManager")';
+            window.location.href = url + "?value=" + fileName;
+        }
+        function saveByteArray(name, base64String, exportType) {
+            var myBytes = base64ToArrayBuffer(base64String);
+            var blob = new Blob([myBytes]);
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            if (exportType) {
+                let fileName = name + getFileExtension(exportType);
+                link.download = fileName;
+                link.click();
+            }
+            else {
+                swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+            }
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+
+        function getFileExtension(exportType) {
+            let extension;
+            switch (exportType) {
+                case 'jpg':
+                    extension = '.jpg';
+                    break;
+                case 'pdf':
+                    extension = '.pdf';
+                    break;
+                case 'excel':
+                    extension = '.xlsx';
+                    break;
+                case 'csv':
+                    extension = '.csv';
+                    break;
+            }
+
+            return extension;
+        }
+    </script>
+}

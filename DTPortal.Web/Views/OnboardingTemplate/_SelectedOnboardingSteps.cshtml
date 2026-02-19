@@ -1,0 +1,73 @@
+﻿@model IList<DTPortal.Core.DTOs.OnboardingStepDTO>
+@using DTPortal.Core.DTOs
+
+<style>
+    .inputWidth {
+        width: 95%;
+        padding-left: 0px;
+    }
+</style>
+
+<div class="form-row">
+    <label class="col-form-label">Onboarding Steps</label>
+    <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+        <thead>
+            <tr>
+                <th width="22%" class="form-group">Onboarding Step</th>
+                <th width="22%" class="form-group">Integration URL (optional)</th>
+                @*<th width="10%" class="form-group">Threshold</th>*@
+                <th width="10%" class="form-group">Android TFlite Threshold</th>
+                <th width="10%" class="form-group">Android DTT Threshold</th>
+                <th width="10%" class="form-group">iOS TFlite Threshold</th>
+                <th width="10%" class="form-group">iOS DTT Threshold</th>
+            </tr>
+        </thead>
+        <tbody id="selectedOnbaordingSteps">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var step = Model[i];
+                <tr>
+                    <td style='display: none;'><input name='SelectedOnboardingSteps.Index' value='@i' /></td>
+                    <td style='display: none;'><input name='SelectedOnboardingSteps[@i].OnboardingStepId' type='text' value='@step.OnboardingStepId'></td>
+                    <td style='display: none;'><input name='SelectedOnboardingSteps[@i].OnboardingStep' value='@step.OnboardingStep'></td>
+                    <td><input readonly type='text' name='SelectedOnboardingSteps[@i].OnboardingStepDisplayName' value='@step.OnboardingStep' class='valid inputWidth' aria-invalid='false'></td>
+                    <td><input class="inputWidth" type="text" name='SelectedOnboardingSteps[@i].IntegrationUrl' value='@step.IntegrationUrl'></td>
+                    @if (Model[i].OnboardingStepId == 1)
+                    {
+                        @*<td>
+                            <input type='number' min='70' max='100' class="required inputWidth" name='SelectedOnboardingSteps[@i].OnboardingStepThreshold' value='@step.OnboardingStepThreshold'>
+                            <span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[@i].OnboardingStepThreshold' data-valmsg-replace='true'></span>
+                        </td>*@
+                        <td>
+                            <input type='number' min='70' max='100' class="required inputWidth" name='SelectedOnboardingSteps[@i].AndriodTFliteThreshold' value='@step.AndriodTFliteThreshold'>
+                            <span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[@i].AndriodTFliteThreshold' data-valmsg-replace='true'></span>
+                        </td>
+                        <td>
+                            <input type='number' min='70' max='100' class="required inputWidth" name='SelectedOnboardingSteps[@i].AndriodDTTThreshold' value='@step.AndriodDTTThreshold'>
+                            <span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[@i].AndriodDTTThreshold' data-valmsg-replace='true'></span>
+                        </td>
+                        <td>
+                            <input type='number' min='70' max='100' class="required inputWidth" name='SelectedOnboardingSteps[@i].IosTFliteThreshold' value='@step.IosTFliteThreshold'>
+                            <span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[@i].IosTFliteThreshold' data-valmsg-replace='true'></span>
+                        </td>
+                        <td>
+                            <input type='number' min='70' max='100' class="required inputWidth" name='SelectedOnboardingSteps[@i].IosDTTThreshold' value='@step.IosDTTThreshold'>
+                            <span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[@i].IosDTTThreshold' data-valmsg-replace='true'></span>
+                        </td>
+                    }
+                    else
+                    {
+                        @*<td></td>*@
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    }
+                </tr>
+            }
+            <tr id="displayMsgRow">
+                <td colspan="7" align="center">No Onboarding Steps Selected</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

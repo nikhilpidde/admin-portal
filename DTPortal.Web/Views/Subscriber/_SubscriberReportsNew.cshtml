@@ -1,0 +1,516 @@
+﻿@model IList<PaginatedList<LogReportDTO>>
+@using DTPortal.Core.DTOs
+@using DTPortal.Core
+
+@{
+    var authenticationReports = Model[0];
+    var walletReports = Model[2];
+    var allReports = Model[1];
+}
+
+<br />
+<div class="borderBox light bordered card-box" style="border-radius: 12px;">
+    <div class="borderBox-title tabbable-line">
+        <ul id="ReportsTab" class="nav nav-tabs" style="float: left;">
+            @if (authenticationReports != null)
+            {
+                <li class="nav-item" id="authenticationReportsTab">
+                    <a href="#authenticationReports" data-toggle="tab" class="active">Authentication</a>
+                </li>
+            }
+            @if (allReports != null)
+            {
+                <li class="nav-item" id="allReportsTab">
+                    <a href="#AllReports" data-toggle="tab" class="active">All Reports</a>
+                </li>
+            }
+            @if (walletReports != null)
+            {
+                <li class="nav-item" id="walletReportsTab">
+                    <a href="#walletReports" data-toggle="tab" class="active">Wallet Reports</a>
+                </li>
+            }
+        </ul>
+
+        <div id="AuthExpBtnDiv">
+            @if (authenticationReports != null && authenticationReports.Count > 0)
+            {
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-info greenButton" id="exportAuthReportBtn" type="button">
+                        Export&nbsp;<i class="fa fa-file-pdf-o"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+
+        <div id="AllReportsExpBtnDiv">
+            @if (allReports != null && allReports.Count > 0)
+            {
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-info greenButton" id="exportallReportsBtn" type="button">
+                        Export&nbsp;<i class="fa fa-file-pdf-o"></i>
+                    </button>
+                </div>
+            }
+        </div>
+
+        <div id="WalletReportsExpBtnDiv">
+            @if (walletReports != null && walletReports.Count > 0)
+            {
+                <div class="d-flex justify-content-end">
+                    <button class="btn btn-info greenButton" id="exportallReportsBtn" type="button">
+                        Export&nbsp;<i class="fa fa-file-pdf-o"></i>
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="borderBox-body">
+        <div class="tab-content">
+            <div class="tab-pane active" id="authenticationReports">
+                @if (authenticationReports != null)
+                {
+                    @await Html.PartialAsync("_AuthenticationReports", authenticationReports)
+                }
+            </div>
+            <div class="tab-pane" id="AllReports">
+                @if (allReports != null)
+                {
+                    @await Html.PartialAsync("_AllReports", allReports)
+                }
+            </div>
+            <div class="tab-pane" id="walletReports">
+                @if (walletReports != null)
+                {
+                    @await Html.PartialAsync("_WalletReports", walletReports)
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#ReportsTab a').click(function () {
+        var val = $(this).text();
+        if (val == 'Authentication') {
+            $('#SignExpBtnDiv').hide();
+            $('#AuthExpBtnDiv').show();
+        }
+        if (val == 'Signing') {
+            $('#AuthExpBtnDiv').hide();
+            $('#SignExpBtnDiv').show();
+        }
+        if (val == 'VisaApplication') {
+            $('#AuthExpBtnDiv').hide();
+            $('#SignExpBtnDiv').hide();
+        }
+        if (val == 'VisaApplication') {
+            $('#AuthExpBtnDiv').hide();
+            $('#SignExpBtnDiv').hide();
+        }
+            if (val == 'Wallet') {
+        $('#AuthExpBtnDiv').hide();
+        $('#AllReportsExpBtnDiv').hide();
+        $('#WalletReportsExpBtnDiv').show();
+    }
+    });
+
+    $("#exportAuthReportBtn").click(function (e) {
+        e.preventDefault();
+        //getExportTypes();
+        //exportAuthData('excel');
+        //exportAuthData('csv');
+        exportAuthData('pdf');
+    });
+
+    $("#exportSignReportBtn").click(function (e) {
+        e.preventDefault();
+        //getExportTypes();
+        //exportSignData('excel');
+        //exportSignData('csv');
+        exportSignData('pdf');
+    });
+
+    $("#exportVISAReportBtn").click(function (e) {
+        e.preventDefault();
+        //getExportTypes();
+        //exportSignData('excel');
+        //exportSignData('csv');
+        exportVISAData('pdf');
+    });
+
+    $("#exportImmigrationReportBtn").click(function (e) {
+        e.preventDefault();
+        exportImmigrationData('pdf');
+    });
+
+    $("#exportNonResidentCradReportBtn").click(function (e) {
+        e.preventDefault();
+        exportNonResidentCradReportData('pdf');
+    });
+
+    $("#exportallReportsBtn").click(function (e) {
+        e.preventDefault();
+        exportAllReportData('pdf');
+    });
+
+    $("#exportHotelReportsBtn").click(function (e) {
+        e.preventDefault();
+        exportHotelReportData('pdf');
+    });
+
+    $("#exportSimReportsBtn").click(function (e) {
+        e.preventDefault();
+        exportSimReportData('pdf');
+    });
+
+    $("#exportWalletReportsBtn").click(function (e) {
+        e.preventDefault();
+        exportWalletReportData('pdf');
+    });
+    $("#exportResidentCardBtn").click(function (e) {
+        e.preventDefault();
+        exportResidentCardReportData('pdf');
+    });
+    $("#exportTradeLicenseBtn").click(function (e) {
+        e.preventDefault();
+        exportTradeLicenseReportData('pdf');
+    });
+    $("#exportEstablishmentCradBtn").click(function (e) {
+        e.preventDefault();
+        exportEstablishmentCardReportData('pdf');
+    });
+
+    function getExportTypes() {
+         $.ajax({
+            type: 'GET',
+            url: '@Url.Action("ExportTypes", "Subscriber")',
+            datatype: "json",
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+            }
+        });
+    }
+
+    function exportAuthData(exportType)
+    {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportAuthenticationReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportSignData(exportType)
+    {
+        $.ajax({
+                type: "GET",
+                url: '@Url.Action("ExportSigningReports", "Subscriber")',
+                data: { 'exportType': exportType },
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportNonResidentCradReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportNonResidentCradReportReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportVISAData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportVISAReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportImmigrationData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportImmigrationReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportAllReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportAllReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportHotelReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportHotelReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportSimReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportSIMReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportWalletReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportWalletReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportResidentCardReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportResidentCardReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportTradeLicenseReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportTradeLicenseReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function exportEstablishmentCardReportData(exportType) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportEstablishmentCardReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function saveByteArray(name, byte, exportType) {
+        var myBytes = base64ToArrayBuffer(byte);
+        var blob = new Blob([myBytes]);
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        if (exportType) {
+            let fileName = name + getFileExtension(exportType);
+            link.download = fileName;
+            link.click();
+        }
+        else {
+            swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+        }
+    }
+
+    function base64ToArrayBuffer(base64) {
+        var binaryString = window.atob(base64);
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+            var ascii = binaryString.charCodeAt(i);
+            bytes[i] = ascii;
+        }
+        return bytes;
+    }
+
+    function getFileExtension(exportType) {
+        let extension;
+        switch (exportType) {
+            case 'pdf':
+                extension = '.pdf';
+                break;
+            case 'excel':
+                extension = '.xlsx';
+                break;
+            case 'csv':
+                extension = '.csv';
+                break;
+        }
+
+        return extension;
+    }
+</script>

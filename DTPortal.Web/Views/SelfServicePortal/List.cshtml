@@ -1,0 +1,146 @@
+﻿@model DTPortal.Web.ViewModel.SelfServicePortal.SelfServiceNewOrganization
+
+@{
+    ViewData["Title"] = "Self Service Portal";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                <div class="row p-b-20" style="display: flex; align-items: center; padding-bottom:0px;">
+                    <div class="btn-group">
+                        <a class="btn btn-info greenButton" asp-controller="SelfServicePortal" asp-action="List">
+                            <i class="fa fa-refresh"></i>Refresh
+                        </a>
+                    </div>
+                    <div class="form-group" style="margin-left: auto; margin-right:3%">
+                        <label for="approvalStatusFilter">Filter by Approval Status:</label>
+                        <select id="approvalStatusFilter" class="form-control">
+                            <option value="">All</option>
+                            <option value="ACTIVE">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+                            <option value="PENDING">Pending</option>
+                        </select>
+                    </div>
+                </div>
+
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Organization Name</th>
+                            <th>Spoc Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrganizationList)
+                        {
+                            <tr class="odd gradeX">
+                                <td>@item.OrgName</td>
+                                <td>@item.SpocName</td>
+                                @if (new[] { "APPROVED", "ESEAL_APPLIED", "ESEAL_ISSUED", "BIZ_USECASES_SUBMITTED", "BRM_RECOMMENDED_SOFTWARE", "SPOC_OPTED_FOR_SOFTWARE" }.Contains(item.Status))
+                                {
+                                    // Display "APPROVED" if true
+                                    <td>APPROVED</td>
+                                }
+                                else
+                                {
+                                    // Display the actual OrgApprovalStatus if not in the specified values
+                                    <td>@item.Status</td>
+                                }
+                                <td class="valigntop" align="center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-xs deepPink-bgcolor no-margin greenButton" type="button" data-toggle="dropdown"
+                                            aria-expanded="false">
+                                            Actions
+                                            <i class="fa fa-angle-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu pull-left" role="menu">
+                                            <li>
+                                                <a asp-action="OrganizationDetails" asp-route-id="@item.OrgDetailsId">
+                                                    <i class="icon-pencil"></i>View
+                                                </a>
+                                                @if (item.Status == "BIZ_USECASES_SUBMITTED")
+                                                {
+                                                    <a asp-action="GetQuestions" asp-route-id="@item.OrgDetailsId">
+                                                        <i class="icon-pencil"></i>Business Requirement
+                                                    </a>
+                                                }
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+ 
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#selfServiceConfigMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#organzationsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Onboarding Approval Requests');
+            $('#subMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            var table = $(".table").DataTable({
+                "bLengthChange": false,
+                "columnDefs": [
+                { "targets": [2], "type": "string" },   
+                { "targets": [3], "type": "date" },     
+            ],
+                "order": [[3, "desc"]]
+            });
+
+       
+            $.fn.dataTable.ext.order['string-pre'] = function (data) {
+                switch (data) {
+                    case "ACTIVE":
+                        return 0;
+                    case "REJECTED":
+                        return 1;
+                    case "PENDING":
+                        return 2;
+                    default:
+                        return 3;
+                }
+            };
+
+            sessionStorage.removeItem('approvalStatusFilter');
+
+         
+            $('#approvalStatusFilter').on('change', function () {
+                var selectedValue = $(this).val();
+                table.column(2).search(selectedValue).draw();
+
+              
+                sessionStorage.setItem('approvalStatusFilter', selectedValue);
+            });
+ 
+            var storedValue = sessionStorage.getItem('approvalStatusFilter');
+            if (storedValue) {
+                $('#approvalStatusFilter').val(storedValue).change();
+            }
+        });
+    </script>
+}

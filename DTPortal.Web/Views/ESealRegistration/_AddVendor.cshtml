@@ -1,0 +1,326 @@
+﻿@model DTPortal.Web.ViewModel.ESealRegistration.AddVendorViewModel
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+
+        .select2-container .select2-selection--single {
+            height: 35px !important;
+        }
+
+    .selection {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #555555b3;
+        font-size: 14px;
+        font-family: inherit;
+    }
+
+    .select2-dropdown {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 9999 !important;
+    }
+    .select2-dropdown--above {
+        top: auto;
+        bottom: 100%;
+    }
+    .modal-dialog {
+        max-width: 900px;
+        z-index: auto !important;
+    }
+
+    .cross {
+        color: black;
+        padding: 5px;
+        margin: 10px;
+    }
+
+    #popupOverlay {
+        position: fixed;
+        top: 0;
+        z-index: 10000;
+        width: 100%;
+        height: 100%;
+        display: none;
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    /*.loader {
+          border: 4px solid #f3f3f3;
+          border-top: 4px solid #3498db;
+          border-radius: 50%;
+          width: 50px;
+          height: 50px;
+              margin: auto;
+          animation: spin 2s linear infinite;
+        }*/
+
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        margin: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: spin 2s linear infinite;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+<div id="addVendor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div id="popupOverlay">
+                <div class="loader"></div>
+            </div>
+            <div class="modal-header">
+                <h5 class="modal-title s3">
+                    <span class="text-capitalize s3" style="font-size: 18px">
+                        Add Beneficiaries
+                    </span>
+                </h5>
+                <button type="button"
+                        class="close cross"
+                        data-dismiss="modal">
+                    &times;
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="well">
+                    <form asp-action="AddVendor" asp-controller="ESealRegistration" id="VendorForm" enctype="multipart/form-data">
+                        <div class="form-group" hidden>
+                            <input asp-for="orgName" class="form-control"/>
+                        </div>
+                        <div class="form-group" >
+                            <label asp-for="orgId" class="col-form-label s3"></label>
+                            <div class="dropdown-container">
+                                <select asp-for="orgId" class="form-control custom-dropdown-select"
+                                        asp-items="Model.organizationList">
+                                    <option value="">-- Select Organization --</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="orgId" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="vendorId" class="control-label"></label>
+                            <input asp-for="vendorId" class="form-control" />
+                            <span asp-validation-for="vendorId" class="text-danger"></span>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="verifyVendor()" data-submit="modal">Verify Vendor</button>
+
+                @*<button type="button" class="btn btn-primary" onclick="addVendor()" data-submit="modal">Save</button>*@
+                <button class="btn btn-secondary" id="redirectToVendorList">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+<script>
+    $(document).ready(function () {
+        $(document).ready(function () {
+            $("#orgId").select2({
+                dropdownParent: $("#addVendor")
+            });
+        });
+    });
+    $(document).ajaxSend(function (event, xhr, options) {
+
+        $('#popupOverlay').show();
+
+    }).ajaxComplete(function (event, xhr, options) {
+
+        $('#popupOverlay').hide();
+
+    }).ajaxError(function (event, jqxhr, settings, exception) {
+
+        $('#popupOverlay').hide();
+
+    });
+
+    function verifyVendor(){
+
+        var form = $("#VendorForm");
+        var orgIdform = form.find("#orgId");
+        var orgNameform = form.find("#orgName");
+        var vendorIdform = form.find("vendorId");
+        var orgId = $("#orgId").val();
+        var vendorId = $("#vendorId").val();
+        var orgName = $("#orgName").val();
+        var validData = true;
+        if (orgId == "") {
+            orgIdform.siblings(".text-danger").text("Organization name is required");
+            validData = false;
+        } else {
+            orgIdform.siblings(".text-danger").text("");
+        }
+
+        if (vendorId == "") {
+            vendorIdform.siblings(".text-danger").text("Vendor Id is required.");
+            validData = false;
+        } else {
+            vendorIdform.siblings(".text-danger").text("");
+        }
+
+        if (!validData) {
+            return;
+        }
+
+        // Data to be sent in the request body
+        const data = {
+            orgId: orgId,
+            vendorId: vendorId
+        };
+
+        // Make the AJAX request using jQuery
+        $.ajax({
+            url: '@Url.Action("VerifyVendor","ESealRegistration")',
+            type: 'GET',
+            contentType: 'application/json',
+            data: data,
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (data.status == "Success") {
+                    swal({
+                        type: 'success',
+                        title: "Success",
+                        text: data.message,
+                        confirmButtonText: 'Save Vendor'
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            addVendor();
+                        }
+                    });
+                }
+
+                if (data.status == "Failed") {
+                    swal({ type: 'error', title: "Error", text: data.message }, function (isConfirm) {
+                        if (isConfirm) {
+                        }
+                    });
+
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+
+    }
+
+    function addVendor() {
+        var form = $("#VendorForm");
+        var orgIdform = form.find("#orgId");
+        var orgNameform = form.find("#orgName");
+        var vendorIdform = form.find("vendorId");
+        var orgId = $("#orgId").val();
+        var vendorId = $("#vendorId").val();
+        var orgName = $("#orgName").val();
+        var validData = true;
+        if (orgId == "") {
+            orgIdform.siblings(".text-danger").text("Organization name is required");
+            validData = false;
+        } else {
+            orgIdform.siblings(".text-danger").text("");
+        }
+
+        if (vendorId == "") {
+            vendorIdform.siblings(".text-danger").text("Vendor Id is required.");
+            validData = false;
+        } else {
+            vendorIdform.siblings(".text-danger").text("");
+        }
+
+        if (!validData) {
+            return;
+        }
+
+        var url = form.attr("action");
+        var vendor ={
+                orgId: orgId,
+                orgName: orgName,
+                vendorId: vendorId
+                };
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify(vendor),
+            cache: false,
+            contentType: "application/json; charset=utf-8",
+            processData: false,
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (data.status == "Success") {
+                    swal({
+                        type: 'success',
+                        title: "Success",
+                        text: data.message
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            registeredVendors(vendorOrgUID.referedById)
+                        }
+                    });
+                }
+
+                if (data.status == "Failed") {
+                    swal({ type: 'error', title: "Error", text: data.message }, function (isConfirm) {
+                        if (isConfirm) {
+                        }
+                    });
+
+                }
+            }
+        });
+    };
+
+    $("#orgId").on('change', function () {
+        var selectedOrganizationId = $(this).val();
+        var selectedOrganizationText = $(this).find("option:selected").text();
+        $("#orgName").val(selectedOrganizationText);
+    });
+    function isValidEmail(email) {
+
+        var emailRegex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        return emailRegex.test(email);
+    }
+</script>

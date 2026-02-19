@@ -1,0 +1,2147 @@
+﻿@model DTPortal.Web.ViewModel.ESealRegistration.ESealRegistrationEditViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+}
+@using DTPortal.Web.Enums
+
+@using DTPortal.Core.DTOs
+@using DTPortal.Core.Domain.Services
+@using DTPortal.Core.Constants
+
+@inject IMakerCheckerService MakerCheckerService
+
+
+@{
+    // var signData = "data:image/png;base64," + Model.TemplateList.FirstOrDefault(x => x.Id == Model.SignatureTemplate).SamplePreview;
+    // var esealData = "data:image/png;base64," + Model.TemplateList.FirstOrDefault(x => x.Id == Model.ESealTemplate).SamplePreview;
+}
+
+@{
+    var makerCheckerEnabled = false;
+    var activity = (await MakerCheckerService.GetAllActivities()).FirstOrDefault(x => x.Id == ActivityIdConstants.OrganizationActivityID);
+    if (activity != null && activity.McEnabled)
+    {
+        makerCheckerEnabled = true;
+    }
+}
+
+<style>
+    /* The switch - the box around the slider */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 20px;
+        margin-left: 10px;
+    }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 13px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    @@media (max-width:768px) {
+        #btnDiv {
+            display: block !important;
+        }
+
+        .signatoryEmailListInput {
+            scrollbar-width: none;
+        }
+
+        #eSealTemplatePreviewImage {
+            max-width: 100%;
+        }
+
+        #signatureTemplatePreviewImage {
+            max-width: 100%;
+        }
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form asp-action="Edit" method="post" id="eSealEditForm">
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <h5>Business Profile</h5>
+                            <fieldset style=" height:auto">
+                                <div class="form-group col-md-6" style="float:left;">
+                                    <input asp-for="OrganizationId" class="form-control" hidden />
+                                    <input asp-for="CreatedBy" class="form-control" hidden />
+                                    <div class="form-group" hidden>
+                                        <input asp-for="OrganizationUID" class="form-control" />
+                                        <input asp-for="AuthorizedLetterForSignatoriesBase64" class="form-control" />
+                                        <input asp-for="ESealImageBase64" class="form-control" />
+                                        <input asp-for="IncorporationBase64" class="form-control" />
+                                        <input asp-for="TaxBase64" class="form-control" />
+                                        <input asp-for="AdditionalLegalDocumentBase64" class="form-control" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="OrganizationName" class="col-form-label"></label>
+                                        <input asp-for="OrganizationName" class="form-control" readonly tabindex="1" />
+                                        <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                        <label asp-for="TaxNo" class="col-form-label"></label>
+                                        <label class="switch">
+                                            <input class="optional-checkbox" data-id="TaxNo" type="checkbox">
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <input asp-for="TaxNo" class="form-control" tabindex="3" style="display:none" />
+                                        <span asp-validation-for="TaxNo" class="text-danger"></span>
+
+                                    </div>
+                                    <div class="form-group" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                        <label asp-for="CorporateOfficeAddress1" class="col-form-label"></label>
+                                        <input asp-for="CorporateOfficeAddress1" class="form-control" tabindex="5" />
+                                        <span asp-validation-for="CorporateOfficeAddress1" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                        <label asp-for="Country" class="col-form-label"></label>
+                                        <select asp-for="Country" class="form-control"
+                                                asp-items="@(new SelectList(Model.Countries))" tabindex="7">
+                                            <option value="">select</option>
+                                        </select>
+                                        <span asp-validation-for="Country" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6" style="float: right;">
+                                    <div class="form-group" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                        <label asp-for="OrganizationEmail" class="col-form-label"></label>
+                                        <input asp-for="OrganizationEmail" class="form-control" tabindex="2" />
+                                        <span asp-validation-for="OrganizationEmail" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                        <label asp-for="UniqueRegdNo" class="col-form-label"></label>
+                                        <label class="switch">
+                                            <input class="optional-checkbox" data-id="UniqueRegdNo" type="checkbox">
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <input asp-for="UniqueRegdNo" class="form-control" tabindex="4" style="display:none" />
+                                        <span asp-validation-for="UniqueRegdNo" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                        <label asp-for="CorporateOfficeAddress2" class="col-form-label"></label>
+                                        <input asp-for="CorporateOfficeAddress2" class="form-control" tabindex="6" />
+                                        <span asp-validation-for="CorporateOfficeAddress2" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                        <label asp-for="Pincode" class="col-form-label"></label>
+                                        <input asp-for="Pincode" class="form-control" tabindex="8" />
+                                        <span asp-validation-for="Pincode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                   @*  <div class="form-row">
+                        <div class="form-group col-md-6" style="float: right;">
+                            <h5>Legal Documents</h5>
+                            <fieldset style="height: auto; overflow-x: hidden; padding:10px">
+                                <div class="form-group">
+                                    <label asp-for="Incorporation" class="col-form-label" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:85%; @(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                            <input asp-for="Incorporation" class="form-control custom-file-input" accept=".pdf" />
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="Incorporation" class="text-danger"></span>
+                                        </div>
+                                        <div class="btn-group" style="height: 31px; margin-left: 5px;">
+                                            @if (!String.IsNullOrEmpty(Model.IncorporationBase64))
+                                            {
+                                                <a class="btn btn-info" onclick="downloadDocument('Incorporation');">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:0px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Tax" class="col-form-label" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:85%; @(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                            <input asp-for="Tax" class="form-control custom-file-input" accept=".pdf" />
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="Tax" class="text-danger"></span>
+                                        </div>
+                                        <div class="btn-group" style="height: 31px; margin-left: 5px;">
+                                            @if (!String.IsNullOrEmpty(Model.TaxBase64))
+                                            {
+                                                <a class="btn btn-info" onclick="downloadDocument('Tax');">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:0px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="AdditionalLegalDocument" class="col-form-label" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:85%; @(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                            <input asp-for="AdditionalLegalDocument" class="form-control custom-file-input" accept=".pdf">
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="AdditionalLegalDocument" class="text-danger"></span>
+                                        </div>
+                                        <div class="btn-group" style="height: 31px; margin-left: 5px;">
+                                            @if (!String.IsNullOrEmpty(Model.AdditionalLegalDocumentBase64))
+                                            {
+                                                <a class="btn btn-info" onclick="downloadDocument('AdditionalLegalDocument');">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:0px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="form-group col-md-6" style="float: left;">
+                            <h5>Documents for Eseal</h5>
+                            <fieldset style="height:248px; overflow-x: hidden; padding:10px">
+                                <div class="form-group">
+                                    <label asp-for="AuthorizedLetterForSignatories" class="col-form-label" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:85%; @(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                            <input asp-for="AuthorizedLetterForSignatories" class="form-control custom-file-input" accept=".pdf" />
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="AuthorizedLetterForSignatories" class="text-danger"></span>
+                                        </div>
+                                        <div class="btn-group" style="height: 31px; margin-left: 5px;">
+                                            @if (!String.IsNullOrEmpty(Model.AuthorizedLetterForSignatoriesBase64))
+                                            {
+                                                <a class="btn btn-info btn-action-outline" onclick="downloadDocument('AuthorizedLetterForSignatories');">
+                                                    <i class="fa fa-download"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:0px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="form-group">
+                                    <label asp-for="ESealImage" class="col-form-label" style="@(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:92%; @(Model.Status.ToLower() == "active" ? "pointer-events: none; opacity: 0.8" : "")">
+                                            <input asp-for="ESealImage" class="form-control custom-file-input" accept=".jpg,.png,.jpeg" />
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="ESealImage" class="text-danger"></span>
+                                            <div class="form-group" hidden>
+                                                <input asp-for="ResizedEsealImage" id="ResizedEsealImage" />
+                                            </div>
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:10px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_ImageTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <img id="eSealPreviewImage" class="center" style="max-width: 250px; max-height: 250px;" />
+                                    </div>
+                                </div>
+                                <partial name="_EsealImagePreview" />
+                            </fieldset>
+                        </div>
+                    </div> *@
+                    <div class="form-row">
+                        <div class="form-group col-md-6 mb-0" style="float: right;">
+                            <div class="form-group mb-0">
+                                <label asp-for="SpocUgpassEmail" class="col-form-label">SPOC @clientName Email</label>
+                                <input asp-for="SpocUgpassEmail" class="form-control" tabindex="6" />
+                                <span asp-validation-for="SpocUgpassEmail" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @*  <div class="form-group col-md-6" style="float: left;padding-top:3%">
+                            <div class="form-group">
+                                <div class="checkbox ">
+                                    <label asp-for="EnablePostPaidOption">
+                                        <input asp-for="EnablePostPaidOption" class="custom-check-box" />
+                                        Enable Post Paid
+                                    </label>
+                                </div>
+                            </div>
+                        </div> *@
+                    </div>
+
+                    @* <div class="form-row">
+                        <div class="form-group col-md-6 mb-0" style="float: right;">
+                            <div class="form-group mb-0">
+                                <label asp-for="AgentUrl" class="col-form-label"></label>
+                                <input asp-for="AgentUrl" class="form-control" tabindex="6" />
+                                <span asp-validation-for="AgentUrl" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6" style="float: left;">
+                            <div class="form-group mb-0">
+                                <label asp-for="EmailDomain" class="col-form-label"></label>
+                                <input asp-for="EmailDomain" class="form-control" tabindex="6" />
+                                <span asp-validation-for="EmailDomain" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div> *@
+
+                    <div class="form-row">
+                        @*   <div class="form-group col-md-6" style="float:left; ">
+                            <h5>Templates</h5>
+                            <fieldset style="height: 215px; overflow-x: hidden; padding: 10px">
+                                <div class="borderBox light bordered card-box" style="border:none !important; box-shadow: none !important; margin-bottom:0 ">
+                                    <div class="borderBox-title tabbable-line">
+                                        <ul id="ReportsTab" class="nav nav-tabs" style="float: left;">
+                                            <li class="nav-item" id="signatureTemplateTab">
+                                                <a href="#signatureTemplate" data-toggle="tab" class="active">Signature Template</a>
+                                            </li>
+                                            <li class="nav-item" id="eSealTemplateTab">
+                                                <a href="#eSealTemplate" data-toggle="tab">ESeal Template</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="borderBox-body">
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="signatureTemplate">
+                                                <div class="form-group">
+                                                    <select asp-for="SignatureTemplate" class="form-control">
+                                                        @foreach (var template in Model.TemplateList)
+                                                        {
+                                                            if (template.Type.ToLower() == "sign")
+                                                            {
+                                                                <option data-preview="@template.SamplePreview" value="@template.Id">@template.DisplayName</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                    <span asp-validation-for="SignatureTemplate" class="text-danger"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-sm-12">
+                                                        <img id="signatureTemplatePreviewImage" src="@signData" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" id="eSealTemplate">
+                                                <div class="form-group">
+                                                    <select asp-for="ESealTemplate" class="form-control">
+                                                        @foreach (SignatureTemplatesDTO template in Model.TemplateList)
+                                                        {
+                                                            if (template.Type.ToLower() == "eseal")
+                                                            {
+                                                                <option data-preview="@template.SamplePreview" value="@template.Id">@template.DisplayName</option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                    <span asp-validation-for="ESealTemplate" class="text-danger"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-sm-12">
+                                                        <img id="eSealTemplatePreviewImage" src="@esealData" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>  *@
+                        @*   <div class="form-group col-md-6" style="float:right; ">
+                            <h5>Board of Directors</h5>
+                            <fieldset style="height: auto; overflow-x: hidden; padding: 10px">
+                                <div class="form-group">
+                                    <label asp-for="Directors" class="col-form-label"></label>
+                                    
+                                    <div class="row" style="margin-left:0px">
+                                        <input asp-for="Directors" class="form-control" style="width:85%" />
+                                        <div id="addDirector" class="btn-group" style="height: 31px; margin-left: 5px;">
+                                            <a class="btn btn-info btn-action-outline">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Directors" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <fieldset id="addDirectorFieldset" style="display:none">
+                                        <legend id="directorLegend">Directors</legend>
+                                        <div>
+                                            <ul id="director-list" style="margin-left: 3px;">
+                                            </ul>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </fieldset>
+                        </div> *@
+                    </div>
+                    @*    <div class="form-row">
+                        <div class="form-group col-md-12" style="float:left; ">
+                            <h5>Business Users</h5>
+                           
+                            <div class="btn-group" style="height: 31px; margin-left: 5px;">
+                                <div>
+                                    <a id="addSignatoryEmail" class="btn btn-info btn-action-outline" style="margin-left:2px">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                </div>
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="uploadCSV" class=" btn btn-info btn-action-outline custom-file-upload" style="height:31px;width:40px;margin-left:2px">
+                                            <i class="fa fa-file"></i>
+                                        </label>
+                                        <input type="file" id="uploadCSV" accept=".csv" hidden />
+                                    </div>
+                                </div>
+                                @{
+                                    var active = false;
+                                    foreach (var item in Model.OrganizationUsersList)
+                                    {
+                                        if (!string.IsNullOrEmpty(item.Status) && item.Status.Equals("ACTIVE"))
+                                        {
+                                            active = true;
+                                        }
+                                    }
+                                }
+                                @if (active)
+                                {
+                                    <div style="margin-left:25%">
+                                        <button type="button" class="btn btn-info" onclick="delinkOrganizationUser()">Delink Organization User</button>
+                                    </div>
+                                }
+                            </div>
+                             
+
+                            <div class="modal" id="modal-addBusinessUser" tabindex="2" role="dialog">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">User Details</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+
+
+                                            <div id="SaveBusinessEmailForm">
+                                                <input type="text" id="index" class="form-control" hidden />
+                                                <div class="form-group">
+                                                    <label class="control-label"> @clientName email:</label>
+                                                    <input type="text" id="BusinessUser_ugPassEmail" class="form-control" />
+                                                    <span id="ugpassEmailSpan" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">NIN :</label>
+                                                    <input type="text" id="BusinessUser_NIN" class="form-control" />
+                                                    <span id="ninSpan" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Passport number :</label>
+                                                    <input type="text" id="BusinessUser_Passport" class="form-control" />
+                                                    <span id="passportNumberSpan" class="text-danger"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Organization email Id </label><span style="color:#ff0000b3;">&nbsp;*</span>
+                                                    <input id="employeeEmail" class="form-control" required />
+                                                    <span id="employeeEmailSpan" class="text-danger"></span>
+                                                </div>
+
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Mobile number :</label>
+                                                    <input type="text" id="BusinessUser_MobileNumber" class="form-control" />
+                                                    <span id="mobileNumberSpan" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Designation :</label>
+                                                    <input type="text" id="BusinessUser_Designation" class="form-control" />
+
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Custom Signature(jpg, png, jpeg)  :</label>
+                                                    <input type="file" id="BusinessUser_CustomSignature" onchange="FileToBase64(this)" class="form-control" accept=".jpg, .png, .jpeg" />
+                                                    <input type="text" id="BusinessUser_Signature" hidden />
+                                                    <span id="signatureMessage" style="color: green;"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Initial Image(jpg, png, jpeg) :</label>
+                                                    <input type="file" id="BusinessUser_Image" onchange="FileToBase64Initial(this)" class="form-control" accept=".jpg, .png, .jpeg" />
+                                                    <input type="text" id="BusinessUser_InitialImage" hidden />
+                                                    <span id="initialImageMessage" style="color: green;"></span>
+                                                </div>
+
+                                                <br />
+                                                <fieldset style="height:150px;">
+                                                    <legend style=" font-size:1rem">Privileges</legend>
+                                                    <lable>
+                                                        <input type="checkbox" id="BusinessUser_ESealSignatory" class="custom-check-box" style="margin-left:5px" />Affix eseal
+                                                       
+                                                    </lable>
+                                                    <br />
+                                                    <lable>
+                                                        <input type="checkbox" id="BusinessUser_Bulksign" class="custom-check-box" style="margin-left:5px" />Bulk Signer
+                                                       
+                                                    </lable>
+                                                    <br />
+                                                    <lable>
+                                                        <input type="checkbox" id="BusinessUser_ESealPreparatory" class="custom-check-box" style="margin-left:5px" />Preparatory(eseal and Template)
+                                                        
+                                                    </lable>
+                                                    <br />
+                                                    <lable>
+                                                        <input type="checkbox" id="BusinessUser_Delegation" class="custom-check-box" style="margin-left:5px" />Delegation
+                                                    </lable>
+                                                    <br />
+                                                    <lable>
+                                                        <input type="checkbox" id="BusinessUser_Digitalforms" class="custom-check-box" style="margin-left:5px" />Digital Forms
+                                                    </lable>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" id="SaveChanges_BusinessEmail" class="btn btn-primary">Save</button>
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <fieldset id="addSignatoryEmailFieldset" style="display:none">
+                                    <legend id="signatoriesLegend">Users</legend>
+                                    <div style="min-width:500px">
+                                        <div id="signatoryLable">
+
+                                            <li style="display:flex">
+                                                <div class="form-row col-md-12">
+                                                     
+                                                    <div class="col-md-3" style="padding:0">
+                                                        <label style="font-size:10px">Organization Email</label>
+                                                        
+
+                                                    </div>
+
+                                                    <div class="col-md-1" style="padding:0; text-align-last: center;">
+                                                        <label style="font-size:10px">Delegation</label>
+                                                    </div>
+
+
+                                            
+
+
+                                                    <div class="col-md-1" style="padding:0; text-align-last: center;">
+                                                        <label style="font-size:10px">Affix eseal</label>
+                                                    </div>
+                                                    <div class="col-md-1" style="padding:0 ;text-align-last: center;">
+                                                        <label style="font-size:10px">Preparatory</label>
+                                                    </div>
+
+                                                  
+                                                    <div class="col-md-1" style="padding:0; text-align-last: center;">
+                                                        <label style="font-size:10px">Bulk signer</label>
+                                                    </div>
+
+
+                                                    <div class="col-md-2" style="padding:0; text-align-last: center;">
+                                                        <label style="font-size:10px">Designation</label>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label style="font-size:10px">Custom Signature</label>
+                                                    </div>
+                                                </div>
+                                                
+                                            </li>
+
+                                         </div>
+                                        <ul id="signatory-email-list" style="margin-left: 3px;">
+                                            @for (int i = 0; i < Model.OrganizationUsersList.Count; i++)
+                                            {
+                                                if (Model.OrganizationUsersList[i].Status != "DEACTIVE")
+                                                {
+
+                                                    <li style='margin-top: 2px;margin-bottom: 2px; display:flex'>
+                                                        @{
+                                                            var ugpassEmailId = "OrganizationUsersList_" + @i + "__Ugpassemail";
+                                                            var nationalIdNumberId = "OrganizationUsersList_" + @i + "__NationalIdNumber";
+                                                            var passportNumberId = "OrganizationUsersList_" + @i + "__PassportNumber";
+                                                            var mobileNumberId = "OrganizationUsersList_" + @i + "__MobileNumber";
+                                                            var employeeEmailId = "OrganizationUsersList_" + @i + "__EmployeeEmail";
+                                                            var eSealSignatoryId = "OrganizationUsersList_" + @i + "__ESealSignatory";
+                                                            var eSealPrepatoryId = "OrganizationUsersList_" + @i + "__ESealPrepatory";
+                                                            var templateId = "OrganizationUsersList_" + @i + "__Template";
+                                                            var bulksignId = "OrganizationUsersList_" + @i + "__Bulksign";
+                                                            var delegateId = "OrganizationUsersList_" + @i + "__Delegate";
+                                                            var digitalformsId = "OrganizationUsersList_" + @i + "__Digitalforms";
+                                                            var designationId = "OrganizationUsersList_" + @i + "Designation";
+                                                            var signaturePhotoId = "OrganizationUsersList_" + @i + "SignaturePhoto";
+                                                            var InitialPhotoId = "OrganizationUsersList_" + @i + "Initial";
+                                                            var signaturePhotoCheckId = "OrganizationUsersList_" + @i + "_check";
+                                                        }
+                                                        <div class='form-row col-md-12' style='height:25px'>
+                                                            <input name='OrganizationUsersList.index' value='@i' style='display: none;' />
+                                                            <div>
+                                                                <textarea type='text' class="ugpassEmailListInput" style='resize: none;white-space: nowrap;width:100%;' id="@ugpassEmailId" name='OrganizationUsersList[@i].Ugpassemail' readonly hidden>@Model.OrganizationUsersList[i].UgpassEmail</textarea>
+                                                            </div>
+                                                            <div>
+                                                                <input type='text' style='height:23px' class='form-control ninListInput' id='@nationalIdNumberId' name='OrganizationUsersList[@i].NationalIdNumber' value='@Model.OrganizationUsersList[i].NationalIdNumber' hidden />
+                                                            </div>
+                                                            <div>
+                                                                <input type='text' style='height:23px' class='form-control passportNumberListInput' id="@passportNumberId" name='OrganizationUsersList[@i].PassportNumber' value='@Model.OrganizationUsersList[i].PassportNumber' hidden />
+                                                            </div>
+                                                            <div>
+                                                                <input type='text' style='height:23px' class='form-control mobileNumberListInput' id="@mobileNumberId" name='OrganizationUsersList[@i].MobileNumber' value='@Model.OrganizationUsersList[i].MobileNumber' hidden />
+                                                            </div>
+
+
+                                                            <div class='col-md-3'>
+                                                                <textarea type='text' style='resize: none;white-space: nowrap;width:100%;' class='signatoryEmailListInput' id="@employeeEmailId" name='OrganizationUsersList[@i].EmployeeEmail' readonly>@Model.OrganizationUsersList[i].EmployeeEmail</textarea>
+                                                            </div>
+                                                            
+
+                                                            <div class='col-md-1' style='padding-left: 3.5%;'>
+                                                                <input type='checkbox' class='custom-check-box' id="@delegateId" name='OrganizationUsersList[@i].Delegate' value='true' checked="@Model.OrganizationUsersList[i].Delegate" onclick='return false' />
+                                                            </div>
+
+                                                            <div class='col-md-1' style='padding-left: 3.5%;'>
+                                                                <input type='checkbox' class='custom-check-box' id="@eSealSignatoryId" name='OrganizationUsersList[@i].ESealSignatory' value='true' checked="@Model.OrganizationUsersList[i].ESealSignatory" onclick='return false' />
+                                                            </div>
+                                                            <div class='col-md-1' style='padding-left: 3.5%;'>
+                                                                <input type='checkbox' class='custom-check-box' id="@eSealPrepatoryId" name='OrganizationUsersList[@i].ESealPrepatory' value='true' checked="@Model.OrganizationUsersList[i].ESealPrepatory" onclick='return false' />
+                                                            </div>
+
+                                                         
+
+                                                            <div class='col-md-1' style='padding-left: 3.5%;'>
+                                                                <input type='checkbox' class='custom-check-box' id="@templateId" name='OrganizationUsersList[@i].Template' value='true' checked="@Model.OrganizationUsersList[i].Template" onclick='return false' hidden />
+                                                                <input type='checkbox' class='custom-check-box' id="@bulksignId" name='OrganizationUsersList[@i].Bulksign' value='true' checked="@Model.OrganizationUsersList[i].Bulksign" onclick='return false' />
+                                                            </div>
+
+                                                            <div class='col-md-2' style='padding-left: 2%;'>
+                                                                <input type='text' style='height:23px; padding-left: 5px;' class='form-control designationListInput' id="@designationId" name='OrganizationUsersList[@i].Designation' value='@Model.OrganizationUsersList[i].Designation' readonly />
+                                                            </div>
+
+                                                            <div class='col-md-1' style='padding-left: 3.5%; display: none'>
+                                                                <input type='checkbox' class='custom-check-box' id="@digitalformsId" name='OrganizationUsersList[@i].Digitalforms' value='true' checked="@Model.OrganizationUsersList[i].Digitalforms" onclick='return false' hidden />
+                                                            </div>
+
+                                                            <div class='col-md-1' style='padding-left: 2%;'>
+                                                                <div class='form-group' style='display: flex;align-items: center;'>
+                                                                    <label for='OrganizationUsersList_@i' class='btn btn-action-outline btn-info  custom-file-upload' style='height:23px;width:40px;margin-left:2px'>
+                                                                        <i class='fa fa-file'></i>
+                                                                    </label>
+                                                                    <i class='fa fa-check-circle fa-lg text-success' id="@signaturePhotoCheckId" style='display:@(string.IsNullOrEmpty(Model.OrganizationUsersList[i].SignaturePhoto)?"none":"block")'></i>
+                                                                    <input type='file' class='form-control'   onclick="return false;" id='OrganizationUsersList_@i' name="OrganizationUsersList[@i]" accept='.jpg, .png, .jpeg' hidden />
+                                                                    <input type='text' class='form-control signatureFile' id="@signaturePhotoId" name='OrganizationUsersList[@i].SignaturePhoto' value='@Model.OrganizationUsersList[i].SignaturePhoto' hidden />
+                                                                </div>
+                                                            </div>
+
+                                                            <div class='col-md-1' style='padding-left: 2%; display:none'>
+                                                                <div class='form-group' style='display: flex;align-items: center;'>
+                                                                    <label for='OrganizationUsersList_@i' class='btn btn-info btn-action-outline custom-file-upload greenButton' style='height:23px;width:40px;margin-left:2px'>
+                                                                        <i class='fa fa-file'></i>
+                                                                    </label>
+                                                                    <i class='fa fa-check-circle fa-lg text-success' id="@signaturePhotoCheckId" style='display:@(string.IsNullOrEmpty(Model.OrganizationUsersList[i].Initial)?"none":"block")'></i>
+                                                                    <input type='file' class='form-control'   onclick="return false;" id='OrganizationUsersList_@i' name="OrganizationUsersList[@i]" accept='.jpg, .png, .jpeg' hidden />
+                                                                    <input type='text' class='form-control signatureFile' id="@InitialPhotoId" name='OrganizationUsersList[@i].Initial' value='@Model.OrganizationUsersList[i].Initial' hidden />
+                                                                </div>
+                                                            </div>
+
+                                                            <div class='col-md-1' style='padding-left: 5%;'>
+                                                                <button class='btn btn-xs btn-primary liEditViewButton' type='button' style='width: 50px; height: 25px;'>edit</button>
+                                                            </div>
+                                                            <div class='col-md-1' style='padding-left: 5%;'>
+                                                                <button class='clearliSignatory' type='button' style='margin-left:8px'>x</button>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                }
+                                            }
+                                        </ul>
+                                    </div>
+                                </fieldset>
+                            </div>
+                             
+                        </div>
+                    </div>
+
+                    @if (Model.OrganizationUsersList.Count() > 0)
+                    {
+                        <div class="modal fade bd-example-modal-lg" id="modalDiv" tabindex="-1" role="dialog"
+                             aria-labelledby="myModalLabel">
+                            <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 750px;" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        
+                                        <button type="button"
+                                                class="close cross"
+                                                data-dismiss="modal">
+                                            &times;
+                                        </button>
+                                    </div>
+                                    <div class="modal-body" style="min-height: 200px; max-height: 260px; overflow: auto;">
+                                        <div class="well">
+                                            <div class="table-wrap">
+                                                <div class="table-responsive">
+                                                    <input asp-for="OrganizationId" hidden />
+                                                    <table class="table display product-overview mb-30" id="delinkTable">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Email</th>
+                                                              
+                                                                <th></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @if (Model.OrganizationUsersList.Count() > 0)
+                                                            {
+                                                                @foreach (var item in Model.OrganizationUsersList)
+                                                                {
+                                                                    if (item.Status != "DEACTIVE")
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@item.EmployeeEmail</td>
+                                                                             
+                                                                            <td><button type="button" class="btn btn-primary" onclick="delinkUser('@item.EmployeeEmail', '@Model.OrganizationUID','@Model.OrganizationUsersList.IndexOf(item)')">Delink</button></td>
+                                                                        </tr>
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <tr>
+                                                                    <td style="text-align:center" valign="top" colspan="2" class="dataTables_empty">No records found</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+ *@
+                    @*@if (!makerCheckerEnabled)
+                    {*@
+                    @* <div class="form-row">
+                        <div class="col-md-6" style="float:right; @(Model.Status.ToLower() == "registered" ? "" : "pointer-events: none; opacity: 0.8")">
+                            <h5>Verification Checklist</h5>
+                            <partial name="_DocumentListCheckbox" for="DocumentListCheckbox" />
+                        </div>
+                    </div> *@
+                    @*}*@
+
+
+
+
+                    <div class="form-row">
+                        <div class="form-group ml-2">
+                            <div class="d-flex align-items-center" style="margin-top:17px">
+                                <h5><label asp-for="Status" style="font-weight:bold; white-space: nowrap;"></label></h5>
+                                &nbsp;
+                                <div class="input-group" style="display: flex; align-items: center;">
+                                    <input asp-for="Status" class="form-control" style="margin-left:5px; width:105px" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        @* <div class="form-group ml-4">
+                            <div class="d-flex align-items-center" style="margin-top:17px">
+                                <h5><label asp-for="certificateStatus" style="font-weight:bold; white-space: nowrap;"></label></h5>
+                                &nbsp;
+                                <div class="input-group" style="display: flex; align-items: center;">
+                                    <input asp-for="certificateStatus" class="form-control" style="margin-left:5px; width:105px" readonly />
+                                    <input asp-for="certificateStartDate" class="form-control" style="margin-left:10px; width:130px" value="@Model.certificateStartDate" hidden />
+                                    <input asp-for="certificateEndDate" class="form-control" style="margin-left:10px; width:130px" value="@Model.certificateEndDate" hidden />
+                                    <div class="fw-mormal timeline-content  ps-3">
+
+                                        <i id="info-icon" style="font-size:15px" class="fa fa-info-circle" onclick="showTooltip()"></i>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div> *@
+                    </div>
+
+
+
+                    <br />
+                    <div style="display:flex">
+                        @*@if (!makerCheckerEnabled)
+                        {*@
+                        <div class="d-flex float-left" style="width:50%">
+                           @*  <div class="d-flex float-left" style="height: fit-content; padding-top: 31px;">
+                                <button type="button" class="btn btn-primary btn-action-outline" style="display:inline-block;" onclick="generatePdf()">Generate PDF</button>
+                            </div> *@
+                        </div>
+                        @*}*@
+                        <div id="btnDiv" class="d-flex justify-content-end " style="padding-top: 31px;">
+                            <button type="button" class="btn btn-primary btn-action-outline ml-3 mr-3" id="getAllPrivileges" onclick="getAllOrganizationsPrivileges('@Model.OrganizationUID')" style="min-width:150px; display:inline-block;">
+                                Privileges
+                            </button>
+                            <button type="button" class="btn btn-info btn-action-outline" onclick="registeredClients('@Model.OrganizationUID')" style="min-width:150px; display:inline-block;">View Applications</button>
+                            &nbsp;&nbsp;
+                            @*  <button type="button" class="btn btn-info btn-action-outline" onclick="registeredVendors('@Model.OrganizationUID')" style="min-width:170px; display:inline-block;">View Beneficiary Org's</button>
+                            &nbsp;&nbsp;
+                            @{
+                                TempData["OrganizationUID"] = Model.OrganizationUID;
+                                TempData["OrganizationName"] = Model.OrganizationName;
+                            }
+
+                            <button type="button" class="btn btn-primary btn-action-outline" id="getPaymenthistory" onclick="getOrganizationPaymentHistory('@Model.OrganizationUID', '@Model.OrganizationName')" @(Model.Status.ToLower() == "registered" || Model.certificateStatus == "EXPIRED" ? "" : "disabled") style="min-width:150px; display:inline-block;">
+                                Register E-seal
+                            </button>
+ *@
+
+
+                            @if (Model.walletCertificateStatus)
+                            {
+                                <button type="button" class="btn btn-primary btn-action-outline ml-3" id="getWalletHistory" onclick="getOrganizationWalletHistory('@Model.OrganizationUID', '@Model.OrganizationName')" style="min-width:150px; display:inline-block;" disabled>
+                                    Register Wallet
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-primary btn-action-outline ml-3" id="getWalletHistory" onclick="generateWalletCall('@Model.OrganizationUID', '@Model.OrganizationName', '')" style="min-width:150px; display:inline-block;">
+                                    Register Wallet
+                                </button>
+                                @* <button type="button" class="btn btn-primary ml-3" id="getWalletHistory" onclick="getOrganizationWalletHistory('@Model.OrganizationUID', '@Model.OrganizationName')" style="min-width:150px;">
+                                    Register Wallet
+                                </button> *@
+                            }
+                            @if (!User.IsInRole("Organizations Checker"))
+                            {
+                                @if (Model.Status.ToLower() == "active")
+                                {
+                                    @* @:&nbsp;&nbsp;
+                            <button type="button" class="btn btn-primary" onclick="revoke('@Model.OrganizationUID', '@Model.OrganizationName')">De-Register E-seal</button>*@
+                                }
+                                @*else if (Model.Status.ToLower() == "registered" && Model.EnablePostPaidOption)
+                            {
+                            @:&nbsp;&nbsp;
+                            <button type="button" class="btn btn-primary" onclick="generateEseal('@Model.OrganizationUID', '@Model.OrganizationName')">Register E-seal</button>
+                            }*@
+
+                                @* else if (Model.Status.ToLower() == "registered" && Model.PaymentRecordPresent)
+                            {
+                            @:&nbsp;&nbsp;
+                            <button type="button" class="btn btn-primary"  id="getPaymenthistory"  onclick="getOrganizationPaymentHistory('@Model.OrganizationUID', '@Model.OrganizationName')">Register E-seal</button>
+                            }*@
+
+                                @if (Model.Status.ToLower() != "revoked")
+                                {
+                                    @:&nbsp;&nbsp;
+                                    @:<button type="submit" id="updateBtn" class="btn btn-primary" style="min-width:120px; display:inline-block;">Update</button>
+                                }
+                            }
+                            &nbsp;&nbsp;
+                            <a type="button" asp-action="Index" class="btn btn-danger" style="min-width:120px; display:inline-block;">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+<script>
+    var signatoryEmailIndex = 0;
+    var directorEmailIndex = 0;
+
+    $(document).ready(function () {
+
+        //delinkTable
+        var table = $("#delinkTable");
+
+        if (table != undefined) {
+            table.DataTable({
+                "bPaginate": false,
+                "bLengthChange": false,
+                "searching": true
+            });
+        }
+
+        // Run on page load
+        adjustPadding();
+
+        // Run on window resize
+        $(window).resize(function () {
+            adjustPadding();
+        });
+
+        signatoryEmailIndex = $('#signatory-email-list').children('li').length;
+        if (signatoryEmailIndex > 0) {
+            $('#addSignatoryEmailFieldset').show();
+        }
+
+
+    @{
+            if (!String.IsNullOrEmpty(Model.TaxNo))
+            {
+                    @:$('#TaxNo').show();
+                    @:$('input[data-id="TaxNo"]').prop("checked", true);
+            }
+
+            if (!String.IsNullOrEmpty(Model.UniqueRegdNo))
+            {
+                    @:$('#UniqueRegdNo').show();
+                    @:$('input[data-id="UniqueRegdNo"]').prop("checked", true);
+            }
+
+            if (Model.DirectorsEmailList != null && Model.DirectorsEmailList.Count > 0)
+            {
+                    foreach (var directorEmail in Model.DirectorsEmailList)
+                    {
+                            @:addDirectorEmail('@directorEmail');
+                    }
+                    @:$('#addDirectorFieldset').show();
+            }
+    }
+
+            $("#updateBtn").click(function (e) {
+                e.preventDefault();
+
+                if (formValidation()) {
+                    var isValid = true;
+
+                    $("#checkbox-list li").each(function () {
+                        var text = $(this).find('input[type=text]').val();
+                        switch (text) {
+                            case "Authorized Letter for Signatories":
+                                if ($(this).find('input[type=checkbox]').is(':checked')) {
+                                    var file = $("#AuthorizedLetterForSignatories").get(0).files[0];
+                                    if (file == undefined || file.size < 0) {
+                                        @if (@String.IsNullOrEmpty(Model.AuthorizedLetterForSignatoriesBase64))
+                                        {
+                                                @:$("span[data-valmsg-for='AuthorizedLetterForSignatories']").html("Please select file");
+                                                @:isValid = false;
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case "E-seal Image":
+                                if ($(this).find('input[type=checkbox]').is(':checked')) {
+                                    var file = $("#ESealImage").get(0).files[0];
+                                    if (file == undefined || file.size < 0) {
+                                        //@@if (@@String.IsNullOrEmpty(Model.ESealImageBase64))
+                                        //{
+                                        //    @@:$("span[data-valmsg-for='ESealImage']").html("Please select file");
+                                        //    @@:isValid = false;
+                                        //}
+                                        @if (@String.IsNullOrEmpty(Model.ResizedEsealImage))
+                                        {
+                                                @:$("span[data-valmsg-for='ESealImage']").html("Please select file");
+                                                @:isValid = false;
+                                        }
+                                                            }
+                                    }
+                                    break;
+
+                            case "Incorporation":
+                                if ($(this).find('input[type=checkbox]').is(':checked')) {
+                                    var file = $("#Incorporation").get(0).files[0];
+                                    if (file == undefined || file.size < 0) {
+                                        @if (@String.IsNullOrEmpty(Model.IncorporationBase64))
+                                        {
+                                                @:$("span[data-valmsg-for='Incorporation']").html("Please select file");
+                                                @:isValid = false;
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case "Tax":
+                                if ($(this).find('input[type=checkbox]').is(':checked')) {
+                                    var file = $("#Tax").get(0).files[0];
+                                    if (file == undefined || file.size < 0) {
+                                        @if (@String.IsNullOrEmpty(Model.TaxBase64))
+                                        {
+                                                @:$("span[data-valmsg-for='Tax']").html("Please select file");
+                                                @:isValid = false;
+                                        }
+                                    }
+                                }
+                                break;
+
+                            case "Additional Legal Document":
+                                if ($(this).find('input[type=checkbox]').is(':checked')) {
+                                    var file = $("#AdditionalLegalDocument").get(0).files[0];
+                                    if (file == undefined || file.size < 0) {
+                                        @if (@String.IsNullOrEmpty(Model.AdditionalLegalDocumentBase64))
+                                        {
+                                                @:$("span[data-valmsg-for='AdditionalLegalDocument']").html("Please select file");
+                                                @:isValid = false;
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                    });
+                    if (!isValid) {
+                        return false;
+                    }
+                    else {
+                        var subscriberArray = [];
+                        $('#signatory-email-list li').each(function () {
+                            subscriberArray.push($(this).find(".signatoryEmailListInput").val());
+                        });
+
+                        var postData = { values: subscriberArray };
+
+                        @if (Model.Status.ToLower() == "active")
+                        {
+                                @:verifyDocumentAndUpdateCall('@Model.OrganizationUID', '@Model.OrganizationName');
+                        }
+                        else
+                        {
+                                @:updateCall();
+                        }
+                    }
+                }
+                else {
+                    return swal({ type: 'error', title: "Error", text: errorMessage });
+                }
+            });
+
+
+
+        $("#eSealEditForm").on("submit", function (event) {
+            event.preventDefault();
+        });
+
+        $("#SignatoryEmail").typeahead({
+            minLength: 3,
+            items: 5,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetActiveSubscribersEmailList", "ESealRegistration")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+        });
+
+        $("#SpocUgpassEmail").typeahead({
+            minLength: 3,
+            items: 5,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetActiveSubscribersEmailList", "ESealRegistration")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+        });
+
+        $('#SignedPdf').change(function () {
+            $(this).next('label').text("");
+            $(this).prev('label').text('Upload Signed Document');
+            var i = $(this).prev('label').clone();
+            var file = $('#SignedPdf')[0].files[0].name;
+            $(this).next('label').text(file);
+        });
+
+        $('#Pincode').keyup(function () {
+            if (this.value != this.value.replace(/[^0-9\.]/g, '')) {
+                this.value = this.value.replace(/[^0-9\.]/g, '');
+                $("span[data-valmsg-for='Pincode']").text("Only Numbers allowed");
+            }
+            else {
+                $("span[data-valmsg-for='Pincode']").text("");
+            }
+        });
+        var resizedEsealImage = '@Html.Raw(Model.ResizedEsealImage)';
+
+        if (!resizedEsealImage || resizedEsealImage.trim() === "") {
+        } else {
+            $("#eSealPreviewImage").attr('src', 'data:image/jpg;base64,' + '@Html.Raw(Model.ResizedEsealImage)');
+        }
+
+        $('.optional-checkbox').on('click', function () {
+            $("#" + $(this).attr('data-id')).val('');
+            if ($(this).prop('checked')) {
+                $("#" + $(this).attr('data-id')).show();
+            } else {
+                $("#" + $(this).attr('data-id')).hide();
+            }
+        });
+
+        $('#SignatureTemplate').change(function () {
+            var preview = $('option:selected', this).attr('data-preview');
+
+            $("#signatureTemplatePreviewImage").attr("src", "data:image/png;base64," + preview);
+        });
+
+        $('#ESealTemplate').change(function () {
+            var preview = $('option:selected', this).attr('data-preview');
+
+            $("#eSealTemplatePreviewImage").attr("src", "data:image/png;base64," + preview);
+        });
+
+
+    });
+
+    function updateCall() {
+
+        var model = new FormData($('Form').get(0));
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("Update", "ESealRegistration")',
+            headers: {
+                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+            },
+            data: model,
+            processData: false,
+            contentType: false,
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay2').show();
+            },
+            complete: function () {
+                $('#overlay2').hide();
+            },
+            success: function (data) {
+                if (data.status == "Success") {
+                    swal({
+                        type: 'success', title: "Success", text: data.message
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.href = '@Url.Action("Index", "ESealRegistration")'
+                        }
+                    });
+                }
+                if (data.status == "Failed") {
+                    swal({ type: 'error', title: "Error", text: data.message });
+                }
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function verifyWalletDocAndUpdateCall(organizationUID, organizationName) {
+        var subscriberArray = [];
+        //$('#signatory-email-list li').each(function () {
+        //    subscriberArray.push($(this).find(".signatoryEmailListInput").val());
+        //});
+        subscriberArray.push($("#SpocUgpassEmail").val());
+
+        var data =
+        {
+            'organizationUID': organizationUID,
+            'organizationName': organizationName,
+            'emails': subscriberArray,
+            'transactionId': "",
+            'enablePostPaidOption': "",
+            'signedPdf': null,
+            'ESealActionMethod': 'update_wallet'
+        };
+
+        verifyDocumentCall(data);
+    }
+
+
+
+
+    function getOrganizationPaymentHistory(uid, name) {
+        if ('@Model.ResizedEsealImage' == "" || '@Model.ResizedEsealImage' == null) {
+            return swal({
+                type: "error",
+                title: "Generate ESeal",
+                text: "An e-seal image has yet to be uploaded."
+            });
+        }
+        if ('@Model.AuthorizedLetterForSignatoriesBase64' == "" || '@Model.AuthorizedLetterForSignatoriesBase64' == null) {
+            return swal({
+                type: "error",
+                title: "Generate ESeal",
+                text: "An authorized letter for the signatories has yet to be uploaded."
+            });
+        }
+        GenerateEsealData.organizationUID = uid;
+        GenerateEsealData.organizationName = name;
+        var dataToSend = { organizationUid: uid, organizationName: name };
+        $.ajax({
+            url: '@Url.Action("GetOrganizationPaymentHistory", "ESealRegistration")',
+            data: dataToSend,
+            type: "GET",
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (typeof data == "object") {
+                    swal({
+                        type: "info",
+                        title: "Payment Info",
+                        text: "Eseal Certificate Payment Not Done"
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            $('#getPaymenthistory').css("display", "block");
+                        }
+                    });
+                } else {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                }
+            }
+        });
+    }
+
+
+
+    function getOrganizationWalletHistory(uid, name) {
+        GenerateEsealData.organizationUID = uid;
+        GenerateEsealData.organizationName = name;
+        var dataToSend = { organizationUid: uid, organizationName: name };
+        $.ajax({
+            url: '@Url.Action("GetWalletDataHistory", "ESealRegistration")',
+            data: dataToSend,
+            type: "GET",
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (typeof data == "object") {
+                    swal({
+                        type: "info",
+                        title: "Payment Info",
+                        text: "Wallet Service Payment Not Done"
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            $('#getWalletHistory').css("display", "block");
+                        }
+                    });
+                } else {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                }
+            }
+        });
+    }
+
+
+
+    function validateWalletPaymentHistory(transactionId) {
+        var enablePostPaidOption = $('#EnablePostPaidOption').val();
+        GenerateEsealData.enablePostPaidOption = enablePostPaidOption;
+        GenerateEsealData.TransactionId = transactionId;
+        verifyDocumentAndGenerateWalletCall(GenerateEsealData.organizationUID, GenerateEsealData.organizationName, enablePostPaidOption, transactionId)
+    }
+
+
+
+    function verifyDocumentAndGenerateWalletCall(organizationUID, organizationName, enablePostPaidOption, transactionId) {
+        var subscriberArray = [];
+        subscriberArray.push($("#SpocUgpassEmail").val());
+
+        var data =
+        {
+            'organizationUID': organizationUID,
+            'organizationName': organizationName,
+            'emails': subscriberArray,
+            'transactionId': transactionId,
+            'enablePostPaidOption': enablePostPaidOption,
+            'signedPdf': null,
+            'ESealActionMethod': 'generate_wallet'
+        };
+
+        verifyDocumentCall(data);
+    }
+
+
+
+       function generateWalletCall(organizationUID, organizationName, transactionId) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GenerateWallet", "ESealRegistration")',
+            data: {
+                organizationUID: organizationUID,
+                organizationName: organizationName,
+                transactionId: transactionId,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            },
+            beforeSend: function () {
+
+                $('#overlay2').show();
+            },
+            complete: function () {
+                $('#overlay2').hide();
+            },
+            success: function (data) {
+                debugger;
+                if (data.status === "Success" || data.Status === "Success") {
+                    swal({
+                        type: 'success',
+                        title: "Success",
+                        text: data.Message
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            $('#organizationDiv').empty();
+                            getOrganizationDetails('@Model.OrganizationName');
+                        }
+                    });
+                }
+                else {
+                    swal({
+                        type: 'error',
+                        title: "Error",
+                        text: data.Message
+                    });
+                }
+            },
+            error: function (err) {
+                console.error(err);
+            }
+        });
+    }
+
+    function verifyDocumentAndUpdateCall(organizationUID, organizationName) {
+        var subscriberArray = [];
+        //$('#signatory-email-list li').each(function () {
+        //    subscriberArray.push($(this).find(".signatoryEmailListInput").val());
+        //});
+        subscriberArray.push($("#SpocUgpassEmail").val());
+
+        var data =
+        {
+            'organizationUID': organizationUID,
+            'organizationName': organizationName,
+            'emails': subscriberArray,
+            'transactionId': "",
+            'enablePostPaidOption': "",
+            'signedPdf': null,
+            'ESealActionMethod': 'update_eseal'
+        };
+
+        verifyDocumentCall(data);
+    }
+
+    function verifyDocumentCall(data) {
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("UploadSignedDocument", "ESealRegistration")',
+            contentType: "application/json; charset=utf-8",
+            data: data,
+            datatype: "json",
+            traditional: true,
+            beforeSend: function () {
+                $('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            }
+        });
+    }
+
+    // function ValidationForESealGeneration(){
+    //     var esealImage = @Model.ResizedEsealImage;
+    //     var authorizedLetter = @Model.AuthorizedLetterForSignatoriesBase64;
+    // }
+
+    //to get Organization Payment history list
+    function getOrganizationPaymentHistory(uid, name) {
+        if ('@Model.ResizedEsealImage' == "" || '@Model.ResizedEsealImage' == null) {
+            return swal({
+                type: "error",
+                title: "Generate ESeal",
+                text: "An e-seal image has yet to be uploaded."
+            });
+        }
+        if ('@Model.AuthorizedLetterForSignatoriesBase64' == "" || '@Model.AuthorizedLetterForSignatoriesBase64' == null) {
+            return swal({
+                type: "error",
+                title: "Generate ESeal",
+                text: "An authorized letter for the signatories has yet to be uploaded."
+            });
+        }
+        GenerateEsealData.organizationUID = uid;
+        GenerateEsealData.organizationName = name;
+        var dataToSend = { organizationUid: uid, organizationName: name };
+        $.ajax({
+            url: '@Url.Action("GetOrganizationPaymentHistory", "ESealRegistration")',
+            data: dataToSend,
+            type: "GET",
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (typeof data == "object") {
+                    swal({
+                        type: "info",
+                        title: "Payment Info",
+                        text: "Eseal Certificate Payment Not Done"
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+
+                            $('#getPaymenthistory').css("display", "block");
+                        }
+                    });
+                } else {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                }
+            }
+        });
+    }
+
+    //Payment history next btn event
+    function validatePaymentHistory(transactionId) {
+        var enablePostPaidOption = $('#EnablePostPaidOption').val();
+        GenerateEsealData.enablePostPaidOption = enablePostPaidOption;
+        GenerateEsealData.TransactionId = transactionId;
+        verifyDocumentAndGenerateEsealCall(GenerateEsealData.organizationUID, GenerateEsealData.organizationName, enablePostPaidOption, transactionId)
+    }
+
+
+    function generateEseal(organizationUID, organizationName) {
+        verifyDocumentAndGenerateEsealCall(organizationUID, organizationName);
+    }
+
+    //Old
+    function verifyDocumentAndGenerateEsealCallOld(organizationUID, organizationName) {
+        var subscriberArray = [];
+        //$('#signatory-email-list li').each(function () {
+        //    //if ($(this).find('div').children().eq(1).prop('checked') == true)
+        //    //{
+        //    subscriberArray.push($(this).find(".signatoryEmailListInput").val());
+        //    //}
+        //});
+        subscriberArray.push($("#SpocUgpassEmail").val());
+
+        var data =
+        {
+            'organizationUID': organizationUID,
+            'organizationName': organizationName,
+            'emails': subscriberArray,
+            'signedPdf': null,
+            'ESealActionMethod': 'generate_eseal'
+        };
+
+        verifyDocumentCall(data);
+    }
+
+    //Old
+    function generateEsealCallOld(organizationUID, organizationName) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GenerateEseal", "ESealRegistration")',
+            headers: {
+                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+            },
+            data: { "organizationUID": organizationUID, "organizationName": organizationName },
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay2').show();
+            },
+            complete: function () {
+                $('#overlay2').hide();
+            },
+            success: function (data) {
+                if (data.status == "Success") {
+                    swal({
+                        type: 'success', title: "Success", text: data.message
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            $('#organizationDiv').empty();
+                            getOrganizationDetails('@Model.OrganizationName');
+                        }
+                    });
+                }
+                if (data.status == "Failed") {
+                    swal({ type: 'error', title: "Error", text: data.message });
+                }
+            }
+        });
+    }
+
+    //New
+    function verifyDocumentAndGenerateEsealCall(organizationUID, organizationName, enablePostPaidOption, transactionId) {
+        var subscriberArray = [];
+        subscriberArray.push($("#SpocUgpassEmail").val());
+
+        var data =
+        {
+            'organizationUID': organizationUID,
+            'organizationName': organizationName,
+            'emails': subscriberArray,
+            'transactionId': transactionId,
+            'enablePostPaidOption': enablePostPaidOption,
+            'signedPdf': null,
+            'ESealActionMethod': 'generate_eseal'
+        };
+
+        verifyDocumentCall(data);
+    }
+
+    //New
+    function generateEsealCall(organizationUID, organizationName, transactionId) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GenerateEseal", "ESealRegistration")',
+            headers: {
+                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+            },
+            data: { "organizationUID": organizationUID, "organizationName": organizationName, "transactionId": transactionId },
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay2').show();
+            },
+            complete: function () {
+                $('#overlay2').hide();
+            },
+            success: function (data) {
+                if (data.status == "Success") {
+                    swal({
+                        type: 'success', title: "Success", text: data.message
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            $('#organizationDiv').empty();
+                            getOrganizationDetails('@Model.OrganizationName');
+                        }
+                    });
+                }
+                if (data.status == "Failed") {
+                    swal({ type: 'error', title: "Error", text: data.message });
+                }
+            }
+        });
+    }
+
+    function revoke(organizationUID, organizationName) {
+        var requestBody = {
+            "organizationUID": organizationUID,
+            "organizationName": organizationName
+        };
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("RevokeCertificate", "ESealRegistration")',
+            headers: {
+                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+            },
+            contentType: "application/json; charset=utf-8",
+            data: requestBody,
+            datatype: "json",
+            beforeSend: function () {
+                $('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            }
+        });
+    }
+
+     function  getAllOrganizationsPrivileges(organizationUid){
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetAllAndOrganizationPrivileges", "ESealRegistration")',
+            contentType: "application/json; charset=utf-8",
+            data: { organizationUid: organizationUid },
+            datatype: "json",
+            beforeSend: function () {
+                $('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            }
+        });
+    }
+
+    function registeredClients(organizationUID) {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("RegisteredClients", "ESealRegistration")',
+            contentType: "application/json; charset=utf-8",
+            data: { organizationUid: organizationUID },
+            datatype: "json",
+            beforeSend: function () {
+                $('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            }
+        });
+    }
+
+    function registeredStakeHolders(organizationUID) {
+        stakeHolderOrgUID.referedById = organizationUID;
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetStakeholderList", "ESealRegistration")',
+            contentType: "application/json; charset=utf-8",
+            data: { organizationUid: organizationUID },
+            datatype: "json",
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            }
+        });
+    }
+
+    function registeredVendors(organizationUID) {
+        vendorOrgUID.referedById = organizationUID;
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetVendorsList", "ESealRegistration")',
+            contentType: "application/json; charset=utf-8",
+            data: { organizationUid: organizationUID },
+            datatype: "json",
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                $('#modalDialogContentDiv').html(data);
+                $('#modalDialogDiv').modal('show');
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            },
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            }
+        });
+    }
+
+    function downloadDocument(name) {
+        var exportType;
+        switch (name) {
+            case "AuthorizedLetterForSignatories":
+                exportType = "pdf";
+                saveByteArray(name, '@Html.Raw(@Model.AuthorizedLetterForSignatoriesBase64)', exportType)
+                break;
+
+            case "ESealImage":
+                exportType = "jpg";
+                saveByteArray(name, '@Html.Raw(@Model.ResizedEsealImage)', exportType)
+                break;
+
+            case "Incorporation":
+                exportType = "pdf";
+                saveByteArray(name, '@Html.Raw(@Model.IncorporationBase64)', exportType)
+                break;
+
+            case "Tax":
+                exportType = "pdf";
+                saveByteArray(name, '@Html.Raw(@Model.TaxBase64)', exportType)
+                break;
+
+            case "AdditionalLegalDocument":
+                exportType = "pdf";
+                saveByteArray(name, '@Html.Raw(@Model.AdditionalLegalDocumentBase64)', exportType)
+                break;
+        }
+    }
+
+    function showTooltip() {
+
+        var certificateStatus = $('input[name="certificateStatus"]').val();
+        var tooltipText = '';
+
+        if (certificateStatus == "ACTIVE") {
+            var startTime = $('input[name="certificateStartDate"]').val();
+            var endTime = $('input[name="certificateEndDate"]').val();
+            var formattedstartTime = startTime.replace("T", "  T");
+            var formattedendTime = endTime.replace("T", "  T");
+            swal({ type: 'success', title: "Eseal Certificate Details", text: 'GENERATED ON  :  ' + formattedstartTime + '\nEXPIRY DATE       :  ' + formattedendTime });
+        }
+        else if (certificateStatus == "EXPIRED") {
+            var startDate = $('input[name="certificateStartDate"]').val();
+            var endDate = $('input[name="certificateEndDate"]').val();
+            var formattedstartDate = startDate.replace("T", "  T");
+            var formattedendDate = endDate.replace("T", "  T");
+            swal({ type: 'error', title: "Eseal Certificate Details", text: 'GENERATED ON  :  ' + formattedstartDate + '\nEXPIRY DATE       :  ' + formattedendDate });
+        }
+        else if (certificateStatus == "NOT ISSUED") {
+            swal({ type: 'info', title: "Eseal Certificate Details", text: "Certificate was not issued to this Organization" });
+        }
+        else {
+            swal({ type: 'error', title: "Eseal Certificate Details", text: "Something went wrong. Please try after sometime" });
+        }
+
+        //if (certificateStatus == "NOT ISSUED") {
+        //    swal({type: 'info', title: "Eseal Certificate Details",text: "Certificate was not issued to this Organization" });
+        //}else{
+        //    var startTime =  $('input[name="certificateStartDate"]').val();
+        //    var endTime = $('input[name="certificateEndDate"]').val();
+        //    swal({ type: 'info', title: "Eseal Certificate Details",text: 'GENERATED ON  :  ' + startTime + '\nEXPIRY DATE       :  ' + endTime });
+        //}
+
+
+    }
+
+
+    function delinkUser(email, orgId, index) {
+        var date = $('#' + index + '').val();
+        var postData = {
+            "employeeEmail": email,
+            "organizationUID": orgId,
+            "endDate": ""
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("DelinkOrganizationEmployee", "ESealRegistration")',
+            headers: {
+                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+            },
+            //contentType: "application/json; charset=utf-8",
+            data: postData,
+            //datatype: "json",
+            beforeSend: function () {
+                $('#modalDiv').modal('hide');
+                //$('#overlay1').hide();
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (data.status == "Success") {
+                    //$('#modalDiv').modal('hide');
+                    swal({
+                        type: 'success', title: "Success", text: data.message
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            $('#organizationDiv').empty();
+                            getOrganizationDetails('@Model.OrganizationName');
+                        }
+                    });
+                }
+                if (data.status == "Failed") {
+                    //$('#modalDiv').modal('hide');
+                    swal({
+                        type: 'error', title: "Error", text: data.message
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            $('#organizationDiv').empty();
+                            getOrganizationDetails('@Model.OrganizationName');
+                        }
+                    });
+                }
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+            }
+        });
+    }
+
+    function delinkOrganizationUser() {
+        $('#modalDiv').modal('show');
+    }
+
+
+    function addSignatoryEmail(value, isUploaded, arr, signData, ugpassEmail) {
+    @{
+            Model.OrganizationUsersList.Add(new OrganizationUser());
+    }
+
+
+                    var maxSize = 20;
+        var signatory = "";
+        var nin = "";
+        var passportNumber = "";
+        var ugPassEmail = "";
+        var mobileNumber = "";
+        var designation = "";
+        var signaturePhoto = "";
+        var initalImage = ""
+        var affixEseal = "";
+        var prepatory = "";
+        //var template = "";
+        var bulksigner = "";
+        var delegation = "";
+        var isSignPhotoAvailable = "none";
+        var isInitialImageAvailable = "none";
+
+        if (!isUploaded) {
+            // signatory = (arr[0] == "1") ? "checked" : "checked";
+            affixEseal = (arr[0] == "checked") ? "checked" : "";
+            prepatory = (arr[1] == "checked") ? "checked" : "";
+            //template = (arr[2] == "checked") ? "checked" : "";
+            bulksigner = (arr[2] == "checked") ? "checked" : "";
+            delegation = (arr[3] == "checked") ? "checked" : "";
+
+            ugPassEmail = signData[0];
+            nin = signData[1];
+            passportNumber = signData[2];
+
+            mobileNumber = signData[3];
+            designation = signData[4];
+            signaturePhoto = signData[5];
+            initalImage = signData[6];
+        } else {
+            delegation = (arr[0] == "1") ? "checked" : "";
+            affixEseal = (arr[1] == "1") ? "checked" : "";
+            prepatory = (arr[2] == "1") ? "checked" : "";
+            bulksigner = (arr[3] == "1") ? "checked" : "";
+
+            ugPassEmail = ugpassEmail;
+            designation = signData[0];
+            signaturePhoto = signData[1];
+            initalImage = signData[2];
+            nin = signData[3];
+            mobileNumber = signData[4];
+            passportNumber = signData[5];
+        }
+
+        if (signaturePhoto != "") {
+            isSignPhotoAvailable = "block";
+        } else {
+            isSignPhotoAvailable = "none";
+        }
+        if (initalImage != "") {
+            isInitialImageAvailable = "block";
+        } else {
+            isInitialImageAvailable = "none";
+        }
+
+        var li = "<li style='margin-top: 2px;margin-bottom: 2px; display:flex'>" +
+            "<div class='form-row col-md-12' style='height:25px'>" +
+            "<input name='OrganizationUsersList.index' value='" + signatoryEmailIndex + "' style='display: none;' />" +
+
+            "<div>" +
+            "<textarea type='text' style='display:none' class='ugpassEmailListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__Ugpassemail' name='OrganizationUsersList[" + signatoryEmailIndex + "].Ugpassemail' value='" + ugPassEmail + "' readonly>" + ugPassEmail + "</textarea>" +
+            "</div>" +
+
+
+            //"<div class='col-md-1' style='padding-left: 2%;'>" +
+            //"<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Signatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].Signatory' value='true' checked  onclick='return false;'/>" +
+            //"</div>" +
+
+            "<div>" +
+            "<input type='text' /*style='height:23px'*/ class='form-control ninListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__NationalIdNumber' name='OrganizationUsersList[" + signatoryEmailIndex + "].NationalIdNumber' value='" + nin + "' hidden/>" +
+            "</div>" +
+            "<div>" +
+            "<input type='text' /*style='height:23px'*/ class='form-control passportNumberListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__PassportNumber' name='OrganizationUsersList[" + signatoryEmailIndex + "].PassportNumber' value='" + passportNumber + "' hidden/>" +
+            "</div>" +
+
+            "<div>" +
+            "<input type='text' /*style='height:23px'*/ class='form-control mobileNumberListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__MobileNumber' name='OrganizationUsersList[" + signatoryEmailIndex + "].MobileNumber' value='" + mobileNumber + "' hidden/>" +
+            "</div>" +
+
+            "<div class='col-md-3'>" +
+            "<textarea type='text' style='resize: none;white-space: nowrap;width:100%;' class='signatoryEmailListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__EmployeeEmail' name='OrganizationUsersList[" + signatoryEmailIndex + "].EmployeeEmail' value='" + value + "' readonly>" + value + "</textarea>" +
+            "</div>" +
+
+            // "<div class='col-md-4'>" +
+            //"<textarea type='text' style='resize: none;white-space: nowrap;width:100%;' class='signatoryEmailListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__OrganizationEmail' name='OrganizationUsersList[" + signatoryEmailIndex + "].OrganizationEmail' value='" + organizationEmail + "' readonly>" + organizationEmail + " hidden/</textarea>" +
+            //"</div>" +
+
+
+            //"<div>" +
+            //"<input type='text' /*style='height:23px'*/ class='form-control' id='OrganizationUsersList_" + signatoryEmailIndex + "__OrganizationEmail' name='OrganizationUsersList[" + signatoryEmailIndex + "].OrganizationEmail' value='" + organizationEmail + "' hidden/>" +
+            //"</div>" +
+
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Delegate' name='OrganizationUsersList[" + signatoryEmailIndex + "].Delegate' onclick='return false' value='true' " + delegation + "/>" +
+            "</div>" +
+
+
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__ESealSignatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].ESealSignatory' onclick='return false' value='true' " + affixEseal + "/>" +
+            "</div>" +
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__ESealPrepatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].ESealPrepatory' onclick='return false' value='true' " + prepatory + "/>" +
+            "</div>" +
+
+            //"<div class='col-md-1' style='padding-left: 3%;'>" +
+            //"<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Template' name='OrganizationUsersList[" + signatoryEmailIndex + "].Template' onclick='return false' value='true' " + template + "/>" +
+            //"</div>" +
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Template' name='OrganizationUsersList[" + signatoryEmailIndex + "].Template' onclick='return false' value='true' " + prepatory + " hidden/>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Bulksign' name='OrganizationUsersList[" + signatoryEmailIndex + "].Bulksign' onclick='return false' value='true' " + bulksigner + "/>" +
+            "</div>" +
+
+            "<div class='col-md-1' style='display: none'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Digitalforms' name='OrganizationUsersList[" + signatoryEmailIndex + "].Digitalforms' onclick='return false' value='true' " + digitalforms + "/>" +
+            "</div>" +
+
+            "<div class='col-md-2' style='padding-left: 2%;'>" +
+            "<input type='text' style='height:23px; padding-left: 5px;' class='form-control designationListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "Designation' name='OrganizationUsersList[" + signatoryEmailIndex + "].Designation' value='" + designation + "'readonly='readonly'/>" +
+            "</div>" +
+            "<div class='col-md-1' style='padding-left: 2%;'>" +
+            "<div class='form-group' style='display: flex;align-items: center;'>" +
+            "<label for='OrganizationUsersList_" + signatoryEmailIndex + "' class='btn btn-info custom-file-upload'onclick='return false' style='height:23px;width:40px;margin-left:2px'>" +
+            "<i class='fa fa-file'></i>" +
+            "</label>" +
+            "<i class='fa fa-check-circle fa-lg text-success' id='OrganizationUsersList_" + signatoryEmailIndex + "_check' style='display:" + isSignPhotoAvailable + "'></i>" +
+            "<input type='file' class='form-control' /*onchange='encodeImageFileAsURL(this)'*/ /*onchange='FileToBase64(this)'*/ onclick='return false' id='OrganizationUsersList_" + signatoryEmailIndex + "' name='OrganizationUsersList[" + signatoryEmailIndex + "]' accept='.jpg, .png, .jpeg' hidden/>" +
+            "<input type='text' class='form-control signatureFile' id='OrganizationUsersList_" + signatoryEmailIndex + "SignaturePhoto' name='OrganizationUsersList[" + signatoryEmailIndex + "].SignaturePhoto'  value='" + signaturePhoto + "'   hidden/>" +
+            "</div>" +
+            "</div>" +
+
+            "<div class='col-md-1' style='padding-left: 2%; display: none;'>" +
+            "<div class='form-group' style='display: flex;align-items: center;'>" +
+            "<label for='OrganizationUsersList_" + signatoryEmailIndex + "' class='btn btn-info custom-file-upload greenButton'onclick='return false' style='height:23px;width:40px;margin-left:2px'>" +
+            "<i class='fa fa-file'></i>" +
+            "</label>" +
+            "<i class='fa fa-check-circle fa-lg text-success' id='OrganizationUsersList_" + signatoryEmailIndex + "_check1' style='display:" + isInitialImageAvailable + "'></i>" +
+            "<input type='file' class='form-control' /*onchange='encodeImageFileAsURL(this)'*/ onchange='FileToBase64(this)' onclick='return false'  id='OrganizationUsersList_" + signatoryEmailIndex + "' name='OrganizationUsersList[" + signatoryEmailIndex + "]' accept='.jpg, .png, .jpeg' hidden/>" +
+            "<input type='text' class='form-control signatureFile' id='OrganizationUsersList_" + signatoryEmailIndex + "Initial' name='OrganizationUsersList[" + signatoryEmailIndex + "].Initial'  value='" + initalImage + "'   hidden/>" +
+            "</div>" +
+            "</div>" +
+
+            "<div class= 'col-md-1' style='padding-left: " + liEditViewButtonPadding + "%;'>" +
+            "<button class= 'btn btn-xs btn-primary liEditViewButton' type='button'  style='width: 50px; height: 25px;'>edit</button>" +
+            "</div>" +
+
+
+            "<div class='col-md-1' style='padding-left: 5%;'>" +
+            "<button class='clearliSignatory' type='button' style='margin-left:8px'>x</button>" +
+            "</div>" +
+
+            "</li>";
+        $('#signatory-email-list').append(li);
+        signatoryEmailIndex++;
+        $('#SignatoryEmail').val('');
+        $('#addSignatoryEmailFieldset').show();
+        //$('#addSignatoryEmailFieldset').style.display = "block";
+        $('#signatoryLable').show();
+        $("span[data-valmsg-for='SignatoryEmail']").html('');
+
+    }
+
+    var liEditViewButtonPadding = 5;
+    function adjustPadding() {
+        if ($(window).width() <= 768) {
+            $(".liEditViewButton").closest("div").css("padding-left", "1%");
+            liEditViewButtonPadding = 1;
+        } else {
+            $(".liEditViewButton").closest("div").css("padding-left", "5%");
+            liEditViewButtonPadding = 5;
+        }
+    }
+
+
+</script>
+

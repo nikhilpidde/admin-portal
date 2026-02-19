@@ -1,0 +1,117 @@
+﻿@model IEnumerable<DTPortal.Web.ViewModel.MakerChecker.MakerCheckerListViewModel>
+@using DTPortal.Core.Constants;
+@{
+    ViewData["Title"] = "Approvals Request";
+}
+
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <a onClick="window.location.reload();" href="" class="btn btn-info">
+                                Refresh
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                <table id="roleTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Operation type</th>
+                            <th>Activity Name</th>
+                            <th>Operation Priority</th>
+                            @*<th>Maker Name</th>*@
+                            <th>Created Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || Model.Count() == 0)
+                        {
+                            <tr>
+                                <td style="text-align:center" valign="top" colspan="7" class="dataTables_empty">No record found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr class="odd gradeX">
+                                    <td>@item.ApprovalList.OperationType</td>
+                                    <td>@item.OperationName</td>
+                                    <td>@item.ApprovalList.OperationPriority</td>
+                                    <td>@item.ApprovalList.ModifiedDate</td>
+                                    <td>@item.ApprovalList.State</td>
+                                    <td class="valigntop">
+
+
+                                        <div class="btn-group">
+                                            <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                            aria-expanded="false">
+                                                Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu pull-left" role="menu">
+                                                <li>
+                                                    @if (item.ApprovalList.ActivityId != ActivityIdConstants.OnboardingApprovalRequestActivityId)
+                                                    {
+                                                        <a onclick="CheckerAction(@item.ApprovalList.Id,true); return false;">
+                                                            <i class="icon-docs"></i>Approve
+                                                        </a>
+                                                        <a onclick="CheckerAction(@item.ApprovalList.Id,false); return false;">
+                                                            <i class="icon-docs"></i>Reject
+                                                        </a>
+                                                    }
+                                                    
+                                                    @*@if (item.ApprovalList.OperationType != "GENERATE_E_SEAL")
+                                                    {*@
+                                                        <a asp-action="ViewRequest" asp-route-operation="@item.ApprovalList.OperationType" asp-route-activity="@item.OperationName" asp-route-id="@item.ApprovalList.Id">
+                                                            <i class="icon-docs"></i>View
+                                                        </a>
+                                                    @*}*@
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+
+        $(document).ready(function () {
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            $(".table").DataTable({
+                "bLengthChange": false,
+                "aaSorting": []
+            });
+        });
+
+
+    </script>
+}

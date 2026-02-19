@@ -1,0 +1,66 @@
+﻿@model IEnumerable<DTPortal.Web.ViewModel.KycProfles.AttributesListItem>
+<fieldset style="        padding: 15px 5px 15px 10px;
+        border: groove 2px;
+        margin-bottom: 15px;
+        overflow-y: auto;
+        height: auto;
+        max-height:250px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    ">
+    <div style="margin-left: 10px; margin-top:5px;">
+        @foreach (var item in Model)
+        {
+            <label class="showChecker">
+                <input type="checkbox" class="custom-check-box1" id="@item.name" name="ClaimLists" value="@item.name" @(item.IsSelected ? "checked" : "") />
+                @item.Display
+            </label>
+
+        }
+    </div>
+</fieldset>
+
+<style>
+    .showChecker {
+        display: block;
+    }
+
+    .hideChecker {
+        display: none;
+    }
+
+    .Checkerkbox label {
+        white-space: nowrap;
+    }
+
+    .custom-check-box1 {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+    .custom-check-box:hover {
+        outline: auto;
+        outline-color: #5d9ceca3;
+    }
+</style>
+<script>
+
+    $(".custom-check-box1").on("click", function (e) {
+        setActicityValues();
+    });
+
+
+    function setActicityValues(action) {
+        var selectedClaim = Array.from($(".custom-check-box1:checked")).map(e => e.value).join(",");
+        $("#Attributes").val(selectedClaim);
+    }
+</script>

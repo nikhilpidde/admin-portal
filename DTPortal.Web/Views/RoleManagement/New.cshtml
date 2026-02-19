@@ -1,0 +1,128 @@
+﻿@model DTPortal.Web.ViewModel.RoleManagement.RoleManagementNewViewModel
+
+@{ ViewData["Title"] = "Role New"; }
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <!-- <div class="card-header">
+                                <h5 class="card-title">Form row</h5>
+                                <h6 class="card-subtitle text-muted">Bootstrap column layout.</h6>
+                            </div> -->
+            <div class="card-body">
+                <form asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="Id" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RoleName" class="col-form-label"></label>
+                                <input asp-for="RoleName" class="form-control" />
+                                <span asp-validation-for="RoleName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DisplayName" class="col-form-label"></label>
+                                <input asp-for="DisplayName" class="form-control" />
+                                <span asp-validation-for="DisplayName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description" class="col-form-label"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                        @* @await Html.PartialAsync("_Activities", Model.Activities)*@
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Activities" class="col-form-label"></label>
+                                <partial name="_Activities" for="Activities" />
+                                <input asp-for="Activitie" type="hidden" />
+                            </div>
+                            <div class="form-group Checkerkbox" style="display:none;">
+                                <label asp-for="CheckerActivitie" class="col-form-label s3">Checker Activity</label>
+                                <partial name="_CheckerActivities" for="CheckerActivitie" />
+
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            <button class="btn btn-primary" type="submit">
+                                Save
+                            </button>
+                            &nbsp;&nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+               $('#administrationSidebarElement').addClass('active');
+            $('#roleManagementSidebarElement').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Roles > Add');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+
+
+            //$('.parent_chkbx').click(function () {
+            //    var child_chkbx = $(this).parent().children().find('.child_chkbx');
+            //    if ($(this).prop("checked") == true) {
+            //        child_chkbx.prop("disabled", false);
+            //    }
+            //    else if ($(this).prop("checked") == false) {
+            //        child_chkbx.prop("checked", false);
+            //        child_chkbx.prop("disabled", true);
+            //    }
+            //});
+
+            //$('.parent_chkbx:eq(0)').prop("disabled", true);
+            //$(".parent_chkbx").change(function () {
+            //    var checkboxes = document.querySelectorAll('input[type=checkbox]');
+            //    var selectedlength = 0;
+            //    for (var i = 1; i < checkboxes.length; i++) {
+            //        if (checkboxes[i].checked) {
+            //            selectedlength++;
+            //        }
+            //    }
+            //    if (selectedlength != 0) {
+            //        $('.parent_chkbx:eq(0)').prop("disabled", false);
+            //            checkboxes[0].checked = true;
+
+            //    }
+            //    else {
+            //        $('.parent_chkbx:eq(0)').prop("disabled", true);
+            //            checkboxes[0].checked = false;
+            //    }
+            //});
+        });
+
+
+    </script>
+}
+

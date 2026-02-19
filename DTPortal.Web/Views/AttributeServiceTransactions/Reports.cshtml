@@ -1,0 +1,258 @@
+﻿@model DTPortal.Web.ViewModel.AttributeServiceTransactions.AttributeServiceLogReportViewModel
+
+@using DTPortal.Web.Enums
+
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<style>
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+    .dropdown-menu > li.active:hover > a,
+    .dropdown-menu > li.active > a,
+    .dropdown-menu > li:hover > a {
+        background-color: #bcb5be !important;
+    }
+
+    /*#incidents:empty {
+            content: "<tr>message foo</tr>";
+        }*/
+</style>
+
+<div class="column">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Reports">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    <br />
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="UserId" class="col-form-label"></label>
+                            <input asp-for="UserId" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="UserIdType" class="col-form-label"></label>
+                            <select asp-for="UserIdType" asp-items="Html.GetEnumSelectList<UserIdentifier>()" class="form-control mb-3">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="ApplicationName" class="col-form-label"></label>
+                            <input asp-for="ApplicationName" id="Application" class="form-control" type="text" />
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="Profile" class="col-form-label"></label>
+                            <input asp-for="Profile" id="ProfileName" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="StartDate" class="col-form-label"></label>
+                            <input class="form-control datepicker" asp-for="StartDate" type="text">
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="EndDate" class="col-form-label"></label>
+                            <input class="form-control datepicker" asp-for="EndDate" type="text">
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="PerPage" class="col-form-label"></label>
+                            <select asp-for="PerPage" class="form-control mb-3">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="30">30</option>
+                            </select>
+                            <span asp-validation-for="PerPage" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">
+                            Apply
+                        </button>&nbsp;&nbsp;
+                        <button type="button" class="btn btn-danger" onclick="resetFields()">Clear</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @if (Model.Reports != null)
+    {
+        if (TempData["SearchAdminReports"] != null)
+        {
+            TempData.Keep("SearchAdminReports");
+        }
+        @await Html.PartialAsync("_LogReportsTable", Model.Reports)
+    }
+</div>
+
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+<script src="~/assets/js/jquery-ui.js"></script>
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true" />
+<script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+@section Scripts {
+
+    
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $('#eConsentMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#AttributeServiceTransactionsMenuItem1').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('E Consent Transaction Reports');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Transacations');
+            $('#subMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            var today = new Date();
+            //$('.datepicker').datepicker({
+            //    dateFormat: "yy-mm-dd",
+            //    changeMonth: true,
+            //    changeYear: true,
+            //    maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
+            //});
+
+            $("#StartDate").datepicker({
+                dateFormat: "yy-mm-dd",
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                onClose: function (selectedDate) {
+                    $("#EndDate").datepicker("option", "minDate", selectedDate);
+                }
+            });
+
+            $("#EndDate").datepicker({
+                dateFormat: "yy-mm-dd",
+                defaultDate: "+1w",
+                changeMonth: true,
+                numberOfMonths: 1,
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                onClose: function (selectedDate) {
+                    $("#StartDate").datepicker("option", "maxDate", selectedDate);
+                }
+            });
+
+           
+        });
+
+        function resetFields() {
+            $('select').val('');
+            $("input:text").val("");
+            $("input:checkbox").prop('checked', false);
+            $('#PerPage option:first').prop('selected', true);
+        }
+
+        $("#Application").typeahead({
+            minLength: 2,
+            items: 5,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetClients", "Clients")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+            updater: function (item) {
+                return item;
+            }
+        });
+
+        $("#ProfileName").typeahead({
+            minLength: 2,
+            items: 5,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetScopesNamesList", "Scopes")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+            updater: function (item) {
+                return item;
+            }
+        });
+    </script>
+    <style>
+        #note {
+            padding-right: 10px;
+            display: flex;
+            justify-content: flex-end;
+            padding-bottom: 15px;
+        }
+
+    </style>
+}

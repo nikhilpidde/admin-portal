@@ -1,0 +1,96 @@
+﻿@model DTPortal.Web.ViewModel.ESealRegistration.RevokeCertificateViewModel
+
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title s3">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    Revoke Certificate
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <form asp-action="RevokeCertificate" asp-controller="ESealRegistration" id="organizationRevokeCertificateForm">
+                    <input asp-for="OrganizationUID" hidden />
+                    <input asp-for="OrganizationName" hidden />
+                    <div class="form-group">
+                        <textarea asp-for="Remarks" class="form-control" text-wrap:normal" type="text" placeholder="Type remarks..."
+                                  style="height:100px"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="submit" id="organizationRevokeCertificateFormSubmitBtn" form="organizationRevokeCertificateForm" class="btn btn-primary" data-submit="modal">Submit</button>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+<script>
+     $(document).ready(function () {
+         $('#modalDialogDiv').on('hide.bs.modal', function () {
+             $('span[data-valmsg-for="Remarks"]').removeClass("field-validation-error");
+             $('span[data-valmsg-for="Remarks"]').addClass("field-validation-valid");
+        })
+    });
+
+    $(function() {
+
+            $('#organizationRevokeCertificateFormSubmitBtn').click(function () {
+                 if ($("#organizationRevokeCertificateForm").valid()) { //check if form is valid using model annotation
+                     $('#organizationRevokeCertificateForm').submit();
+                 }
+                 else {
+                     return false;
+                 }
+             });
+
+             $("#organizationRevokeCertificateForm").on("submit", function (event) {
+                 event.preventDefault();
+                 $('#organizationRevokeCertificateFormSubmitBtn').attr('disabled', 'disabled');
+                 var url = $(this).attr("action");
+                 var formData = $(this).serialize();
+
+                 $('#modalDialogDiv').modal('hide');
+                 $.ajax({
+                     url: url,
+                     type: "POST",
+                     data: formData,
+                     dataType: "json",
+                     beforeSend: function () {
+                        $('#overlay').show();
+                     },
+                     complete: function () {
+                        $('#organizationRevokeCertificateFormSubmitBtn').removeAttr('disabled');
+                        $('#overlay').hide();
+                     }
+                 }).done(function (response) {
+                    if (response.status == "Success") {
+                        type = 'success';
+                    }
+                    else {
+                        type = 'error';
+                    }
+                    swal({ type: type, title: response.title, text: response.message }, function (isConfirm) {
+                        if (isConfirm) {
+                            if (type == 'success')
+                            {
+                                getOrganizationDetails(response.organizationName);
+                            }
+                        }
+                    });
+               });
+       });
+       });
+</script>

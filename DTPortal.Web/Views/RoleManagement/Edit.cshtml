@@ -1,0 +1,141 @@
+﻿@model DTPortal.Web.ViewModel.RoleManagement.RoleManagementNewViewModel
+
+@{ ViewData["Title"] = "Role Edit"; }
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <!-- <div class="card-header">
+                                <h5 class="card-title">Form row</h5>
+                                <h6 class="card-subtitle text-muted">Bootstrap column layout.</h6>
+                            </div> -->
+            <div class="card-body">
+                <form id="uform" asp-action="Update">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="Id" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RoleName" class="col-form-label"></label>
+                                <input asp-for="RoleName" class="form-control" readonly />
+                                <span asp-validation-for="RoleName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DisplayName" class="col-form-label"></label>
+                                <input asp-for="DisplayName" class="form-control" />
+                                <span asp-validation-for="DisplayName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description" class="col-form-label"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Status" class="col-form-label"></label>
+                                <input asp-for="Status" class="form-control" readonly />
+                            </div>
+                        </div>
+                        @* @await Html.PartialAsync("_Activities", Model.Activities)*@
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Activities" class="col-form-label"></label>
+                                <partial name="_Activities" for="Activities" />
+                                <input asp-for="Activitie" type="hidden" />
+                            </div>
+
+                            <div class="form-group Checkerkbox" style="display:none;">
+                                <label asp-for="CheckerActivitie" class="col-form-label s3">Checker Activity</label>
+                                <partial name="_CheckerActivities" for="CheckerActivitie" />
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            @if (!User.IsInRole("Roles Checker"))
+                            {
+                                @if (Model.Status == "ACTIVE")
+                                {
+                                    @*<button style="margin-right:5px;" type="button" data-operation="UPDATE_ROLE_STATUS" data-url='@Url.Action("SetRoleState","RoleManagement",new {id=@Model.Id,Doaction="Deactivation"})' class="btn btn-secondary CriticalAction">
+                                        Deactivate Role
+                                    </button>*@
+                                }
+                                @if (Model.Status == "DEACTIVATED")
+                                {
+                                    @*<button style="margin-right:5px;" type="button" data-operation="UPDATE_ROLE_STATUS" data-url='@Url.Action("SetRoleState","RoleManagement",new {id=@Model.Id,Doaction="Activation" })' class="btn btn-secondary CriticalAction">
+                                        Activate Role
+                                    </button>*@
+                                }
+                                
+                                <button class="btn btn-primary CriticalAction" data-operation="ROLE_UPDATE" id="submitForm" type="button" style="opacity: 0.5;" disabled>
+                                    Update
+                                </button>
+                            }
+                            &nbsp; &nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        var operationName = "";
+        var operationUrl = "";
+        $(document).ready(function () {
+
+            $('#administrationSidebarElement').addClass('active');
+            $('#roleManagementSidebarElement').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Roles > Edit');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+          var isCheker = "@User.IsInRole("Roles Checker")";
+            if (isCheker == "True") {
+                //$('form *').prop('disabled', true);
+                $("Input[type=text],Input[type=checkbox]").prop('disabled', true);
+            }
+
+            $(".CriticalAction").on("click", function (e) {
+                var button = $(this);
+                operationName = button.attr("data-operation");
+                operationUrl = button.attr("data-url");
+                isAuthenticationRequired();
+            })
+
+        });
+
+        function submitForm() {
+            if (operationName == "ROLE_UPDATE") {
+                var form = $("#uform");
+                form.submit();
+            } else {
+                window.location.href = operationUrl;
+            }
+        }
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

@@ -1,0 +1,273 @@
+﻿@model PaginatedList<DTPortal.Core.DTOs.OnboardingFailedLogReportDTO>
+@using DTPortal.Core
+@using System
+
+<div class="col-md-12 mt-5">
+    <div class="card-custom">
+        <div class="card-body">
+            <div class="row p-b-20">
+                <div class="col-md-6 col-sm-6 col-6">
+                    <div class="btn-group">
+                        <h3 class="card-title" style="color:black">REPORTS</h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-6">
+                    <form method="post" asp-action="Export">
+                        @if (Model.Count() > 0)
+                        {
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-info" id="exportAdminReportBtn" type="button">
+                                        Export&nbsp;<i class="fa fa-file-pdf-o"></i>
+                                    </button>
+                                </div>
+                        }
+                    </form>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <div class="table-responsive">
+                    <table class="table display product-overview mb-30" id="support_table5">
+                        <thead>
+                            <tr>
+                                <th>Document Number</th>
+                                <th>Subscriber Type</th>
+                                <th>Onboarding Method</th>
+                                <th>Message</th>
+                                <th>Timestamp</th>
+                                @*<th>Details</th>*@
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Count() > 0)
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    <tr onclick="SubscriberDetails(@item.Identifier)">
+                                                <td>@item.DocumentNumber</td>
+                                                <td>@item.SubscriberType</td>
+                                                <td>@item.OnboardingMethod</td>
+                                                <td style="width:400px">@item.Message</td>
+                                                <td style="white-space:nowrap">@(Convert.ToDateTime(item.Timestamp).ToString("dd-MM-yyyy hh:mm:ss tt"))</td>
+                                                <td title="Sub Transactions" align="center">
+                                                    <a class="btn-xs subscriberDetails" asp-action="SubscriberDetails" asp-route-identifier="@item.Identifier">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 55.8 32.932">
+                                                            <g id="Group_622" data-name="Group 622" transform="translate(-362.006 -1446.549)">
+                                                                <path id="Path_54" data-name="Path 54" d="M362.006,1463.057c16.452-21.411,38.243-22.572,55.8-.088C401.021,1484.751,379.315,1485.189,362.006,1463.057Zm27.471,12.826a12.744,12.744,0,0,0,13.342-12.447,12.911,12.911,0,0,0-25.795-1.173C376.747,1469.827,382.088,1475.669,389.477,1475.883Zm16.324-5.743,7.886-7.18-7.886-7.027Zm-39.672-7.174,7.882,7.2v-14.226Z" transform="translate(0 0)" />
+                                                                <path id="Path_55" data-name="Path 55" d="M395.125,1468.505c2.408-.369,4.972-.076,6.584-1.177,2.129-1.453,1.284-3.942-.227-5.876a6.578,6.578,0,0,1,7.643,2.507,7.86,7.86,0,0,1-9.4,11.946A7.268,7.268,0,0,1,395.125,1468.505Z" transform="translate(-12.93 -5.671)" />
+                                                            </g>
+                                                        </svg>
+                                                    </a>
+                                                </td>
+                                                @*<td>@(item.IsChecksumValid ? "Valid" : "Invalid")</td>*@
+                                                <td hidden>@item.Identifier</td>
+                                                <td hidden>@item.ESealUsed</td>
+                                                <td hidden>@item.TransactionID</td>
+                                                <td hidden>@item.GeoLocation</td>
+                                                <td hidden>@item.Checksum</td>
+                                                <td hidden>@item.CorrelationID</td>
+                                                <td hidden>@item.StartTime</td>
+                                                <td hidden>@item.EndTime</td>
+                                                <td hidden>@item.Timestamp</td>
+                                            </tr>
+                                }
+                            }
+                            else
+                            {
+                                    <tr>
+                                        <td colspan="8" align="center" style="width:200%">No records found</td>
+                                    </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                @{
+                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                }
+
+                <div class="row">
+                    <div class="col-sm-12 col-md-5">
+                        <div class="dataTables_info" id="dtHorizontalVerticalExample_info" style="margin-top: 1rem;" role="status" aria-live="polite">
+                            @if (Model.Count == 0)
+                            {
+                                @:Showing 0 to 0 of 0
+                            }
+                            else
+                            {
+                                var i = 100 - (100 - (Model.PageSize * (Model.PageIndex - 1))) + 1;
+                                var j = i + Model.Count - 1;
+                                var k = Model.TotalCount;
+
+                                @:Showing @i to @j of @k
+                            }
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-7 paginationStyle">
+                        <div class="dataTables_paginate paging_simple_numbers" id="example4_paginate">
+                            <ul class="pagination">
+                                <li class="paginate_button page-item previous @prevDisabled" id="example4_previous">
+                                    <a aria-controls="example4" data-dt-idx="0" tabindex="0" class="page-link" asp-action="ReportsByPage" asp-route-page="@(Model.PageIndex - 1)">Previous</a>
+                                </li>
+                                @{
+                                    int count = -2;
+                                    while (count <= 2)
+                                    {
+                                        var index = Model.PageIndex + count;
+
+                                        if (index > 0 && index < Model.TotalPages)
+                                        {
+                                            if (index == Model.PageIndex)
+                                            {
+                                                                <li class="paginate_button page-item active">
+                                                                    <a aria-controls="example4" data-dt-idx="1" tabindex="0" class="page-link" asp-action="ReportsByPage" asp-route-page="@index">@index</a>
+                                                                </li>
+                                            }
+                                            else
+                                            {
+                                                                <li class="paginate_button page-item">
+                                                                    <a aria-controls="example4" data-dt-idx="1" tabindex="0" class="page-link" asp-action="ReportsByPage" asp-route-page="@index">@index</a>
+                                                                </li>
+                                            }
+                                        }
+                                        count++;
+                                    }
+                                }
+                                <li class="paginate_button page-item next @nextDisabled" id="complex_header_next">
+                                    <a aria-controls="example4" data-dt-idx="0" tabindex="0" class="page-link" asp-action="ReportsByPage" asp-route-page="@(Model.PageIndex + 1)">Next</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#exportAdminReportBtn").click(function (e) {
+            e.preventDefault();
+            //getExportTypes();
+            //exportOnboardingFailedLogData('excel');
+            //exportOnboardingFailedLogData('csv');
+            exportOnboardingFailedLogData('pdf');
+        });
+
+        $('a.btn-xs.subscriberDetails').click(function (e) {
+            e.preventDefault();
+            let href = $(this).attr('href');
+            $.ajax({
+                type: "GET",
+                url: href,
+                contentType: "application/json; charset=utf-8",
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    $('#modalDialogContentDiv').html(data);
+                    $('#modalDialogDiv').modal('show');
+                },
+                error: function () {
+                    swal({ type: 'error', title: "Error", text: "Failed to load content" });
+                }
+            });
+        });
+
+        //function getExportTypes() {
+        // $.ajax({
+        //    type: 'GET',
+        //    url: '@Url.Action("ExportTypes", "AdminLogReports")',
+        //    datatype: "json",
+        //    beforeSend: function () {
+        //        $('#overlay').show();
+        //    },
+        //    complete: function () {
+        //        $('#overlay').hide();
+        //    },
+        //    success: function (data) {
+        //        $('#modalDialogContentDiv').html(data);
+        //        $('#modalDialogDiv').modal('show');
+        //    },
+        //    error: ajaxErrorHandler,
+        //    failure: function (response) {
+        //        swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+        //    }
+        //});
+        //}
+
+    function exportOnboardingFailedLogData(exportType)
+    {
+        $.ajax({
+            type: "GET",
+                url: '@Url.Action("ExportOnboardingFailedReports", "OnboardingFailedLogReports")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            }
+        }).done(function (response) {
+            if (response.status == "Success") {
+                type = 'success';
+            }
+            else {
+                type = 'error';
+            }
+            swal({ type: type, title: response.title, text: response.message });
+        }).fail(ajaxErrorHandler);
+    }
+
+    function saveByteArray(name, byte, exportType) {
+        var myBytes = base64ToArrayBuffer(byte);
+        var blob = new Blob([myBytes]);
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        if (exportType) {
+            let fileName = name + getFileExtension(exportType);
+            link.download = fileName;
+            link.click();
+        }
+        else {
+            swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+        }
+    }
+
+    function base64ToArrayBuffer(base64) {
+        var binaryString = window.atob(base64);
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+            var ascii = binaryString.charCodeAt(i);
+            bytes[i] = ascii;
+        }
+        return bytes;
+    }
+
+    function getFileExtension(exportType) {
+        let extension;
+        switch (exportType) {
+            case 'pdf':
+                extension = '.pdf';
+                break;
+            case 'excel':
+                extension = '.xlsx';
+                break;
+            case 'csv':
+                extension = '.csv';
+                break;
+        }
+
+        return extension;
+    }
+    });
+</script>

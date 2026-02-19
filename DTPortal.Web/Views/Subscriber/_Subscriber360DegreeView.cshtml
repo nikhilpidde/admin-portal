@@ -1,0 +1,85 @@
+﻿@model DTPortal.Core.DTOs.SubscriberDetailsDTO
+@using DTPortal.Web.ViewModel.Subscriber
+
+<style>
+    @@media (max-width: 768px) {
+        .container-fluid {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #transactionDiv {
+            order: 2;
+            margin-top: 15px; /* Optional spacing */
+        }
+
+        .profile-content {
+            order: 1;
+             
+        }
+
+        .card1 {
+            z-index: 0;
+            border: none;
+            border-radius: 0.5rem;
+            position: relative;
+            height: 23rem;
+        }
+
+        .profile-content {
+            max-height: 60vh; /* responsive height based on screen */
+            overflow-y: auto;
+        }
+    }
+
+    @@media (max-width: 915px){
+        .profile-sidebar {
+            height: auto;
+        }
+    }
+
+    .row {
+        clear: both;
+    }
+
+    .container-fluid {
+        overflow:visible;
+    }
+
+
+</style>
+
+<div class="container-fluid">
+    <!-- Profile and Activities Section -->
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <div class="card" style="height: 100%">
+                    @await Html.PartialAsync("_Profile", Model)
+                </div>
+            </div>
+
+            <!-- Activities Section -->
+            <div class="card profile-content" >
+                <div class="row" style="margin: 0">
+                    <div class="white-box">
+                        <div class="tab-content">
+                            <div>
+                                @await Html.PartialAsync("_Activities", Model)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Section -->
+    <div class="row" id="transactionDiv">
+        <div class="col-md-12 col-sm-12">
+            @await Html.PartialAsync("_TransactionsNew", new SubscriberReportsSearchViewModel { Identifier = Model.SubscriberUid, SubscriberFullname = Model.FullName })
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,43 @@
+﻿@model IList<DTPortal.Core.DTOs.DiscountVolumeRangeDTO>
+
+<style>
+    .inputWidth {
+        width: 95%;
+        padding-left: 0px;
+    }
+</style>
+
+<div class="form-row">
+    <label class="col-form-label">Discount Volume Range</label>
+    <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+        <thead>
+            <tr>
+                <th width="22%" class="form-group">Volume Range From</th>
+                <th width="22%" class="form-group">Volume Range To</th>
+                <th width="10%" class="form-group">Discount (%)</th>
+            </tr>
+        </thead>
+        <tbody id="discountVolumeRangetbody">
+            @if (Model != null && Model.Count > 0)
+            {
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var range = Model[i];
+                    <tr style="pointer-events: none; opacity: 0.8">
+                        <td style='display: none;'><input name='DiscountVolumeRanges.Index' value='@i' /></td>
+                        <td style='display: none;'><input name='DiscountVolumeRanges[@i].Id' type='text' value='@range.Id'></td>
+                        <td>
+                            <input type='number' min='1' class="required inputWidth" name='DiscountVolumeRanges[@i].VolumeRangeFrom' value='@range.VolumeRangeFrom'>
+                        </td>
+                        <td>
+                            <input type='number' min='1' class="required inputWidth" name='DiscountVolumeRanges[@i].VolumeRangeTo' value='@range.VolumeRangeTo'>
+                        </td>
+                        <td>
+                            <input type='number' min='1' class="required inputWidth" name='DiscountVolumeRanges[@i].Discount' value='@range.Discount'>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

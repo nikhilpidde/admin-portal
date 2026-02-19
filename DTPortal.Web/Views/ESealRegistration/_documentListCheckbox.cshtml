@@ -1,0 +1,16 @@
+﻿@model List<DTPortal.Web.ViewModel.ESealRegistration.DocumentListItem>
+
+<fieldset style="height:180px; padding:9px; overflow-y:hidden;">
+    <ul id="checkbox-list" style="list-style: none;">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            <li>
+                <input asp-for="@Model[i].Id" hidden />
+                <label>
+                    <input type="checkbox" class="custom-check-box" asp-for="@Model[i].IsSelected" /> @Model[i].DisplayName
+                    <input type="text" asp-for="@Model[i].DisplayName" hidden/>
+                </label>
+            </li>
+        }
+    </ul>
+</fieldset>

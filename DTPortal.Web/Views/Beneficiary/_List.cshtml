@@ -1,0 +1,357 @@
+﻿@model DTPortal.Web.ViewModel.Beneficiary.SponsorBeneficiaryListViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+    var mobileCountryCode = @Configuration["CountryCode"] as string;
+}
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div>
+                        @if (!User.IsInRole("Beneficiaries Checker"))
+                        {
+                            <div class="btn-group">
+                                <a class="btn btn-primary" asp-controller="Beneficiary" asp-action="Addq" asp-route-orgId="@Model.OrgId" asp-route-orgName="@Model.OrgName" style="background-color: #15294B;">
+                                    <i class="fa fa-plus"></i>New Beneficiary
+                                </a>
+                            </div>
+                        }
+                    </div>
+                    @if (!User.IsInRole("Beneficiaries Checker"))
+                    {
+                        <div style="margin-left: 5px;">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <label for="uploadCSV" class="btn btn-primary custom-file-upload" style="height:31px;width:auto;margin-left:2px;">
+                                        <i class="fa fa-file"></i>Add Beneficiaries using CSV
+                                    </label>
+                                    <input type="file" id="uploadCSV" accept=".csv" style="display: none;" />
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-left: 5px;">
+                            <div class="btn-group">
+                                <a class="btn btn-primary" href="@Url.Action("DownloadCSV", "Beneficiary")" style="background-color: #15294B;">
+                                    <i class="fa fa-download"></i>Download Sample CSV
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div colspan="4" style="font-size: 20px;">
+                            <span style="font-weight: 500; font-size:large">Organization Name:</span> <span style="font-weight: 100;font-size:medium">@Model.OrgName</span>
+                        </div>
+                    </div>
+                </div>
+
+                <table id="beneficiariesUserTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th hidden>Id</th>
+                            <th>@clientName Email</th>
+                            <th>National Id</th>
+                            <th>Passport</th>
+
+                            <th>Mobile Number</th>
+                            <th>Status</th>
+
+
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @*   @if (!Model.BeneficiaryList.Any())*@
+                        @if (Model.BeneficiaryList == null || Model.BeneficiaryList.Count() == 0)
+                        {
+                            <tr>
+                                <td colspan="6" align="center">No records found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.BeneficiaryList)
+                            {
+                                <tr class="odd gradeX">
+                                    <td hidden>@item.Id</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.BeneficiaryUgpassEmail) ? "N/A" : item.BeneficiaryUgpassEmail)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.BeneficiaryNin) ? "N/A" : item.BeneficiaryNin)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.BeneficiaryPassport) ? "N/A" : item.BeneficiaryPassport)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.BeneficiaryMobileNumber) ? "N/A" : item.BeneficiaryMobileNumber)</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.Status) ? "N/A" : item.Status)</td>
+
+
+
+                                    <td class="valigntop" align="center">
+                                        <div class="btn-group">
+                                            <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu pull-left" role="menu">
+                                                <li>
+                                                    <a asp-action="EditBeneficiary" asp-route-id="@item.Id" asp-route-orgName="@Model.OrgName">
+                                                        <i class="icon-pencil"></i>Edit
+                                                    </a>
+                                                </li>
+
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/jquery-ui.js"></script>
+<script src="~/js/cropper.min.js"></script>
+
+<script>
+    var emailRegex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+    var binaryRegex = /^[01]$/;
+    var ninRegex = /^[A-Z0-9]{1,14}$/;
+    var mobileCountryCode = '@Html.Raw(mobileCountryCode)';
+    var passportRegex = /^[A-Z0-9]{1,12}$/;
+    var validData = true;
+    var OrganizationName = '@Html.Raw(Model.OrgName)';
+    var OrganizationId = '@Html.Raw(Model.OrgId)';
+    var allowedCSVFileTypes = ['.csv'];
+    $(document).ready(function () {
+
+
+        $('#beneficiariesMenu').addClass('active');
+
+        var table = $("#beneficiariesUserTable").DataTable({
+            "bLengthChange": false,
+            "searching": true,
+            "ordering" : true
+        });
+    });
+
+
+    function ValidateNumber(MobNumber) {
+        MobNumber1 = MobNumber.replace(mobileCountryCode, "").replace("+91", "");
+
+        if (/[^\d]+/.test(MobNumber1)) {
+            return null; // Return null if MobNumber1 contains non-digit characters
+        }
+
+        if (MobNumber.startsWith(mobileCountryCode)) {
+            if (MobNumber.length != 13) {
+                return null;
+            }
+        } else if (MobNumber.startsWith("971")) {
+            if (MobNumber.length != 12) {
+                return null;
+            }
+            MobNumber = "+" + MobNumber;
+
+        } else if (MobNumber.startsWith("+91")) {
+            if (MobNumber.length != 13) {
+                return null;
+            }
+        }
+        else if (MobNumber.startsWith("91")) {
+            if (MobNumber.length != 12) {
+                return null;
+            }
+            MobNumber = "+" + MobNumber;
+        }
+        else if (MobNumber.startsWith("0")) {
+            if (MobNumber.length == 10) {
+                MobNumber = MobNumber.replace("0", mobileCountryCode);
+            }
+            else if (MobNumber.length == 11) {
+                MobNumber = MobNumber.replace("0", "+91");
+            } else {
+                return null;
+            }
+        }
+        else if (MobNumber.length == 9) {
+            MobNumber = mobileCountryCode + MobNumber;
+        }
+
+        else if (MobNumber.length == 10) {
+            MobNumber = "+91" + MobNumber;
+        }
+        else {
+            return null
+        }
+        return MobNumber
+    }
+
+    $(document).on("change", '#uploadCSV', function () {
+        var file = $(this).get(0).files[0];
+        if (file == undefined) {
+            fileName = "Choose File...";
+        }
+        else {
+            fileName = file.name;
+            var fileExtension = getExtension(file.name);
+            if (allowedCSVFileTypes.includes(fileExtension)) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var rows = e.target.result.split("\r\n");
+                    var rawObject;
+                    var maxSize = 20;
+
+                    var CsvData = [];
+
+                    var existingEmails = [];
+                    var existingNINs = [];
+                    var existingPassports = [];
+                    var existingMobileNumbers = [];
+                    const clientName = "@clientName";
+
+                    for (var i = 1; i < rows.length; i++) {
+                        if (rows[i].trim() !== "") {
+                            var cells = rows[i].split(",");
+
+                            var ugpassEmail = cells[0];
+                            var nin = cells[1];
+                            var passportNumber = cells[2];
+                            var mobNo = cells[3];
+
+                            if (existingEmails.includes(ugpassEmail) || existingNINs.includes(nin) || existingPassports.includes(passportNumber) || existingMobileNumbers.includes(mobNo)) {
+                                $('#uploadCSV').val('');
+                                return swal({ type: 'error', title: "Duplicate Data", text: `Please ensure ${clientName} Email, NIN, passport, and mobile numbers are unique.` });
+                            }
+
+                            if (passportNumber == "" && mobNo == "" && nin == "" && ugpassEmail == "") {
+                                $('#uploadCSV').val('');
+                                return swal({ type: 'error', title: "Invalid Data", text: `Please enter ${clientName} Email/ Mobile Number/ Passport Number/ Nin` });
+                            }
+
+                            var stringLength = 0;
+                            // Signature processing can go here if needed
+
+                            var sizeInBytes = 4 * Math.ceil((stringLength / 3)) * 0.5624896334383812;
+                            var sizeInKb = sizeInBytes / 1000;
+
+                            if (sizeInKb > maxSize) {
+                                validData = false;
+                                $('#uploadCSV').val('');
+                                return swal({ type: 'error', title: "Max size exceeded", text: `Signature file must be less than 20 Kb for ${ugpassEmail}` });
+                            }
+
+                            if (nin != "" && !ninRegex.test(nin)) {
+                                validData = false;
+                                $('#uploadCSV').val('');
+                                return swal({ type: 'error', title: "Invalid NIN Number", text: "Please enter a valid NIN number (A-Z & 0-9, max 14 chars)." });
+                            }
+
+                            if (passportNumber != "" && !passportRegex.test(passportNumber)) {
+                                validData = false;
+                                $('#uploadCSV').val('');
+                                return swal({ type: 'error', title: "Invalid Passport Number", text: "Please enter a valid passport number (A-Z & 0-9, max 12 chars)." });
+                            }
+
+                            if (ugpassEmail != "" && !emailRegex.test(ugpassEmail)) {
+                                validData = false;
+                                $('#uploadCSV').val('');
+                                return swal({ type: 'error', title: "Invalid Email", text: `Invalid ${clientName} Email` });
+                            }
+
+                            if (mobNo != "") {
+                                var newNumber = ValidateNumber(mobNo);
+                                if (newNumber == null) {
+                                    validData = false;
+                                    $('#uploadCSV').val('');
+                                    return swal({ type: 'error', title: "Invalid Mobile", text: "Invalid Mobile Number" });
+                                }
+                                mobNo = newNumber;
+                            }
+
+                            if (ugpassEmail.trim() != "") existingEmails.push(ugpassEmail);
+                            if (passportNumber.trim() != "") existingPassports.push(passportNumber);
+                            if (nin.trim() != "") existingNINs.push(nin);
+                            if (mobNo.trim() != "") existingMobileNumbers.push(mobNo);
+
+                            const rawObject = {
+                                UgpassEmail: cells[0],
+                                NIN: cells[1],
+                                MobNo: mobNo,
+                                PassportNumber: cells[2],
+                                Signature_Permission: cells[4],
+                                User_Annual_Subscription_Permission: cells[5],
+                                Signature_Validity_Required: cells[6],
+                                User_Annual_Subscription_Validity_Required: cells[7],
+                                Signature_Valid_From: cells[8],
+                                Signature_Valid_Upto: cells[9],
+                                User_Annual_Subscription_Valid_From: cells[10],
+                                User_Annual_Subscription_Valid_Upto: cells[11],
+                            };
+
+                            CsvData.push(rawObject);
+                        }
+                    }
+
+
+                    var SponsorBeneficiaryList = {
+                        BeneficiaryList: [],
+                        OrgId: OrganizationId,
+                        OrgName: OrganizationName,
+                        CsvData: CsvData
+                    };
+
+                    if (validData) {
+                        $.ajax({
+                            url: 'Beneficiary/AddMultipleBeneficiariesUser',
+                            type: 'POST',
+                            cache: false, // Disable caching
+                            contentType: 'application/json; charset=utf-8', // Set content type
+                            processData: false, // Don't process data (since we're sending JSON)
+                            data: JSON.stringify(SponsorBeneficiaryList),
+                            beforeSend: function () {
+                                $('#overlay').show();
+                            },
+                            complete: function () {
+
+                                $('#overlay').hide();
+                            },
+                            success: function (data) {
+                                if (data.success == true) {
+                                    window.location.href = "@Url.Action("Index", "Beneficiary", new { orgName = Model.OrgName })";
+                                }
+                                if (data.success == false) {
+                                    swal({
+                                        type: 'error',
+                                        title: "Add Beneficiary",
+                                        text: data.message,
+                                        showCancelButton: false,
+                                        closeOnConfirm: true
+                                    }, function (result) {
+                                        if (result) {
+                                        }
+                                    });
+                                }
+                                $('#uploadCSV').val('');
+                            }
+                        });
+                    }
+                };
+                reader.readAsText($("#uploadCSV")[0].files[0]);
+            }
+        }
+    });
+
+    function getExtension(filename) {
+        return '.' + filename.split('.').pop().toLowerCase();
+    }
+
+</script>

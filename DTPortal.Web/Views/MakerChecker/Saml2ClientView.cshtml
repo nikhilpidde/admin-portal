@@ -1,0 +1,199 @@
+﻿@model DTPortal.Web.ViewModel.Saml2Clients.Saml2ClientsNewViewModel;
+
+@{
+    ViewData["Title"] = "Approvals Request Details";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <!-- <div class="card-header">
+                                <h5 class="card-title">Form row</h5>
+                                <h6 class="card-subtitle text-muted">Bootstrap column layout.</h6>
+                            </div> -->
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label s3">Application Type</label>
+                                <input asp-for="ApplicationType" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Application Name</label>
+                                <input asp-for="ApplicationName" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Application Url</label>
+                                <input asp-for="ApplicationUrl" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="entityID" class="control-label"></label>
+                                <input asp-for="entityID" class="form-control" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="assertionConsumerServiceUrl" class="control-label"></label>
+                                <input asp-for="assertionConsumerServiceUrl" class="form-control" readonly />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="nameIDFormat" class="control-label"></label>
+                                <input asp-for="nameIDFormat" class="form-control" readonly />
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="singleLogoutService" class="control-label"></label>
+                                <input asp-for="singleLogoutService" class="form-control" readonly/>
+                            </div>
+
+
+
+                        </div>
+                        <div class="form-group col-md-6">
+
+                            <div class="form-group">
+                                <label asp-for="RequestSigned" class="control-label"></label>
+                                <select asp-for="RequestSigned" class="form-control" disabled
+                                        asp-items="Model.list">
+                                    <option>--select--</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ResponceSigned" class="control-label"></label>
+                                <select asp-for="ResponceSigned" class="form-control" disabled
+                                        asp-items="Model.list">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="assertionSignature" class="control-label"></label>
+                                <select asp-for="assertionSignature" class="form-control" disabled
+                                        asp-items="Model.list">
+                                </select>
+                            </div>
+
+
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end ">
+                            <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                                Approve
+                            </button>
+                            &nbsp; &nbsp;
+                            <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                                Reject
+                            </button>
+                            &nbsp; &nbsp;
+                            <a asp-action="Approvals" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+
+    .message {
+        display: none;
+    }
+
+    .messageOrder {
+        display: none;
+    }
+
+    .signing {
+        display: none;
+    }
+
+    .encryptOption {
+        display: none;
+    }
+
+    i {
+        color: #808080e0;
+    }
+
+    .popup {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        float: right;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+    /* The actual popup */
+    .popup .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+    .popup:hover + .popuptext {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s;
+    }
+</style>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals > Saml2 > Details');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+           
+        });
+    </script>
+}

@@ -1,0 +1,132 @@
+.alert {
+   
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.pwd {
+    -webkit-text-security: disc;
+}
+#page-alert{
+    height: 53px; 
+    width: 290px;
+    border-radius: 4px;
+    padding-left: 4px; 
+    background-color:#80808059;;
+    border-color: #c1ebf8;
+    color: #31708f;
+    font-size: 2.2vw;
+    text-align: center;
+    margin-top: 2px;
+}
+
+.authenticateUser {
+    background: #31bae5;
+    padding: 1em 2em;
+    color: #fff;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.backdrop {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 2000;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    display: none;
+    flex: 1 1 auto;
+}
+
+.my_modal-content {
+    margin: 5% auto;
+    width: 35%;
+    box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.2), 0 7px 20px 0 rgba(0, 0, 0, 0.17);
+    animation-name: modalopen;
+    animation-duration: var(--modal-duration);
+}
+
+.my_modal-header h2 {
+    margin: 0;
+    text-align: center;
+}
+
+.my_modal-header {
+    background-color: rgba(57, 50, 50, 1);/* #3984e3c9;*/
+    padding: 10px;
+    color: #fff;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.my_modal-body {
+    background: #fff;
+}
+
+.my_modal-footer {
+    background-color: #3984e3c9;
+    padding: 10px;
+    color: #fff;
+    text-align: center;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.close {
+    color: #ccc;
+    float: right;
+    font-size: 30px;
+    color: #fff;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.input-box {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding-left: 0.5rem;
+    overflow: hidden;
+    font-family: sans-serif;
+}
+
+    .input-box .toggle-authentication-password {
+        font-weight: 300;
+        font-size: 15px;
+        margin-right: 5px;
+        padding: 0px 16px 0px 0px;
+    }
+
+    .input-box input {
+        flex-grow: 1;
+        font-size: 14px;
+        background: #fff;
+        border: none;
+        outline: none;
+        padding: 0.5rem;
+    }
+
+    .input-box:focus-within {
+        border-color: #80bdff;
+    }
+
+@keyframes modalopen {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

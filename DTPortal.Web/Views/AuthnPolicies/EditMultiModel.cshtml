@@ -1,0 +1,328 @@
+﻿@model DTPortal.Web.ViewModel.AuthnPolicies.AuthnPoliciesEditMultiModelViewModel
+
+@{
+    ViewData["Title"] = "NewPrimary";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form asp-action="UpdateMultiModel">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="AuthID" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-form-label"></label>
+                                <input asp-for="Name" class="form-control" readonly />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DisplayName" class="col-form-label s3"></label>
+                                <input asp-for="DisplayName" class="form-control" />
+                                <span asp-validation-for="DisplayName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description" class="col-form-label s3"></label>
+                                <textarea asp-for="Description" class="form-control"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="SupportsProvisioning" class="col-form-label s3"></label>
+                                <div class="form-control" style="border:none">
+                                    <label class="c-radio">
+                                        <input asp-for="SupportsProvisioning" type="radio" value="1" />
+                                        <span class="fa fa-mars"></span> True
+                                    </label>
+                                    <label class="c-radio">
+                                        <input asp-for="SupportsProvisioning" type="radio" value="0" />
+                                        <span class="fa fa-venus"></span> False
+                                    </label>
+                                    <span asp-validation-for="SupportsProvisioning" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="AuthScheme" class="col-form-label s3"></label>
+                                <select asp-for="AuthScheme" class="form-control multiple-select" asp-items="Model.primaryAuthlist" multiple="multiple">
+                                </select>
+                                <input asp-for="AuthSchemeSequence" type="hidden" class="form-control" />
+                                <span class="form-text text-muted">Use Ctrl + click for multi selection</span>
+                                <span asp-validation-for="AuthScheme" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-primary" type="submit">
+                                Update
+                            </button>
+                            &nbsp;&nbsp;
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    select[multiple], select[size] {
+        height: 200px;
+        padding: 5px;
+    }
+    [selected] {
+        background-color: #0f0;
+        font-weight: bold;
+    }
+        select[multiple] option, select[size] option {
+            padding: .5rem 1rem;
+            border-radius: .1875rem;
+            border: 1px solid #80808024;
+            /*background-color: #e4dede24;*/
+            background-color: white;
+            color: black;
+            margin-bottom: 5px;
+        }
+
+    .multiple-select {
+        display: block !important;
+        width: 100% !important;
+        height: 12.1875rem !important;
+        padding: 0.375rem 1rem;
+        line-height: 1.52857;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #dde6e9;
+        border-radius: 0.25rem;
+        box-shadow: 0 0 0 #000 !important;
+        font-size: 0.875rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+</style>
+
+<style>
+    .c-checkbox,
+    .c-radio {
+        margin-right: 4px;
+    }
+
+        .c-checkbox *,
+        .c-radio * {
+            cursor: pointer;
+        }
+
+        .c-checkbox input,
+        .c-radio input {
+            opacity: 0;
+            position: absolute;
+            margin-left: 0 !important;
+        }
+
+        .c-checkbox span,
+        .c-radio span {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            text-align: center;
+        }
+
+            .c-checkbox span:before,
+            .c-radio span:before {
+                margin-left: 1px;
+            }
+
+        .c-checkbox:hover span,
+        .c-radio:hover span {
+            border-color: #5d9cec;
+        }
+
+    .form-inline .c-checkbox span, .form-inline
+    .c-radio span {
+        margin-left: 0;
+    }
+
+    .c-checkbox.c-checkbox-rounded span, .c-checkbox.c-radio-rounded span,
+    .c-radio.c-checkbox-rounded span,
+    .c-radio.c-radio-rounded span {
+        border-radius: 500px;
+    }
+
+    /* override for radio */
+    .c-radio span {
+        border-radius: 500px;
+    }
+
+        /* the icon */
+        .c-checkbox span:before,
+        .c-radio span:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            text-align: center !important;
+            font-size: 12px;
+            line-height: 18px;
+            vertical-align: middle;
+        }
+
+    /* Checked state */
+    .c-checkbox,
+    .c-radio {
+        /* override for radio */
+        /* Disable state */
+        /* override for radio */
+    }
+
+        .c-checkbox input[type=checkbox]:checked + span:before,
+        .c-checkbox input[type=radio]:checked + span:before,
+        .c-radio input[type=checkbox]:checked + span:before,
+        .c-radio input[type=radio]:checked + span:before {
+            color: #fff;
+            opacity: 1;
+            transition: color .3s ease-out;
+        }
+
+        .c-checkbox input[type=checkbox]:checked + span,
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=checkbox]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            border-color: #5d9cec;
+            background-color: #5d9cec;
+        }
+
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            background-color: #fff;
+        }
+
+            .c-checkbox input[type=radio]:checked + span:before,
+            .c-radio input[type=radio]:checked + span:before {
+                color: #5d9cec;
+            }
+
+        .c-checkbox input[type=checkbox]:disabled + span,
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=checkbox]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            border-color: #ddd !important;
+            background-color: #ddd !important;
+        }
+
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            background-color: #fff !important;
+        }
+
+            .c-checkbox input[type=radio]:disabled + span:before,
+            .c-radio input[type=radio]:disabled + span:before {
+                color: #ddd;
+            }
+
+        .c-radio.c-radio-nofont {
+            /* override for radio */
+            /* Disable state */
+            /* override for radio */
+        }
+
+            .c-radio.c-radio-nofont span:before {
+                content: "";
+                width: 10px;
+                height: 10px;
+                top: 50%;
+                left: 50%;
+                margin-top: -5px;
+                margin-left: -5px;
+                border-radius: 500px;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                color: #fff;
+                opacity: 1;
+                transition: color .3s ease-out;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                border-color: #5d9cec;
+                background-color: #5d9cec;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                background-color: #fff;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                    background-color: #5d9cec;
+                }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                border-color: #ddd !important;
+                background-color: #ddd !important;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                background-color: #fff !important;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:disabled + span:before {
+                    background-color: #ddd;
+                }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function () {
+            $('#digitalAuthSidebarElement').addClass('active');
+            $('#authnPoliciesSidebarElement').addClass('active');
+            $('#homeSubmenu').addClass('show');
+            $("li#digitalAuthSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /* For Breadcrumb Start */
+            $('#homeMenu').addClass('breadcrumb-item').append('Digital Authentication');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Authentication Policies > Edit MultiModel');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            // Reapply selected options after form submission
+            var selectedValues = $("#AuthSchemeSequence").val().split(" ");
+            $("#AuthScheme option").each(function () {
+                if (selectedValues.includes($(this).val())) {
+                    $(this).prop("selected", true);
+                }
+            });
+
+            // For handling multiple selection with Ctrl+Click
+            $("#AuthScheme").on("change", function () {
+                var selectedOptions = $(this).val(); // Gets an array of selected values
+
+                // Update the hidden input with the selected options (as a space-separated string)
+                document.getElementById("AuthSchemeSequence").value = selectedOptions.join(" ");
+            });
+        });
+    </script>
+}
+
+

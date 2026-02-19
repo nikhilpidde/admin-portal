@@ -1,0 +1,52 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace DTPortal.Web.ViewModel.EConsent
+{
+    public class EConsentClientNewViewModel
+    {
+        public int Id { get; set; }
+
+        [Required]
+        [Display(Name = "Application Name ")]
+        [MaxLength(50)]
+        public string ApplicationName { get; set; }
+
+        public string Scopes { get; set; }
+
+        [Required(ErrorMessage = "Select atleast one Scope.")]
+        [Display(Name = "Scopes ")]
+        //public string[] Scopes { get; set; }
+        public IEnumerable<string> ScopesList { get; set; }
+
+
+        //[Required]
+        [Display(Name = "Organisation Name")]
+        public string OrganizationUid { get; set; }
+
+        public List<SelectListItem> OrganizationList { get; set; }
+
+        [Display(Name = "Signing Certificate (.crt,.cer only)")]
+        public IFormFile PublicKeyCert { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+
+        public DateTime? ModifiedDate { get; set; }
+
+        public string CreatedBy { get; set; }
+
+        public string UpdatedBy { get; set; }
+
+        public string Status { get; set; }
+
+        public string Purposes { get; set; }
+
+        [Required(ErrorMessage = "Select atleast one Purpose.")]
+        [Display(Name = "Purposes ")]
+        //public string[] Scopes { get; set; }
+        public IEnumerable<string> PurposesList { get; set; }
+    }
+}

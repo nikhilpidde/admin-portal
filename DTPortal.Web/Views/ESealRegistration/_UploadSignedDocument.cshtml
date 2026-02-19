@@ -1,0 +1,153 @@
+﻿@model DTPortal.Web.ViewModel.ESealRegistration.DocumentVerificationViewModel
+
+<div class="modal-dialog" role="document">
+	<div class="modal-content">
+		<div class="modal-header">
+			<h5 class="modal-title s3">
+				<span class="text-capitalize s3" style="font-size: 18px">
+					Upload Signed Document
+				</span>
+			</h5>
+			<button type="button"
+					class="close cross"
+					data-dismiss="modal">
+				&times;
+			</button>
+		</div>
+		<div class="modal-body">
+			<div class="well">
+				<form asp-action="VerifySignedDocument" asp-controller="ESealRegistration" id="verifySignedDocumentForm" enctype="multipart/form-data">
+					<input asp-for="OrganizationUID" hidden />
+					<input asp-for="OrganizationName" hidden />
+					<input asp-for="ESealActionMethod" hidden />
+					<input asp-for="TransactionId" hidden />
+					<input asp-for="EnablePostPaidOption" hidden />
+					<div hidden>
+						<ul>
+							@for (int i = 0; i < Model.Emails.Count; i++)
+							{
+								<li>
+									<input asp-for="Emails[i]" readonly />
+								</li>
+							}
+						</ul>
+					</div>
+					<div class="custom-file">
+						<input asp-for="SignedPdf" class="form-control custom-file-input" accept=".pdf">
+						<label class="custom-file-label">Choose File...</label>
+						<span asp-validation-for="SignedPdf" class="text-danger"></span>
+					</div>
+				</form>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-secondary" data-dismiss="modal">Close</button>
+			<button type="button" id="verifySignedDocumentFormSubmitBtn" form="verifySignedDocumentForm" class="btn btn-primary" data-submit="modal">Proceed</button>
+		</div>
+	</div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+<script>
+	  var allowedFileTypes = ['pdf'];
+	  $(document).ready(function () {
+		  $("span[data-valmsg-for='SignedPdf']").html('');
+		 $('#modalDialogDiv').on('hide.bs.modal', function () {
+			 $('span[data-valmsg-for="SignedPdf"]').removeClass("field-validation-error");
+			 $('span[data-valmsg-for="SignedPdf"]').addClass("field-validation-valid");
+		})
+
+		$('.custom-file-input').on("change", function () {
+				let fileName;
+				var file = $(this).get(0).files[0];
+				if (file == undefined) {
+					fileName = "Choose File...";
+				}
+				else {
+					fileName = file.name;
+					var ext = this.value.match(/\.(.+)$/)[1];
+					if (allowedFileTypes.includes(ext)) {
+						if (file.size <= 1048576) { // 1 MB
+							var reader = new FileReader();
+							reader.readAsDataURL(file);
+						}
+						else {
+							$(this).val('');
+							fileName = "Choose File...";
+							swal({ type: 'error', title: "Error", text: "File size cannot be greater than 1MB" });
+						}
+					}
+					else {
+						$(this).val('');
+						fileName = "Choose File...";
+						swal({ type: 'error', title: "File Not Supported", text: "Files with extensions: " + allowedFileTypes.join(',') + " are only supported" });
+					}
+				}
+				$(this).next('.custom-file-label').html(fileName);
+			});
+	});
+
+	$(function() {
+
+			$('#verifySignedDocumentFormSubmitBtn').click(function () {
+				 if ($("#verifySignedDocumentForm").valid()) { //check if form is valid using model annotation
+					 $('#verifySignedDocumentForm').submit();
+				 }
+				 else {
+					 return false;
+				 }
+			 });
+
+			 $("#verifySignedDocumentForm").on("submit", function (event) {
+				 event.preventDefault();
+				 $('#verifySignedDocumentFormSubmitBtn').attr('disabled', 'disabled');
+				 var url = $(this).attr("action");
+				 $('#modalDialogDiv').modal('hide');
+				 $.ajax({
+					 url: url,
+					 type: "POST",
+					 data: new FormData(this),
+					 cache: false,
+					 contentType: false,
+					 processData: false,
+					 beforeSend: function () {
+						$('#overlay').show();
+					 },
+					 complete: function () {
+						$('#verifySignedDocumentFormSubmitBtn').removeAttr('disabled');
+						$('#overlay').hide();
+					 }
+				 }).done(function (response) {
+					if (response.status == "Success") {
+					@if (Model.ESealActionMethod.ToLower() == "generate_eseal")
+					{
+						//@:generateEsealCall('@Model.OrganizationUID', '@Model.OrganizationName');
+						@:generateEsealCall('@Model.OrganizationUID', '@Model.OrganizationName', '@Model.TransactionId');
+					}
+					else if (Model.ESealActionMethod.ToLower() == "generate_wallet")
+					{
+						//@:generateEsealCall('@Model.OrganizationUID', '@Model.OrganizationName');
+						@:generateWalletCall('@Model.OrganizationUID', '@Model.OrganizationName', '@Model.TransactionId');
+					}
+					else if (Model.ESealActionMethod == "update_eseal")
+					{
+						@:updateCall();
+					}
+	                else if (Model.ESealActionMethod == "update_wallet")
+					{
+						@:updateCall();
+					}
+					else
+					{
+						@:swal({ type: 'error', title: response.title, text: "Unknown action" });
+					}
+					}
+					else {
+						swal({ type: 'error', title: response.title, text: response.message });
+					}
+			   });
+	   });
+	   });
+</script>

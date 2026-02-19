@@ -1,0 +1,87 @@
+﻿@model DTPortal.Web.ViewModel.AccountBalance.AccountBalanceSearchViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Account Balance";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Search">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="IdentifierType" class="col-form-label"></label>
+                            <select asp-for="IdentifierType" asp-items="Html.GetEnumSelectList<UserType>()" class="form-control">
+                                <option value="">select</option>
+                            </select>
+                            <span asp-validation-for="IdentifierType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="UID" class="col-form-label"></label>
+                            <input asp-for="UID" class="form-control" placeholder="Enter Value" />
+                            <span asp-validation-for="UID" class="text-danger"></span>
+                        </div>
+                        <div style="margin: 29px;">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                            &nbsp;&nbsp;
+                            <button type="button" class="btn btn-danger" onclick="resetFields()">Clear</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            @if (Model.AccountBalanceDetails != null)
+            {
+                <div>
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            Account Balance
+                        </h5>
+                    </div>
+
+                    @if (Model.IdentifierType.GetValue() == UserType.ORGANIZATION.GetValue())
+                    {
+                        var model = Model.AccountBalanceDetails as DTPortal.Core.DTOs.ServiceProviderAccountBalanceDTO;
+                        @await Html.PartialAsync("_ServiceProviderAccountBalanceDetails", model);
+                    }
+                    else
+                    {
+                        var model = Model.AccountBalanceDetails as DTPortal.Core.DTOs.SubscriberAccountBalanceDTO;
+                        @await Html.PartialAsync("_ServiceProviderAccountBalanceDetails", model);
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#accountBalanceMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Account Balanace');
+            $('#subMenu').removeClass('breadcrumb-item active');
+            /*For Beadcrum End*/
+        });
+
+        function resetFields() {
+            $('select').val('');
+            $("input:text").val("");
+        }
+    </script>
+}

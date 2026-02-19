@@ -1,0 +1,97 @@
+﻿@model JArray
+@using Newtonsoft.Json.Linq;
+
+<style>
+    .jstree-default .jstree-disabled.jstree-clicked {
+        background: #ffffff00;
+    }
+
+    .jstree-default .jstree-disabled > .jstree-icon {
+        -webkit-filter: grayscale(20%);
+    }
+
+    a.jstree-anchor {
+        padding-left: 0px !important;
+    }
+
+    #makerCheckerActvitiesFieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 20px;
+        margin-bottom: 15px;
+        overflow-y: auto;
+        height: 300px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+</style>
+
+<fieldset id="makerCheckerActvitiesFieldset">
+    <div id="ActivityTree">
+    </div>
+</fieldset>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+<script>
+        $(function () {
+
+            var data = @Html.Raw(Model)
+                $('#ActivityTree').on('loaded.jstree', function (e, data) {
+
+                        $('#ActivityTree').jstree(true).disable_node($('#ActivityTree').jstree(true).get_json(null, { flat: true }));
+                    
+
+
+                }).jstree({
+                "plugins": ["checkbox"],
+                    "checkbox": {
+                        "keep_selected_style": true,
+                        "three_state": true
+                },
+                "core": {
+                    "data":data
+                }
+                });
+
+
+            $('#ActivityTree').on('changed.jstree', function (e, data) {
+
+                
+                    if (data.action == "model")
+                        HasCheckerActiviti(data.selected, true)
+
+                    var VisibleChecker = $(".showChecker")
+                    if (VisibleChecker.length == 0)
+                        $(".Checkerkbox").css("display", "none");
+                    else
+                        $(".Checkerkbox").css("display", "block");
+
+               
+            }).jstree();
+
+
+            function HasCheckerActiviti(array,ShowChecker) {
+                for (var i = 0; i < array.length; i++) {
+                    var checkerNode = $(".IsChecker_" + array[i])
+                   
+                    if (checkerNode.length != 0) {
+                        var isChecked = $("#IsChecker_" + array[i]).prop("checked");
+                        if (ShowChecker) {
+                            checkerNode.removeClass('hideChecker');
+                            checkerNode.addClass('showChecker');
+                        } else {
+                            if (isChecked)
+                                $("#IsChecker_" + array[i]).prop('checked', false);
+
+                            checkerNode.removeClass('showChecker');
+                            checkerNode.addClass('hideChecker');
+                        }
+                    }
+                }
+            }
+
+    });
+</script>
+
+
+

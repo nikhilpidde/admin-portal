@@ -1,0 +1,110 @@
+﻿@model DTPortal.Web.ViewModel.RateCard.RateCardDetailsViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<style>
+    label {
+        text-align: right;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <div class="form-group">
+                            <label>Service Name</label>
+                            <input asp-for="RateCard.ServiceDefinitions.ServiceDisplayName" class="form-control" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label>Fee(UGX)</label>
+                            <input asp-for="RateCard.Rate" class="form-control" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label>Rate Effective From</label>
+                            <input class="form-control" readonly value="@Convert.ToDateTime(Model.RateCard.RateEffectiveFrom).ToString("yyyy-MM-dd")"/>
+                        </div>
+                        @*<div class="form-group">
+                            <label>Created By</label>
+                            <input asp-for="RateCard.CreatedBy" class="form-control" readonly />
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.RateCard.UpdatedBy))
+                        {
+                            <div class="form-group">
+                                <label>Updated By</label>
+                                <input asp-for="RateCard.UpdatedBy" class="form-control" readonly />
+                            </div>
+                        }*@
+                    </div>
+                    <div class="form-group col-md-6">
+                        <div class="form-group">
+                            <label>Stakeholder</label>
+                            <input asp-for="RateCard.StakeHolder" class="form-control" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label>Tax(%)</label>
+                            <input asp-for="RateCard.Tax" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+
+
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                            Approve
+                        </button>
+                        &nbsp; &nbsp;
+                        <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                            Reject
+                        </button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Approvals" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+<script>
+    $(document).ready(function () {
+        //$('#homeMenu').addClass('breadcrumb-item').append('Details');
+        //$('#mainMenu').removeClass('breadcrumb-item');
+        /*For Beadcrum End*/
+
+        $('#dashboardMenu').addClass('active');
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+        $('#subMenu').addClass('breadcrumb-item').append('Rate Card > Details');
+    });
+</script>
+}
+
+

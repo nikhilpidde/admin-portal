@@ -1,0 +1,555 @@
+﻿@model DTPortal.Core.Domain.Models.PkiPluginDatum
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+
+<style scoped>
+
+    .List_Element {
+        border: 1px solid #e2e0e0;
+        background-color: #f3f3f3;
+        padding: 2px 5px;
+    }
+
+    #OAuth2_OpenID::before {
+        display: none;
+    }
+
+    #SAML2_DIV::before {
+        display: none;
+    }
+
+    input[type=checkbox], input[type=radio] {
+        width: 20px;
+        height: 20px;
+        vertical-align: sub;
+    }
+
+    .panel {
+        margin-bottom: 20px;
+        background-color: #fff;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+        box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    }
+
+    .panel-default {
+        border-color: #ddd;
+        height: 100%;
+    }
+
+        .panel-default > .panel-heading {
+            color: #333;
+            background-color: #f5f5f5;
+            border-color: #ddd;
+        }
+
+    .panel-heading {
+        padding: 10px 15px;
+        border-bottom: 1px solid transparent;
+        border-top-left-radius: 3px;
+        border-top-right-radius: 3px;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .panel-body {
+        padding: 10px 15px;
+    }
+
+        .panel-body > .panel-heading {
+            color: #333;
+            border: 1px solid transparent;
+            margin-bottom: 5px;
+            background-color: #f5f5f5;
+            border-color: #ddd;
+            padding: 5px 10px;
+            font-size: 1rem;
+        }
+
+    .bdscore {
+        margin-top: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 0px;
+    }
+
+    div.panel-heading[aria-expanded="true"]::before {
+        content: ">";
+        transform: rotate( 90deg );
+        transition: all 0.3s;
+    }
+
+    div.panel-heading[aria-expanded="false"]::before, div.panel-heading[aria-expanded="true"]::before {
+        content: ">";
+        position: absolute;
+        right: 30px;
+        top: 8px;
+        font-family: "Poppins";
+        transition: all 0.3s;
+        font-weight: 400;
+        font-size: x-large;
+        align-self: center;
+    }
+
+    .input-box .toggle-password {
+        font-weight: 300;
+        font-size: 15px;
+        margin-right: 5px;
+        padding: 0px 16px 0px 0px;
+    }
+
+    .pwd {
+        -webkit-text-security: disc;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel panel-default">
+                                <div data-toggle="collapse" data-target="#HSM" aria-expanded="false" class="panel-heading">HSM Settings</div>
+                                <div id="HSM" class="panel-body collapse">
+                                    <div class="form-card">
+                                        <div class="form-group row">
+                                            <label class="col-4">CMAPI Url</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.CmapiUrl" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Client Path</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.ClientPath" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Client Environment Path</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.ClientEnvPath" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Admin User Id</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.CmAdminUid" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Admin Password</label>
+                                            <div>
+                                                <div class="input-box">
+                                                    <input asp-for="PkiHsmData.CmAdminPwd" value="@Model.PkiHsmData.CmAdminPwd" class="form-control pwd" style="width:398px" readonly />
+                                                    <span class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                                </div>
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Key Generation Timeout</label>
+
+                                            <div>
+                                                <input asp-for="PkiHsmData.KeyGenerationTimeout" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Slot ID</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.SlotId" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Key Algorithm</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.KeyData.KeyAlgorithm.Name" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Key Size</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.KeyData.KeySize.Size" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">HashAlgorithm</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.HashAlgorithm.Name" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">HSM Plugin</label>
+                                            <div>
+                                                <input asp-for="PkiHsmData.HsmPlugin.Name" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel panel-default">
+                                <div data-toggle="collapse" data-target="#CA" aria-expanded="false" class="panel-heading">CA Settings</div>
+                                <div id="CA" class="panel-body collapse">
+                                    <div class="form-card">
+                                        <div class="form-group row">
+                                            <label class="col-4">URL</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.Url" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Certificate Authority</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.CertificateAuthority" class="form-control" style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">End Entity Profile Name</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.EndEntityProfileName" class="form-control" style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Certificate Profile Name</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.CertificateProfileName" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Client Authentication Certificate</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.ClientAuthCertificate" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Client Authentication Certificate Password</label>
+                                            <div>
+                                                <div class="input-box">
+                                                    <input asp-for="PkiCaData.ClientAuthCertificatePassword" class="form-control pwd" value="@Model.PkiCaData.ClientAuthCertificatePassword" style="width:398px" readonly />
+                                                    <span class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                                </div>
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Issuer Dn</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.IssuerDn" class="form-control" style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Certificate Validity</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.CertificateValidity" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Procedure</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.Procedure.Name" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">CA Plugin</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.CaPlugin.Name" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Staging Certificate Procedure RSA256</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.StagingCertProcedureRsa256" class="form-control" style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Staging Certificate Procedure RSA512</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.StagingCertProcedureRsa512" class="form-control" style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Staging Certificate Procedure EC256</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.StagingCertProcedureEc256" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Staging Certificate Procedure EC512</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.StagingCertProcedureEc512" class="form-control" style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Test Certificate Procedure RSA256</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.TestCertProcedureRsa256" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Test Certificate Procedure RSA512</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.TestCertProcedureRsa512" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Test Certificate Procedure EC256</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.TestCertProcedureEc256" class="form-control " style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <label class="col-4">Test Certificate Procedure EC512</label>
+                                            <div>
+                                                <input asp-for="PkiCaData.TestCertProcedureEc512" class="form-control" style="width:430px" readonly />
+                                                <br />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="panel panel-default">
+                                <div data-toggle="collapse" data-target="#Other" aria-expanded="false" class="panel-heading">Other Settings</div>
+                                <div id="Other" class="panel-body collapse">
+                                    <div class="form-card">
+                                        <div class="form-group row">
+                                            <label class="col-4">Log Path</label>
+                                            <input asp-for="PkiServerConfigurationData.LogPath" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Log Level</label>
+                                            <input asp-for="PkiServerConfigurationData.LogLevel" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Config Directory Path</label>
+                                            <input asp-for="PkiServerConfigurationData.ConfigDirectoryPath" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Log Queue IP</label>
+                                            <input asp-for="PkiServerConfigurationData.LogQueueIp" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Log Queue Port</label>
+                                            <div>
+                                                <input asp-for="PkiServerConfigurationData.LogQueuePort" class="form-control " style="width:430px" readonly />
+                                            </div>
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Log Queue Username</label>
+                                            <input asp-for="PkiServerConfigurationData.LogQueueUsername" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Log Queue Password</label>
+                                            <div class="input-box">
+                                                <input asp-for="PkiServerConfigurationData.LogQueuePassword" class="form-control pwd" value="@Model.PkiServerConfigurationData.LogQueuePassword" style="width:398px" readonly />
+                                                <span class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                            </div>
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Jre 64bit directory</label>
+                                            <input asp-for="PkiServerConfigurationData.Jre64Directory" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">IDP Url</label>
+                                            <input asp-for="PkiServerConfigurationData.IdpUrl" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">TSA Url</label>
+                                            <input asp-for="PkiServerConfigurationData.TsaUrl" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">OCSP Url</label>
+                                            <input asp-for="PkiServerConfigurationData.OcspUrl" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">PKI Service Url</label>
+                                            <input asp-for="PkiServerConfigurationData.PkiServiceUrl" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Signature Service Url</label>
+                                            <input asp-for="PkiServerConfigurationData.SignatureServiceUrl" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Client ID</label>
+                                            <input asp-for="PkiServerConfigurationData.ClientId" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div class="form-group row">
+                                            <label class="col-4">Client Secret</label>
+                                            <input asp-for="PkiServerConfigurationData.ClientSecret" class="form-control " style="width:430px" readonly />
+                                        </div>
+                                        <br />
+                                        <div style="margin-left:30px">
+                                            <div class="form-group col-md-12" style="margin:15px 320px;">
+                                                <div class="checkbox">
+                                                    <label asp-for="PkiServerConfigurationData.EnableDss">
+                                                        <input asp-for="PkiServerConfigurationData.EnableDss" disabled />
+                                                        Enable Dss
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12" style="margin:15px 320px;">
+                                                <div class="checkbox">
+                                                    <label asp-for="PkiServerConfigurationData.DssClient">
+                                                        <input asp-for="PkiServerConfigurationData.DssClient" disabled />
+                                                        Dss Client
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12" style="margin:15px 320px;" hidden>
+                                                <div class="checkbox">
+                                                    <label asp-for="PkiServerConfigurationData.SignLocally">
+                                                        <input asp-for="PkiServerConfigurationData.SignLocally" disabled />
+                                                        Enable Dss
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12" style="margin:15px 320px;">
+                                                <div class="checkbox">
+                                                    <label asp-for="PkiServerConfigurationData.LogCallstack">
+                                                        <input asp-for="PkiServerConfigurationData.LogCallstack" disabled />
+                                                        Log Call Stack
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12" style="margin:15px 320px;">
+                                                <div class="checkbox">
+                                                    <label asp-for="PkiServerConfigurationData.StagingEnv">
+                                                        <input asp-for="PkiServerConfigurationData.StagingEnv" disabled />
+                                                        Staging Environment
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12" style="margin:15px 320px;">
+                                                <div class="checkbox">
+                                                    <label asp-for="PkiServerConfigurationData.Introspect">
+                                                        <input asp-for="PkiServerConfigurationData.Introspect" disabled />
+                                                        Introspect
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group col-md-12" style="margin:15px 320px;">
+                                                <div class="checkbox">
+                                                    <label asp-for="PkiServerConfigurationData.HandSignature">
+                                                        <input asp-for="PkiServerConfigurationData.HandSignature" disabled />
+                                                        Hand Signature
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="form-group col-md-4">
+                    <label asp-for="CreatedBy"></label>
+                    <input asp-for="CreatedBy" class="form-control" readonly />
+                    </div>
+                    <div class="form-group col-md-4">
+                    <label asp-for="UpdatedBy"></label>
+                    <input asp-for="UpdatedBy" class="form-control" readonly />
+                    </div>*@
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                            Approve
+                        </button>
+                        &nbsp; &nbsp;
+                        <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                            Reject
+                        </button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Approvals" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+<script>
+        $(document).ready(function () {
+            /*For Beadcrum Start*/
+            //$('#homeMenu').addClass('breadcrumb-item').append('Details');
+            //$('#mainMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+            $('#subMenu').addClass('breadcrumb-item').append('Configuration > Details');
+        });
+
+    $(".toggle-password").click(function () {
+            $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+
+        if($(this).prev('input').hasClass("pwd")){
+            $(this).prev('input').removeClass("pwd");
+        }else{
+            $(this).prev('input').addClass("pwd");
+        }
+     });
+</script>
+}

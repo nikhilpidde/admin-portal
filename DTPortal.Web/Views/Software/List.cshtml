@@ -1,0 +1,102 @@
+﻿@model DTPortal.Web.ViewModel.Software.SoftwareListViewModel
+
+@{
+    ViewData["Title"] = "Softwares";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                <div class="row p-b-20" style="display: flex; align-items: center;">
+                    <div class="btn-group">
+                        <a class="btn btn-info greenButton" asp-action="UploadSoftware">
+                            <i class="fa fa-plus"></i>Upload Software
+                        </a>
+                    </div>
+                    &nbsp;&nbsp;
+                    <div class="btn-group">
+                        <a class="btn btn-info greenButton" asp-controller="Software" asp-action="List">
+                            <i class="fa fa-refresh"></i>Refresh
+                        </a>
+                    </div>
+                </div>
+
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Software Name</th>
+                            <th>Software Version</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.SoftwareList)
+                        {
+                            <tr class="odd gradeX">
+                                <td>@item.SoftwareName</td>
+                                <td>@item.SoftwareVersion</td>
+                                <td>@item.Status</td>
+                                <td class="valigntop" align="center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-xs deepPink-bgcolor no-margin greenButton" type="button" data-toggle="dropdown"
+                                            aria-expanded="false">
+                                            Actions
+                                            <i class="fa fa-angle-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu pull-left" role="menu">
+                                            <li>
+                                                @if (item.Status == "PUBLISHED")
+                                                {
+                                                    <a asp-action="UnpublishSoftware" asp-route-id="@item.SoftwareId">
+                                                        <i class="icon-pencil"></i>Unpublish
+                                                    </a>
+                                                }
+                                                @if (item.Status == "NOT_PUBLISHED")
+                                                {
+                                                    <a asp-action="PublishSoftware" asp-route-id="@item.SoftwareId">
+                                                        <i class="icon-pencil"></i>Publish
+                                                    </a>
+                                                }
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--TABLE CONTENT END-->
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#selfServiceConfigMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#softwareMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Breadcrumb Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Softwares');
+            $('#subMenu').removeClass('breadcrumb-item active');
+            /*For Breadcrumb End*/
+
+            var table = $(".table").DataTable({
+                "bLengthChange": false,
+            });
+        });
+    </script>
+}

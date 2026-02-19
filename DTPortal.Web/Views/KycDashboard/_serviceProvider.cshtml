@@ -1,0 +1,447 @@
+﻿<style>
+    .shimmer-wrapper .shimmer-item {
+        height: 90px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background: #f3f3f3;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @@media screen and (max-width:1200px) {
+        .shimmer-wrapper .shimmer-item {
+            height: 150px;
+        }
+    }
+
+    /* Shimmer band */
+    .shimmer-wrapper .shimmer-item::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient( to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100% );
+        animation: shimmer-horizontal 1.6s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+
+
+    @@keyframes shimmer-horizontal {
+        0% {
+            left: -100%;
+        }
+
+        100% {
+            left: 100%;
+        }
+    }
+
+    .service-provider-card {
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        color: #212529;
+        border: 1px solid #dee2e6 !important;
+        cursor:pointer;
+    }
+
+        .service-provider-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+    /* Backgrounds by status */
+    .status-active {
+        background-color: #e8f5e9 !important;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da !important;
+    }
+
+    .status-registered {
+        background-color: #fff3cd !important;
+    }
+
+    /* Status badge */
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        min-width: 100px;
+        text-align: center;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        text-transform: capitalize;
+    }
+
+    .status-badge-active {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .status-badge-inactive {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    .status-badge-registered {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .sp-label-heading{
+        font-family: 'Arial', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+        white-space:nowrap;
+    }
+
+    .status-unknown {
+        background-color: #e0e0e0; /* light gray */
+        color: #333;
+    }
+
+    .status-badge-unknown {
+        background-color: #a6a1a1cc; /* darker gray */
+        color: white;
+    }
+
+</style>
+
+
+<div class="bg-white pt-2 pb-2 mb-4 ">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+        <!-- Search Input with Icon -->
+        <div class="flex-grow-1 d-flex align-items-center bg-light rounded-pill px-3" style="max-width: 70%; border: 1px solid #ced4da;border-radius:12px;">
+            <i class="fa fa-search text-muted me-2"></i>
+            <input type="text"
+                   id="spSearchInput"
+                   class="form-control border-0 bg-transparent shadow-none"
+                   placeholder="Search service providers..." />
+        </div>
+
+        <!-- Dropdown Filter -->
+        <div class="d-flex align-items-center gap-2" style="display:none !important">
+            <i class="fa fa-filter text-secondary mr-2" style="font-size: 16px;"></i>
+            <select id="spStatusFilter"
+                    class="form-select py-2 px-3 rounded-pill shadow-sm border border-secondary-subtle">
+                <option value="" selected>All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Registered">Registered</option>
+            </select>
+        </div>
+    </div>
+    <form id="serviceProviderForm" method="post" action="@Url.Action("ServiceProviderPage", "KycDashboard")">
+        <input type="hidden" name="id" id="serviceProviderId" />
+        <input type="hidden" name="page" id="serviceProviderPageNo" />
+        <input type="hidden" name="perpage" id="serviceProviderPerPage" />
+    </form>
+</div>
+
+
+
+
+
+
+<div id="serviceProvidersList" class="space-y-4"></div>
+
+
+<div class="d-flex justify-content-end w-100">
+    <a href="javascript:void(0);" id="serviceProviderShowMoreBtn" class="toggle-link me-4 mb-3" style="display: none;">
+        Show More <i class="fas fa-chevron-down"></i>
+    </a>
+</div>
+
+
+<div id="noDataMessageServiceProvider" class="text-center mt-2 mb-2" style="display:none;">
+    <div style="color:#4e5e6a;font-size:1.2rem;">No Service Provider's found.</div>
+</div>
+
+
+
+<script>
+    let allServiceProviders = [];
+    let pageSize = 10;
+    let currentPage = 0;
+    let totalServiceProviders = 0;
+
+    $(document).ready(function () {
+        $('#networkOverlay').hide();
+        $('#serviceProvidersList').empty();
+
+        // Initial load
+        loadServiceProviders();
+
+        // "Show More" button
+        $('#serviceProviderShowMoreBtn').on('click', function () {
+            currentPage++;
+            applyFiltersAndRender();
+        });
+
+        // Search by pressing Enter
+        // $('#spSearchInput').on('keypress', function (e) {
+        //     if (e.which === 13) {
+        //         resetServiceProviderList();
+        //     }
+        // });
+
+            // Search on every key press
+        $('#spSearchInput').on('input', function () {
+            resetServiceProviderList();
+        });
+
+        // Status filter
+        $('#spStatusFilter').on('change', function () {
+            resetServiceProviderList();
+        });
+    });
+
+
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
+
+    function reinitializeTooltips() {
+        $('[data-toggle="tooltip"]').tooltip(); // destroy existing
+    }
+
+
+    // Load all providers ONCE from backend
+    function loadServiceProviders() {
+        const shimmer = showShimmer(pageSize);
+
+        $.ajax({
+            url: '@Url.Action("GetServiceProvidersList", "KycDashboard")',
+            type: 'POST',
+            dataType: 'json',
+            success: function (res) {
+                shimmer.remove();
+                allServiceProviders = res;
+                applyFiltersAndRender(); // First render
+            },
+            error: function (err) {
+                shimmer.remove();
+                console.error("Failed to load service providers", err);
+            }
+        });
+    }
+
+    // Apply search + filter + pagination (all frontend)
+    function applyFiltersAndRender() {
+        const searchValue = $('#spSearchInput').val().trim().toLowerCase();
+        const selectedStatus = $('#spStatusFilter').val();
+
+        // Filter
+        let filteredData = allServiceProviders.filter(item => {
+            const matchesSearch = searchValue === "" || item.orgName.toLowerCase().includes(searchValue);
+            const matchesStatus = selectedStatus === "" || item.orgStatus === selectedStatus.toLowerCase();
+            return matchesSearch && matchesStatus;
+        });
+
+        totalServiceProviders = filteredData.length;
+
+        const paginatedData = filteredData.slice(0, (currentPage + 1) * pageSize);
+
+        $('#serviceProvidersList').empty();
+        renderAndAppendServiceProviders(paginatedData);
+
+        // Show/hide "Show More" button
+        if ((currentPage + 1) * pageSize < totalServiceProviders) {
+            $('#serviceProviderShowMoreBtn').show();
+        } else {
+            $('#serviceProviderShowMoreBtn').hide();
+        }
+
+        if (filteredData.length === 0) {
+            $('#noDataMessageServiceProvider')?.show();
+        } else {
+            $('#noDataMessageServiceProvider')?.hide();
+        }
+    }
+
+    function resetServiceProviderList() {
+        currentPage = 0;
+        applyFiltersAndRender();
+    }
+
+    function renderAndAppendServiceProviders(data) {
+        const container = $('#serviceProvidersList');
+        const cards = data.map(item => generateServiceProviderCardHtml(item));
+        container.append(cards.join(''));
+        reinitializeTooltips();
+        updateDateStamps();
+    }
+
+    function showShimmer(count) {
+        let shimmerHtml = `<div class="shimmer-wrapper">`;
+        for (let i = 0; i < count; i++) {
+            shimmerHtml += `<div class="shimmer-item"></div>`;
+        }
+        shimmerHtml += `</div>`;
+        const $shimmer = $(shimmerHtml);
+        $('#serviceProvidersList').append($shimmer);
+        return $shimmer;
+    }
+
+    function generateServiceProviderCardHtml(item) {
+        const status = item.orgStatus;
+        let cardClass = '', badgeClass = '';
+
+        switch (status) {
+            case 'active':
+                cardClass = 'status-active';
+                badgeClass = 'status-badge-active';
+                break;
+            case 'inactive':
+                cardClass = 'status-inactive';
+                badgeClass = 'status-badge-inactive';
+                break;
+            case 'registered':
+                cardClass = 'status-registered';
+                badgeClass = 'status-badge-registered';
+                break;
+            default:
+            cardClass = 'status-unknown';
+            badgeClass = 'status-badge-unknown';
+            break;
+        }
+
+     const visibleLimit = 3;
+        const kycMethods = item.kycMethods ?? []; // fallback to empty array if null or undefined
+    const visibleMethods = kycMethods.slice(0, visibleLimit);
+    const hiddenMethods = kycMethods.slice(visibleLimit);
+
+    // Final HTML with toggle
+       const kycMethodsHtml = `
+        ${visibleMethods.concat(hiddenMethods).map((method, index) => `
+            <span class="badge bg-success text-white mr-3 mb-1 kyc-badge"
+                  style="padding: 4px 10px; font-size: 10px !important; ${index >= visibleLimit ? 'display: none;' : ''}">
+                ${method}
+            </span>
+        `).join('')}
+
+        ${hiddenMethods.length > 0 ? `
+            <span class="badge bg-secondary text-white mr-3 mb-1 toggle-more"
+                  style="padding: 4px 10px; font-size: 10px !important; cursor: pointer;"
+                  onclick="event.stopPropagation(); toggleKycMethods(this)">
+                +${hiddenMethods.length} more
+            </span>
+        ` : ''}
+    `;
+
+
+
+
+
+
+           return `
+    <div class="card service-provider-card mb-3 p-3" style="cursor:pointer;" onclick="navigateToServiceProvider('${item.orgId}')" >
+        <div class="d-flex flex-column gap-3">
+
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between flex-wrap gap-3">
+
+                <!-- Left: Logo and Org Details -->
+                <div class="d-flex gap-3 align-items-start">
+                    <img src="data:image/png;base64,${item.orgLogo}"  alt="Logo" style="width: 60px; height: 60px; object-fit: contain;" class="rounded border" />
+
+                    <div class="ml-2">
+                        <h5 class="mb-1 fw-semibold text-dark mt-1" style="font-size:15px !important;">${item.orgName}</h5>
+                        <div class="sp-label-heading mb-1">
+                            Registration ID: <span>${item.orgId}</span>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                     <!-- Right: Status and KYC Info (Neatly Aligned) -->
+    <div class="d-flex flex-wrap gap-3 align-items-center justify-content-end text-end ms-auto">
+
+        <div class="d-flex flex-column mr-5" style="min-width:100px;">
+                     <div class="convert-date"
+                         data-datestamp="${item.lastKycSucessfulTimestampDate || ''}"
+                         style="font-weight:600;">
+                      ${item.lastKycSucessfulTimestampDate ? item.lastKycSucessfulTimestampDate : 'NA'}
+                    </div>
+
+
+            <div class="sp-label-heading">Last ID Validation Date</div>
+        </div>
+
+        <div class="d-flex flex-column mr-5" style="min-width:100px;">
+            <div style="font-weight:600;">${item.totalKycCountSuccessful}</div>
+            <div class="sp-label-heading">IDs Verified</div>
+        </div>
+
+        <div class="d-flex flex-column mr-5" style="min-width:100px;">
+            <div style="font-weight:600;">${item.totalKycCountSuccessfulCurrentMonth}</div>
+            <div class="sp-label-heading">IDs Verified This Month</div>
+        </div>
+
+        
+
+    </div>
+
+            </div>
+
+            <!-- KYC Methods Section -->
+            <div class="border-top pt-3 mt-2">
+                <div class="text-muted small d-flex align-items-center">
+                    <span class="sp-label-heading mr-2 mb-2">
+                        ID Validation Methods (${kycMethods.length}):
+                    </span>
+                       <div style="display: flex; flex-wrap: wrap;">
+                        ${kycMethodsHtml}
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    `;
+
+    }
+
+    function toggleKycMethods(toggleBtn, isLess = false) {
+        const container = toggleBtn.parentElement;
+        const badges = container.querySelectorAll('.kyc-badge');
+
+        badges.forEach((badge, index) => {
+            if (index >= 3) {
+                badge.style.display = isLess ? 'none' : 'inline-block';
+            }
+        });
+
+        if (!isLess) {
+            toggleBtn.innerText = 'Show less';
+            toggleBtn.setAttribute('onclick', "event.stopPropagation(); toggleKycMethods(this, true)");
+        } else {
+            toggleBtn.innerText = `+${badges.length - 3} more`;
+            toggleBtn.setAttribute('onclick', "event.stopPropagation(); toggleKycMethods(this)");
+        }
+    }
+
+
+
+
+
+    function navigateToServiceProvider(id) {
+        document.getElementById("serviceProviderId").value = id;
+        document.getElementById("serviceProviderPageNo").value = 1;
+        document.getElementById("serviceProviderPerPage").value = 10;
+        document.getElementById("serviceProviderForm").submit();
+    }
+
+
+</script>

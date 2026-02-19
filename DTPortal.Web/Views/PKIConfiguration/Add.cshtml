@@ -1,0 +1,133 @@
+﻿@model DTPortal.Web.ViewModel.PKIConfiguration.HSMSettingsAddViewModel
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+<style>
+    label {
+        text-align: right;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h2 style="text-align:center"><strong>PKI CONFIGURATION</strong></h2>
+                <div class="row">
+                    <div class="col-md-12 mx-0">
+                        <ul id="progressbar">
+                            <li id="account"><strong class="d-flex justify-content-center">HSM Settings</strong></li>
+                            <li id="personal"><strong class="d-flex justify-content-center">CA Settings</strong></li>
+                            <li id="confirm"><strong class="d-flex justify-content-center">Other Settings</strong></li>
+                        </ul>
+                        <div id="note">
+                            <b>NOTE: </b> (*) Mark fields are mandatory.
+                        </div>
+                        <div id="wizardContainer">
+                            @await Html.PartialAsync("_AddHSMSettings", Model)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script>
+        $(document).ready(function () {
+            $('#electronicSignatureMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#pkiConfigurationMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Electronic Signature');
+            $('#mainMenu').addClass('breadcrumb-item').append('Configurations');
+            $('#subMenu').addClass('breadcrumb-item active').append('Add');
+            /*For Beadcrum End*/
+        });
+
+    $(function () {
+        $(document).ajaxError(function (e, xhr, settings) {
+            switch (xhr.status) {
+                case 400:
+                    swal("Error", "Cannot process your request", "error");
+                    break;
+                case 401:
+                    swal({ type: 'info', title: "Session Expired", text: "Click on 'Ok' button to login again!" }, function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.href = '@Url.Action("Index", "Login")'
+                        }
+                    });
+                    break;
+                case 403:
+                    swal("Forbidden", "You do not have access to this resource", "error");
+                    break;
+                case 404:
+                    swal("Not Found", "The resource you requested could not be found", "error");
+                    break;
+                case 500:
+                    swal({ title: "Server Error", text: "Internal Server error Occurred", type: "error" }, function (isConfirm) {
+                        if (isConfirm) {
+                            window.location.reload();
+                        }
+                    });
+                    break;
+                case 502:
+                    swal("Bad Gateway", "Invalid response", "error");
+                    break;
+                case 503:
+                    swal("Service Unavailable", "The Service is currently unavailable, please try after sometime", "error");
+                    break;
+                default:
+                    errors = ["Bad Request", "Bad Gateway", "Not Found", "Internal Server Error", "Forbidden", "Unauthorized", "Service Unavailable"]
+                    if (xhr.readyState == 0 && xhr.status == 0 && xhr.responseJSON == undefined) {
+                        if (!errors.includes(error)) {
+                            if (window.navigator.onLine) {
+                                if (error == "") {
+                                    error = "Something went wrong, please try later"
+                                }
+                                swal({ type: 'error', title: "Error", text: error }, function (isConfirm) {
+                                    if (isConfirm) {
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                            else {
+                                swal({ type: 'info', title: "No Internet", text: "Check your network connection!" }, function (isConfirm) {
+                                    if (isConfirm) {
+                                        window.location.reload();
+                                    }
+                                });
+                            }
+                        }
+                        else {
+                            swal({ type: 'error', title: "Error", text: "Something went wrong, please try later" }, function (isConfirm) {
+                                if (isConfirm) {
+                                    window.location.reload();
+                                }
+                            });
+                        }
+                    }
+                    break;
+            }
+        });
+    });
+</script>
+    <style>
+        #note {
+            padding-right: 10px;
+            display: flex;
+            justify-content: flex-end;
+            padding-bottom: 15px;
+        }
+    </style>
+}
+

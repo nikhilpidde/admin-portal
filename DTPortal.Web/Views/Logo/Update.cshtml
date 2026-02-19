@@ -1,0 +1,96 @@
+﻿@model DTPortal.Web.ViewModel.Logo.LogoUpdateViewModel
+
+@{
+    ViewData["Title"] = "Update";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Update">
+                    <h4 class="col-form-label">Logo</h4>
+                    <div class="form-group row">
+                        <div class="col-sm-5">
+                            <div class="custom-file">
+                                <input asp-for="LogoPrimary" class="form-control custom-file-input" accept=".svg">
+                                <label class="custom-file-label">Choose File... (.svg only)</label>
+                                <span asp-validation-for="LogoPrimary" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <img id="previewImage" style="width:100%; max-height:600px"/>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts
+{
+    @* @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}*@
+
+    <script>
+        $(document).ready(function () {
+              $('#administrationSidebarElement').addClass('active');
+        $('#logoMenuItem').addClass('active');
+
+        $('#adminSubmenu').addClass('show');
+        $("li#logoMenuItem a:first").attr('aria-expanded', 'true');
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Update Logo');
+        $('#subMenu').removeClass('breadcrumb-item');
+
+            $('.custom-file-input').on("change", function () {
+                $("#previewImage").attr("src", "");
+                let fileName;
+                var file = $(this).get(0).files[0];
+                if (file == undefined) {
+                    fileName = "Choose File...";
+                }
+                else {
+                    fileName = file.name;
+                    var fileExtension = getExtension(fileName);
+                    if (allowedFileTypes.includes(fileExtension)) {
+                        if (file.size <= 1048576) { // 1 MB
+                            var reader = new FileReader();
+                            reader.onload = function () {
+                                $("#previewImage").attr("src", reader.result);
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                        else {
+                            $(this).val('');
+                            fileName = "Choose File...";
+                            swal({ type: 'error', title: "Error", text: "File size cannot be greater than 1MB" });
+                        }
+                    }
+                    else {
+                        $(this).val('');
+                        fileName = "Choose File...";
+                        swal({ type: 'error', title: "File Not Supported", text: "Files with extensions: " + allowedFileTypes.join(',') + " are only supported" });
+                    }
+                }
+                $(this).next('.custom-file-label').html(fileName);
+            });
+        });
+
+        var allowedFileTypes = [".svg"];
+
+        function getExtension(filename) {
+            return '.' + filename.split('.').pop().toLowerCase();
+        }
+    </script>
+}

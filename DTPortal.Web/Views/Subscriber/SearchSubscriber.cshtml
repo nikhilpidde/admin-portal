@@ -1,0 +1,202 @@
+﻿@model DTPortal.Web.ViewModel.Subscriber.SubscriberSearchViewModel
+@using DTPortal.Web.Enums
+
+@{
+    ViewData["Title"] = "Subscriber";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<link href="~/global_assets/autoComplete/css/autoComplete2.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+
+<style>
+    @@media(max-width:768){
+        #subscriberIndex{
+            height: 120px;
+        }
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div id="subscriberIndex"class="card" style="height: 70px;z-index:1;">
+            <form method="post" asp-action="SearchSubscriber">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <select asp-for="IdentifierType" asp-items="Html.GetEnumSelectList<SubscriberIdentifier>()" class="form-control">
+                            <option value="">Select type</option>
+                        </select>
+                        <span asp-validation-for="IdentifierType" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <input asp-for="IdentifierValue" class="form-control " placeholder="Enter Value" />
+                        <input type="hidden" id="selectedSubcriber" name="SelectedSubcriber" />
+                        <span asp-validation-for="IdentifierValue" class="text-danger"></span>
+                    </div>
+                    <div style="margin-top: 2px;">
+                        <input type="submit" class="btn btn-primary" value="Search" />
+                        &nbsp;&nbsp;
+                        <input type="button" class="btn btn-danger" value="Clear" onclick="resetFields()" />
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        @if (Model.SubscriberDetails != null)
+        {
+            <div id="subscriberDetailsDiv">
+                @await Html.PartialAsync("_Subscriber360DegreeView", Model.SubscriberDetails)
+            </div>
+        }
+    </div>
+</div>
+
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+
+@section scripts {
+    <script src="~/assets/js/jquery-ui.js"></script>
+    <script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+        $(document).ready(function () {
+            $('#registrationAuthorityMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#subscriberMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Registration Authority');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Subscriber');
+            $('#subMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            var today = new Date();
+            $('.datepicker').datepicker({
+                dateFormat: "yy-mm-dd",
+                changeMonth: true,
+                changeYear: true,
+                maxDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
+            });
+
+            $('#IdentifierType').change(function () {
+                var identifierValue = $("#IdentifierValue");
+                identifierValue.unbind("keypress");
+                let placeholderObject = {
+                    1: "Emirates Id Number",
+                    2: "Passport",
+                    3: "Email",
+                    4: "Mobile Number (+97198XX...)",
+                }
+
+                identifierValue.val("");
+                $("span[data-valmsg-for='IdentifierValue']").html('');
+
+                if ($("#IdentifierValue").val() == "") {
+                    if ($("#IdentifierType").val() != "") {
+                        var identifierValueSelected = $("#IdentifierType").val();
+                        $("#IdentifierValue").attr("placeholder", "Enter " + placeholderObject[identifierValueSelected.toString()]);
+                    }
+                    else
+                        $("#IdentifierValue").attr("placeholder", "Enter Value");
+                    identifierValue.val("");
+                }
+
+                if ($('select option:selected').val() == 4) {
+                    identifierValue.keypress(function (e) {
+                        if (identifierValue.val().length >= 13)
+                        {
+                            return false;
+                        }
+                        var charCode = (e.which) ? e.which : event.keyCode;
+                        if (String.fromCharCode(charCode).match(/[^+0-9]/g))
+                            return false;
+                    });
+                }
+            });
+
+            $("#IdentifierValue").typeahead({
+                minLength: 5,
+                items: 10,
+                source: function (request, response) {
+                    let type = $('#IdentifierType').val();
+                    if (type == "")
+                        return;
+
+                    $.ajax({
+                        url: '@Url.Action("GetSubscribers", "Subscriber")',
+                        data: { "type": parseInt(type), "value": request },
+                        type: "GET",
+                        contentType: "json",
+                        error: ajaxErrorHandler,
+                        success: function (data) {
+                            items = [];
+                            map = {};
+                            $.each(data, function (i, item) {
+                                var id = i;
+                                var name = item;
+                                map[name] = {
+                                    id: id,
+                                    name: name
+                                };
+                                items.push(name);
+                            });
+                            response(items);
+                        }
+                    });
+                },
+                updater: function (item) {
+                    return item;
+                }
+            });
+
+            $("input[type='submit']").on("click", function (e) {
+                var email = $('#IdentifierValue');
+                if ($('select option:selected').val() == 3 && email.val() != '') {
+                    var emailRegex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+                    if (!emailRegex.test(email.val())) {
+                        $("span[data-valmsg-for='IdentifierValue']").html("Invalid email address");
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            adjustSubscriberIndex();
+
+            $(window).resize(function () {
+                adjustSubscriberIndex();
+            });
+        });
+
+        function adjustSubscriberIndex() {
+            if ($(window).width() < 511) {
+                $('#subscriberIndex').css('height', '125px');
+            } else {
+                $('#subscriberIndex').css('height', '70px');
+            }
+        }
+
+        function resetFields() {
+            $('select').val('');
+            $("input:text").val("");
+            $('#subscriberDetailsDiv').hide();
+            $('.text-danger').text('');
+            $("#IdentifierValue").attr("placeholder", "Enter Value");
+        }
+    </script>
+
+    <style>
+        .table td, .table th, .card .table td, .card .table th, .card .dataTable td, .card .dataTable th {
+            padding: 4px 8px;
+            vertical-align: middle;
+        }
+
+        tbody {
+            font-size: 12px;
+        }
+    </style>
+}

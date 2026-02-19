@@ -1,0 +1,504 @@
+﻿<link href="~/global_assets/autoComplete/css/autoComplete2.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+
+<style>
+    .dataDiv {
+        margin-bottom: 15px;
+        display: flex;
+    }
+    .highlightBtn{
+        transform :scale(1.2);
+    }
+</style>
+
+<div class="panel panel-default  h-100">
+    <div class="panel-heading">
+        <i class="fa fa-bar-chart" aria-hidden="true"></i> &nbsp;&nbsp; Statistics
+    </div>
+    <div class="row" style="padding:10px 30px;">
+        <div class="col-md-6">
+            <select onchange="selectOnChange()" id="serviceSelect" style="width: 177px; padding: 3px; border-radius: 12px;">
+                <option value="DigitalAuthentications" selected>Digital Authentications</option>
+                @* <option value="Signatures">Signatures</option> *@
+            </select>
+        </div>
+        <div class="col-md-6">
+            <input type="text" id="serviceProviderName" placeholder="Enter Application Name" style="float: right;width: 350px;" />
+        </div>
+    </div>
+    <div id="chart" style="max-width: 100%;margin: 4px auto;">
+    </div>
+    <div id="signatureTypes" class="row" style="width: 100%;align-items: center;justify-content: space-evenly;margin: auto auto; display:none">
+        <label>
+            <input type="radio" name="signatureType" value="pades" />PADES
+        </label>
+        <label>
+            <input type="radio" name="signatureType" value="xades" />XADES
+        </label>
+        <label>
+            <input type="radio" name="signatureType" value="cades" />CADES
+        </label>
+       @* <label>
+            <input type="radio" name="signatureType" value="data" />DATA
+        </label>*@
+        <label>
+            <input type="radio" name="signatureType" value="eseal" />ESEAL
+        </label>
+    </div>
+    <br />
+    <div class="row" style="width: 100%;display: flex;align-items: center;justify-content: space-evenly;margin: auto auto;margin-bottom: 15px;">
+        <div class="row">
+            <a onclick="weekData()" id="week" class="dark chartFilterButton"><span class="color-tag-filer" style="background:#00BCD4"></span>&nbsp;<span>This Week</span></a>
+        </div>
+
+        <div class="row">
+            <a onclick="monthData()" id="monthly" class="dark chartFilterButton"><span class="color-tag-filer" style="background:#00BCD4"> </span>&nbsp;<span>Monthly</span></a>
+        </div>
+
+        <div class="row">
+            <a onclick="yearData()" id="yearly" class="dark chartFilterButton"><span class="color-tag-filer" style="background:#00BCD4"> </span>&nbsp;<span>Yearly</span></a>
+        </div>
+    </div>
+</div>
+
+<script src="~/assets/js/ApexChart.js" asp-append-version="true"></script>
+<script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+<script>
+
+    var successData = [];
+    var failedData = [];
+    var xAxisCategories = [];
+    var yAxisTitle;
+    var weekCount;
+    var monthCount;
+    var yearCount;
+    var weekSuccessData = [];
+    var weekFailedData = [];
+    var monthSuccessData = [];
+    var monthFailedData = [];
+    var yearSuccessData = [];
+    var yearFailedData = [];
+    var chart;
+    var identifier;
+    var signatureTypes;
+
+    var options = {
+        series: [],
+        chart: {
+            height: 350,
+            type: 'line',
+            dropShadow: {
+                enabled: true,
+                color: '#000',
+                top: 18,
+                left: 7,
+                blur: 10,
+                opacity: 0.2
+            },
+            toolbar: {
+                show: false
+            }
+        },
+        colors: ['#77B6EA', '#E94242'],
+        dataLabels: {
+            enabled: true,
+        },
+        stroke: {
+            curve: 'smooth'
+        },
+        grid: {
+            borderColor: '#e7e7e7',
+            row: {
+                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                opacity: 0.5
+            },
+        },
+        markers: {
+            size: 1
+        },
+        xaxis: {
+            categories: xAxisCategories,
+        },
+        yaxis: {
+            title: {
+                text: yAxisTitle
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right',
+            floating: true,
+            offsetY: 5,
+            offsetX: 5
+        }
+        };
+
+    chart = new ApexCharts(document.querySelector("#chart"), options);
+    chart.render();
+
+    $("#serviceProviderName").typeahead({
+        minLength: 3,
+        source: function (request, response) {
+            
+            $.ajax({
+                url: '@Url.Action("GetServiceProviderNames", "Dashboard")',
+                data: {
+                    "request": request
+                },
+                type: "GET",
+                contentType: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    items = [];
+                    map = {};
+                    $.each(data, function (i, item) {
+                        var id = i;
+                        var name = item;
+                        map[name] = {
+                            id: id,
+                            name: name
+                        };
+                        items.push(name);
+                    });
+                    response(items);
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        },
+        updater: function (item) {
+            getserviceProviderGraphDetails(item);
+            return item;
+        }
+    });
+
+    $('input[name=signatureType]:radio').change(function () {
+        switch ($('input[name=signatureType]:checked').val()) {
+            case 'pades':
+                identifier = "PADESSignatures";
+                break;
+
+            case 'xades':
+                identifier = "XADESSignatures";
+                break;
+
+            case 'cades':
+                identifier = "CADESSignatures";
+                break;
+
+            //case 'data':
+            //    identifier = "DATASignatures";
+            //    break;
+
+            case 'eseal':
+                identifier = "ESEALSignatures";
+                break;
+        };
+        weekData();
+    });
+
+    signatureTypes = $('#signatureTypes');
+
+    function getCompleteGraphDetails() {
+        $.ajax({
+                url: '@Url.Action("GetCompleteGraphDetails", "Dashboard")',
+                type: 'GET',
+                dataType: 'json'
+            }).done(function (response) {
+                if (response.status == "Success") {
+                    weekCount = response.data['weekCount'];
+                    monthCount = response.data['monthCount'];
+                    yearCount = response.data['yearCount'];
+
+                    selectOnChange();
+                }
+                else if (response.status == "Failed") {
+                    swal({ type: 'error', title: "Error", text: response.message });
+                }
+            }).fail(ajaxErrorHandler);
+    }
+
+    function getserviceProviderGraphDetails(name) {
+            var dataToSend = { serviceProviderName: name };
+            $.ajax({
+                url: '@Url.Action("GetServiceProviderGraphDetails", "Dashboard")',
+                type: 'POST',
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: dataToSend,
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                }
+            }).done(function (response) {
+                if (response.status == "Success") {
+                    weekCount = response.data['weekCount'];
+                    monthCount = response.data['monthCount'];
+                    yearCount = response.data['yearCount'];
+
+                    selectOnChange();
+                }
+                else if (response.status == "Failed") {
+                    clearData();
+                    swal({ type: 'error', title: "Error", text: response.message });
+                }
+            }).fail(ajaxErrorHandler);
+    }
+
+    function selectOnChange() {
+            var selectedValue = document.getElementById("serviceSelect").value;
+            signatureTypes.hide();
+            switch (selectedValue) {
+                case 'DigitalAuthentications':
+                    identifier = "DigitalAuthentications";
+                    yAxisTitle = "Digital Authentications";
+                    break;
+                case 'Signatures':
+                    signatureTypes.show();
+                    $("input[name=signatureType][value='pades']").prop('checked', true);
+                    identifier = "PADESSignatures";
+                    yAxisTitle = "Signatures";
+                    break;
+            }
+            weekData();
+    }
+
+    function loadGraph() {
+            chart.updateOptions({
+                xaxis: {
+                    categories: xAxisCategories,
+                },
+                yaxis: {
+                    title: {
+                        text: yAxisTitle
+                    }
+                }
+            });
+
+            chart.updateSeries([
+                {
+                    name: "Sucess",
+                    data: successData
+                },
+                {
+                    name: "Failed",
+                    data: failedData
+                }
+            ]);
+    }
+
+    function weekData() {
+        $('.chartFilterButton').removeClass('highlightBtn');
+        $('#week').addClass('highlightBtn');
+            xAxisCategories.splice(0, xAxisCategories.length);
+            weekSuccessData.splice(0, weekSuccessData.length);
+            weekFailedData.splice(0, weekFailedData.length);
+            switch (identifier) {
+                case "DigitalAuthentications":
+                    $.each(weekCount, function (i, item) {
+                        xAxisCategories.push(item.weekDay);
+                        weekSuccessData.push(item.count.countOfAuthenticationsSuccess);
+                        weekFailedData.push(item.count.countOfAuthenticationsFailed);
+                        yAxisTitle = "Digital Authentications";
+                    });
+                    break;
+
+                case "PADESSignatures":
+                    $.each(weekCount, function (i, item) {
+                        xAxisCategories.push(item.weekDay);
+                        weekSuccessData.push(item.count.countOfSignaturesWithPadesSuccess);
+                        weekFailedData.push(item.count.countOfSignaturesWithPadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                case "XADESSignatures":
+                    $.each(weekCount, function (i, item) {
+                        xAxisCategories.push(item.weekDay);
+                        weekSuccessData.push(item.count.countOfSignaturesWithXadesSuccess);
+                        weekFailedData.push(item.count.countOfSignaturesWithXadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                case "CADESSignatures":
+                    $.each(weekCount, function (i, item) {
+                        xAxisCategories.push(item.weekDay);
+                        weekSuccessData.push(item.count.countOfSignaturesWithCadesSuccess);
+                        weekFailedData.push(item.count.countOfSignaturesWithCadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                //case "DATASignatures":
+                //    $.each(weekCount, function (i, item) {
+                //        xAxisCategories.push(item.weekDay);
+                //        weekSuccessData.push(item.count.countOfSignaturesWithDataSuccess);
+                //        weekFailedData.push(item.count.countOfSignaturesWithDataFailed);
+                //        yAxisTitle = "Signatures";
+                //    });
+                //    break;
+
+                case "ESEALSignatures":
+                    $.each(weekCount, function (i, item) {
+                        xAxisCategories.push(item.weekDay);
+                        weekSuccessData.push(item.count.countOfSignaturesWithESealSuccess);
+                        weekFailedData.push(item.count.countOfSignaturesWithESealFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+            }
+            successData = weekSuccessData;
+            failedData = weekFailedData;
+            loadGraph();
+    }
+
+    function monthData() {
+        $('.chartFilterButton').removeClass('highlightBtn');
+        $('#monthly').addClass('highlightBtn');
+            xAxisCategories.splice(0, xAxisCategories.length);
+            monthSuccessData.splice(0, monthSuccessData.length);
+            monthFailedData.splice(0, monthFailedData.length);
+            switch (identifier) {
+                case "DigitalAuthentications":
+                    $.each(monthCount, function (i, item) {
+                        xAxisCategories.push(item.month);
+                        monthSuccessData.push(item.count.countOfAuthenticationsSuccess);
+                        monthFailedData.push(item.count.countOfAuthenticationsFailed);
+                        yAxisTitle = "Digital Authentications";
+                    });
+                    break;
+
+                case "PADESSignatures":
+                    $.each(monthCount, function (i, item) {
+                        xAxisCategories.push(item.month);
+                        monthSuccessData.push(item.count.countOfSignaturesWithPadesSuccess);
+                        monthFailedData.push(item.count.countOfSignaturesWithPadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                case "XADESSignatures":
+                    $.each(monthCount, function (i, item) {
+                        xAxisCategories.push(item.month);
+                        monthSuccessData.push(item.count.countOfSignaturesWithXadesSuccess);
+                        monthFailedData.push(item.count.countOfSignaturesWithXadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                case "CADESSignatures":
+                    $.each(monthCount, function (i, item) {
+                        xAxisCategories.push(item.month);
+                        monthSuccessData.push(item.count.countOfSignaturesWithCadesSuccess);
+                        monthFailedData.push(item.count.countOfSignaturesWithCadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                //case "DATASignatures":
+                //    $.each(monthCount, function (i, item) {
+                //        xAxisCategories.push(item.month);
+                //        monthSuccessData.push(item.count.countOfSignaturesWithDataSuccess);
+                //        monthFailedData.push(item.count.countOfSignaturesWithDataFailed);
+                //        yAxisTitle = "Signatures";
+                //    });
+                //    break;
+
+                case "ESEALSignatures":
+                    $.each(monthCount, function (i, item) {
+                        xAxisCategories.push(item.month);
+                        monthSuccessData.push(item.count.countOfSignaturesWithESealSuccess);
+                        monthFailedData.push(item.count.countOfSignaturesWithESealFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+            }
+            successData = monthSuccessData;
+            failedData = monthFailedData;
+            loadGraph();
+    }
+
+    function yearData() {
+        $('.chartFilterButton').removeClass('highlightBtn');
+        $('#yearly').addClass('highlightBtn');
+            xAxisCategories.splice(0, xAxisCategories.length);
+            yearSuccessData.splice(0, yearSuccessData.length);
+            yearFailedData.splice(0, yearFailedData.length);
+            switch (identifier) {
+                case "DigitalAuthentications":
+                    $.each(yearCount, function (i, item) {
+                        xAxisCategories.push(item.year);
+                        yearSuccessData.push(item.count.countOfAuthenticationsSuccess);
+                        yearFailedData.push(item.count.countOfAuthenticationsFailed);
+                        yAxisTitle = "Digital Authentications";
+                    });
+                    break;
+
+                case "PADESSignatures":
+                    $.each(yearCount, function (i, item) {
+                        xAxisCategories.push(item.year);
+                        yearSuccessData.push(item.count.countOfSignaturesWithPadesSuccess);
+                        yearFailedData.push(item.count.countOfSignaturesWithPadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                case "XADESSignatures":
+                    $.each(yearCount, function (i, item) {
+                        xAxisCategories.push(item.year);
+                        yearSuccessData.push(item.count.countOfSignaturesWithXadesSuccess);
+                        yearFailedData.push(item.count.countOfSignaturesWithXadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                case "CADESSignatures":
+                    $.each(yearCount, function (i, item) {
+                        xAxisCategories.push(item.year);
+                        yearSuccessData.push(item.count.countOfSignaturesWithCadesSuccess);
+                        yearFailedData.push(item.count.countOfSignaturesWithCadesFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+
+                //case "DATASignatures":
+                //    $.each(yearCount, function (i, item) {
+                //        xAxisCategories.push(item.year);
+                //        yearSuccessData.push(item.count.countOfSignaturesWithDataSuccess);
+                //        yearFailedData.push(item.count.countOfSignaturesWithDataFailed);
+                //        yAxisTitle = "Signatures";
+                //    });
+                //    break;
+
+                case "ESEALSignatures":
+                    $.each(yearCount, function (i, item) {
+                        xAxisCategories.push(item.year);
+                        yearSuccessData.push(item.count.countOfSignaturesWithESealSuccess);
+                        yearFailedData.push(item.count.countOfSignaturesWithESealFailed);
+                        yAxisTitle = "Signatures";
+                    });
+                    break;
+            }
+            successData = yearSuccessData;
+            failedData = yearFailedData;
+            loadGraph();
+    }
+
+    function clearData() {
+        $('.chartFilterButton').removeClass('highlightBtn');
+            successData.length = 0;
+            failedData.length = 0;
+            loadGraph();
+        }
+</script>

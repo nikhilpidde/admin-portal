@@ -1,0 +1,200 @@
+﻿@model DTPortal.Core.DTOs.ServiceHealthDTO
+
+<style>
+    .column-left {
+        float: left;
+        width: 40%;
+    }
+
+    .column-right {
+        float: right;
+        width: 50%;
+    }
+
+    .column-center {
+        display: inline-block;
+        width: 10%;
+    }
+</style>
+
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title s3" style="margin-left: 24%;">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    @if (Model != null)
+                    {
+                        @Model.DisplayName
+                    }
+                    else
+                    {
+                        @:PKI Timestamp Service
+                    }
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                @if (Model != null)
+                {
+                    <div class="row" style="margin-top:5px">
+                        <div class="column-left">
+                            <div style="float:right">
+                                Address
+                            </div>
+                        </div>
+                        <div class="column-center">
+                            <div class="d-flex justify-content-center">
+                                :
+                            </div>
+                        </div>
+                        <div class="column-right">
+                            <div style="float:left">
+                                @Model.Address
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:5px">
+                        <div class="column-left">
+                            <div style="float:right">
+                                Description
+                            </div>
+                        </div>
+                        <div class="column-center">
+                            <div class="d-flex justify-content-center">
+                                :
+                            </div>
+                        </div>
+                        <div class="column-right">
+                            <div style="float:left">
+                                @Model.ServiceDescription
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:5px">
+                        <div class="column-left">
+                            <div style="float:right">
+                                Status
+                            </div>
+                        </div>
+                        <div class="column-center">
+                            <div class="d-flex justify-content-center">
+                                :
+                            </div>
+                        </div>
+                        <div class="column-right">
+                            <div style="float:left">
+                                @if (Model.Status.ToLower() == "healthy")
+                                {
+                                    <div class="media-right">
+                                        <div class="tooltip">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 37.365 34.833">
+                                                <g id="Group_614" data-name="Group 614" transform="translate(0 0)">
+                                                    <path id="Path_73670" data-name="Path 73670" d="M55.786-522.715c.044-2.529,1.951-3.725,4.551-2.939,2.62.792,4.4,2.715,6.1,4.7.747.874,1.412,1.819,2.24,2.895,1.7-2.172,3.218-4.335,4.967-6.286q5.929-6.616,12.065-13.046a10.437,10.437,0,0,1,7.445-3.235C82.943-530.3,75.563-518.408,68.4-505.793c-.943-1.943-1.665-3.525-2.467-5.064-1.177-2.259-2.338-4.531-3.641-6.717C60.783-520.1,58.883-522.233,55.786-522.715Z" transform="translate(-55.786 540.627)" fill="#acc43d" />
+                                                </g>
+                                            </svg>
+                                            <div class="left">
+                                                <span style="padding:10px">
+                                                    <strong>Service is Up and Running</strong>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="media-right">
+                                        <div class="tooltip">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 41.083 41.083">
+                                                <g id="Group_637" data-name="Group 637" transform="translate(-3195 -1703)">
+                                                    <g id="Group_635" data-name="Group 635" transform="translate(3195 1703)">
+                                                        <path id="Path_73676" data-name="Path 73676" d="M575.638,645.47a20.542,20.542,0,1,0,20.542,20.542A20.541,20.541,0,0,0,575.638,645.47ZM574,653.708a2.1,2.1,0,0,1,4.208,0v11.737a2.1,2.1,0,1,1-4.208,0Zm4.267,21.429a1.249,1.249,0,0,1-1.249,1.249h-1.77A1.249,1.249,0,0,1,574,675.137v-1.77a1.249,1.249,0,0,1,1.249-1.249h1.77a1.249,1.249,0,0,1,1.249,1.249Z" transform="translate(-555.097 -645.47)" fill="#d26b4e" />
+                                                        <path id="Path_73677" data-name="Path 73677" d="M587.73,671.324a2.1,2.1,0,0,0,2.1-2.1V657.483a2.1,2.1,0,0,0-4.208,0v11.737A2.1,2.1,0,0,0,587.73,671.324Z" transform="translate(-566.726 -649.244)" fill="#daeee3" />
+                                                        <rect id="Rectangle_311" data-name="Rectangle 311" width="4.267" height="4.267" rx="2.016" transform="translate(18.9 26.648)" fill="#daeee3" />
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                            <div class="left">
+                                                <span style="padding:10px">
+                                                    @if (Model.Description == null)
+                                                    {
+                                                        <strong>Service is Down</strong>
+                                                    }
+                                                    else
+                                                    {
+                                                        <strong>@Model.Description</strong>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="justify-content-center">
+                        Failed to get PKI Timestamp Service Status
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-info" onclick="showServiceHistory('@Model.Name', '@Model.DisplayName');">More Info</button>
+            <button id="CloseBtn" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+     $(document).ready(function () {
+         $('#modalDialogDiv').on('hide.bs.modal', function () {
+             $('#modalDialogContentDiv').css("margin-top", "");
+        })
+    });
+
+   function showServiceHistory(name, displayName)
+    {
+        $('.accordion-toggle').removeAttr('data-toggle');
+        $('#modalDialogDiv').modal('hide');
+        var url = '@Url.Action("GetServiceHealthHistory", "Dashboard")?serviceName='+name +'&displayName='+displayName;
+        setTimeout(function() { 
+            $.ajax({
+                type: "GET",
+                url: url,
+                contentType: "application/json; charset=utf-8",
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    if (data != null)
+                    {
+                        $('#modalDialogContentDiv').html(data);
+                        $('#modalDialogDiv').modal('show');
+                    }
+                    else
+                    {
+                        swal({ type: 'error', title: "Error", text: "Failed to get service history" });
+                    }
+                },
+                error: ajaxErrorHandler,
+                failure: function (response) {
+                    swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+                }
+            });
+        }, 500);
+    }
+</script>
+
+

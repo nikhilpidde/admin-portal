@@ -1,0 +1,1256 @@
+﻿@model DTPortal.Web.ViewModel.ESealRegistration.ESealRegistrationAddViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+}
+@using DTPortal.Core.DTOs
+@using DTPortal.Core.Domain.Services
+@using DTPortal.Core.Constants
+@using DTPortal.Web.Enums
+
+@inject IMakerCheckerService MakerCheckerService
+
+@{
+    var signTemplate = Model.TemplateList?.FirstOrDefault(x => x.Id == 1);
+    var esealTemplate = Model.TemplateList?.FirstOrDefault(x => x.Id == 5);
+    var signData = signTemplate != null ? "data:image/png;base64," + signTemplate.SamplePreview : "";
+    var esealData = esealTemplate != null ? "data:image/png;base64," + esealTemplate.SamplePreview : "";
+}
+
+@{
+    var makerCheckerEnabled = false;
+    var activity = (await MakerCheckerService.GetAllActivities()).FirstOrDefault(x => x.Id == ActivityIdConstants.OrganizationActivityID);
+    if (activity != null && activity.McEnabled)
+    {
+        makerCheckerEnabled = true;
+    }
+}
+
+<style>
+
+    /* The switch - the box around the slider */
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 20px;
+        margin-left: 10px;
+    }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    /* The slider */
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 13px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form asp-action="Add" method="post" id="eSealAddForm">
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <h5>Business Profile</h5>
+                            <fieldset style=" height:auto">
+                                <div class="form-group col-md-6" style="float:left;">
+                                    <div class="form-group">
+                                        <label asp-for="OrganizationName" class="col-form-label"></label>
+                                        <input asp-for="OrganizationName" class="form-control" tabindex="1" />
+                                        <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="TaxNo" class="col-form-label"></label>
+                                        <label class="switch">
+                                            <input class="optional-checkbox" data-id="TaxNo" type="checkbox">
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <input asp-for="TaxNo" class="form-control" tabindex="3" style="display:none" />
+                                        <span asp-validation-for="TaxNo" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="CorporateOfficeAddress1" class="col-form-label"></label>
+                                        <input asp-for="CorporateOfficeAddress1" class="form-control" tabindex="5" />
+                                        <span asp-validation-for="CorporateOfficeAddress1" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="Country" class="col-form-label"></label>
+                                        <select asp-for="Country" class="form-control"
+                                                asp-items="@(new SelectList(Model.Countries))" tabindex="7">
+                                            <option value="">select</option>
+                                        </select>
+                                        <span asp-validation-for="Country" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-6" style="float: right;">
+                                    <div class="form-group">
+                                        <label asp-for="OrganizationEmail" class="col-form-label"></label>
+                                        <input asp-for="OrganizationEmail" class="form-control" tabindex="2" />
+                                        <span asp-validation-for="OrganizationEmail" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="UniqueRegdNo" class="col-form-label"></label>
+                                        <label class="switch">
+                                            <input class="optional-checkbox" data-id="UniqueRegdNo" type="checkbox">
+                                            <span class="slider round"></span>
+                                        </label>
+                                        <input asp-for="UniqueRegdNo" class="form-control" tabindex="4" style="display:none" />
+                                        <span asp-validation-for="UniqueRegdNo" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="CorporateOfficeAddress2" class="col-form-label"></label>
+                                        <input asp-for="CorporateOfficeAddress2" class="form-control" tabindex="6" />
+                                        <span asp-validation-for="CorporateOfficeAddress2" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="Pincode" class="col-form-label"></label>
+                                        <input asp-for="Pincode" class="form-control" min="0" tabindex="8" oninput="validity.valid||(value='')" ; />
+                                        <span asp-validation-for="Pincode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                 @*    <div class="form-row">
+                        <div class="form-group col-md-6" style="float: right;">
+                            <h5>Legal Documents</h5>
+                            <fieldset style="height: auto; overflow-x:hidden; padding:10px">
+                                <div class="form-group">
+                                    <label asp-for="Incorporation" class="col-form-label"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:92%">
+                                            <input asp-for="Incorporation" class="form-control custom-file-input" accept=".pdf">
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="Incorporation" class="text-danger"></span>
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:10px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Tax" class="col-form-label"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:92%">
+                                            <input asp-for="Tax" class="form-control custom-file-input" accept=".pdf">
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="Tax" class="text-danger"></span>
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:10px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="AdditionalLegalDocument" class="col-form-label"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:92%">
+                                            <input asp-for="AdditionalLegalDocument" class="form-control custom-file-input" accept=".pdf">
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="AdditionalLegalDocument" class="text-danger"></span>
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:10px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                           <div class="form-group col-md-6" style="float: left;">
+                            <h5>Documents for Eseal</h5>
+                            <fieldset style="height:248px; overflow-x:hidden; padding:10px">
+                                <div class="form-group">
+                                    <label asp-for="AuthorizedLetterForSignatories" class="col-form-label"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:92%">
+                                            <input asp-for="AuthorizedLetterForSignatories" class="form-control custom-file-input" accept=".pdf" />
+                                            <label class="custom-file-label">Choose File...</label>
+                                            <span asp-validation-for="AuthorizedLetterForSignatories" class="text-danger"></span>
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:10px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_PdfTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="ESealImage" class="col-form-label"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <div class="custom-file" style="width:92%">
+                                            <input asp-for="ESealImage"class="form-control custom-file-input" accept=".jpg,.png,.jpeg" />
+                                            <label class="custom-file-label" id="esealFileLable">Choose File...</label>
+                                            <span asp-validation-for="ESealImage" class="text-danger"></span>
+                                            <div class="form-group" hidden>
+                                            <input asp-for="ResizedEsealImage" id="ResizedEsealImage"/>
+                                            </div>
+                                        </div>
+                                        <div class="fw-mormal timeline-content text-muted ps-3">
+                                            <div class="tooltip">
+                                                <i class="fa fa-info-circle" style="margin-left:10px; margin-top:10px"></i>
+                                                <div class="left">
+                                                    <div class="timeline-conten ps-3">
+                                                        <span>
+                                                            <partial name="_ImageTooltip" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+                                        <img id="eSealPreviewImage" style="max-width: 250px; max-height: 250px;"/>
+                                    </div>
+                                </div>
+
+                                <partial name="_EsealImagePreview" />
+
+                            </fieldset>
+                        </div>
+                    </div> *@
+                    <div class="form-row">
+                        <div class="form-group col-md-6 mb-0" style="float: right;">
+                            <div class="form-group mb-0">
+                                <label asp-for="SpocUgpassEmail" class="col-form-label">SPOC @clientName Email</label>
+                                <input asp-for="SpocUgpassEmail" class="form-control" tabindex="6" />
+                                <span asp-validation-for="SpocUgpassEmail" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6" style="float: left; padding-top:3%">
+                            @*     <div class="form-group">
+                                <div class="checkbox">
+                                    <label asp-for="EnablePostPaidOption">
+                                        <input asp-for="EnablePostPaidOption" checked/>
+                                        Enable Post Paid
+                                    </label>
+                                </div>
+                            </div> *@
+                        </div>
+                    </div>
+
+                @*     <div class="form-row">
+                        <div class="form-group col-md-6 mb-0" style="float: right;">
+                            <div class="form-group mb-0">
+                                <label asp-for="AgentUrl" class="col-form-label"></label>
+                                <input asp-for="AgentUrl" class="form-control" tabindex="6" />
+                                <span asp-validation-for="AgentUrl" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6" style="float: left;">
+                            <div class="form-group mb-0">
+                                <label asp-for="EmailDomain" class="col-form-label"></label>
+                                <input asp-for="EmailDomain" class="form-control" tabindex="6" />
+                                <span asp-validation-for="EmailDomain" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div> *@
+
+                    <div class="form-row">
+                        @* <div class="form-group col-md-6" style="float:left; ">
+                            <h5>Templates</h5>
+                            <fieldset style="height: 215px; overflow-x: hidden; padding: 10px">
+                                <div class="borderBox light bordered card-box" style="border:none !important; box-shadow: none !important; margin-bottom:0 ">
+                                    <div class="borderBox-title tabbable-line">
+                                        <ul id="ReportsTab" class="nav nav-tabs" style="float: left;">
+                                            <li class="nav-item" id="signatureTemplateTab">
+                                                <a href="#signatureTemplate" data-toggle="tab" class="active">Signature Template</a>
+                                            </li>
+                                            <li class="nav-item" id="eSealTemplateTab">
+                                                <a href="#eSealTemplate" data-toggle="tab">ESeal Template</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="borderBox-body">
+                                        <div class="tab-content">
+                                            <div class="tab-pane active" id="signatureTemplate">
+                                                <div class="form-group">
+                                                    <select asp-for="SignatureTemplate" class="form-control">
+                                                        @foreach(SignatureTemplatesDTO template in Model.TemplateList){
+                                                            if(template.Type.ToLower() == "sign"){
+                                                                if(template.Id == 1){
+                                                                    <option data-preview="@template.SamplePreview" value="@template.Id" selected>@template.DisplayName</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option data-preview="@template.SamplePreview" value="@template.Id">@template.DisplayName</option>
+                                                                }
+                                                            }
+                                                        }
+                                                    </select>
+                                                    <span asp-validation-for="SignatureTemplate" class="text-danger"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-sm-12">
+                                                        <img id="signatureTemplatePreviewImage"  src="@signData"/>
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="tab-pane" id="eSealTemplate">
+                                                <div class="form-group">
+                                                    <select asp-for="ESealTemplate" class="form-control">
+                                                        @foreach(SignatureTemplatesDTO template in Model.TemplateList){
+                                                            if(template.Type.ToLower() == "eseal"){
+                                                                if(template.Id == 5){
+                                                                    <option data-preview="@template.SamplePreview" value="@template.Id" selected>@template.DisplayName</option>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <option data-preview="@template.SamplePreview" value="@template.Id">@template.DisplayName</option>
+                                                                }
+                                                            }
+                                                        }
+                                                    </select>
+                                                    <span asp-validation-for="ESealTemplate" class="text-danger"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-sm-12">
+                                                        <img id="eSealTemplatePreviewImage" src="@esealData"/>
+                                                         
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div> *@
+                        @* <div class="form-group col-md-6" style="float:right; ">
+                            <h5>Board of Directors</h5>
+                            <fieldset style="height: auto; overflow-x: hidden; padding: 10px">
+                                <div class="form-group">
+                                    <label asp-for="Directors" class="col-form-label"></label>
+                                    <div class="row" style="margin-left:0px">
+                                        <input asp-for="Directors" class="form-control" style="width:85%" />
+                                        <div id="addDirector" class="btn-group" style="height: 31px; margin-left: 5px;">
+                                            <a class="btn btn-info">
+                                                <i class="fa fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Directors" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <fieldset id="addDirectorFieldset" style="display:none">
+                                        <legend id="directorLegend">Directors</legend>
+                                        <div>
+                                            <ul id="director-list" style="margin-left: 3px;">
+                                            </ul>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </fieldset>
+                        </div> *@
+                    </div>
+                    <div class="form-row">
+                        @* <div class="form-group col-md-12" style="float:left; ">
+                            <h5>Business Users</h5>
+                           
+                            <div class="btn-group" style="height: 31px; margin-left: 5px;">
+                                <a id="addSignatoryEmail" class=" btn btn-info btn-action-outline" style="margin-left:2px">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <label for="uploadCSV" class=" btn btn-action-outline  btn-info custom-file-upload" style="height:31px;width:40px;margin-left:2px">
+                                            <i class="fa fa-file"></i>
+                                        </label>
+                                        <input type="file" id="uploadCSV" accept=".csv" hidden />
+                                    </div>
+                                </div>
+                                <div style="margin-left: 5px;">
+                                    <div class="btn-group">
+                                        <a class=" btn  btn-primary btn-action-outline " href="@Url.Action("DownloadCSV_BusinessUser", "ESealRegistration")" style="background-color: #15294B;">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            
+
+
+                            <div class="modal" id="modal-addBusinessUser" tabindex="2" role="dialog">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">User Details</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+
+
+                                            <div id="SaveBusinessEmailForm">
+                                                <input type="text" id="index" class="form-control" hidden />
+                                                <div class="form-group">
+                                                    <label class="control-label"> @clientName email:</label>
+                                                    <input type="text" id="BusinessUser_ugPassEmail" class="form-control" />
+                                                    <span id="ugpassEmailSpan" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">NIN :</label>
+                                                    <input type="text" id="BusinessUser_NIN" class="form-control" />
+                                                    <span id="ninSpan" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Passport number :</label>
+                                                    <input type="text" id="BusinessUser_Passport" class="form-control" />
+                                                    <span id="passportNumberSpan" class="text-danger"></span>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label class="control-label">Organization email Id </label><span style="color:#ff0000b3;">&nbsp;*</span>
+                                                    <input id="employeeEmail" class="form-control" required />
+                                                    <span id="employeeEmailSpan" class="text-danger"></span>
+                                                </div>
+
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Mobile number :</label>
+                                                    <input type="text" id="BusinessUser_MobileNumber" class="form-control" />
+                                                    <span id="mobileNumberSpan" class="text-danger"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Designation :</label>
+                                                    <input type="text" id="BusinessUser_Designation" class="form-control" />
+
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Custom Signature(jpg, png, jpeg) :</label>
+                                                    <input type="file" id="BusinessUser_CustomSignature" onchange="FileToBase64(this)" class="form-control" accept=".jpg, .png, .jpeg" />
+                                                    <input type="text" id="BusinessUser_Signature" hidden />
+                                                    <span id="signatureMessage" style="color: green;"></span>
+                                                </div>
+
+                                                <div class="form-group">
+                                                    <label class="control-label">Initial Image(jpg, png, jpeg) :</label>
+                                                    <input type="file" id="BusinessUser_Image" onchange="FileToBase64Initial(this)" class="form-control" accept=".jpg, .png, .jpeg" />
+                                                    <input type="text" id="BusinessUser_InitialImage" hidden />
+                                                    <span id="initialImageMessage" style="color: green;"></span>
+                                                </div>
+
+                                                <br />
+                                                
+
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" id="SaveChanges_BusinessEmail" class="btn btn-primary">Save</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <fieldset id="addSignatoryEmailFieldset" style="display:none;">
+                                    <legend id="signatoriesLegend">Users</legend>
+                                    <div style="min-width:500px">
+                                        <div id="signatoryLable" style="display:none">
+                                            <li style="display:flex">
+                                                <div class="form-row col-md-12">
+                                                     
+                                                    <div class="col-md-3" style="padding:0">
+                                                        <label style="font-size:10px">Organization Email</label>
+                                                         
+
+                                                    </div>
+
+
+                                                   
+
+                                                    <div class="col-md-1" style="padding:0; text-align-last: center;">
+                                                        <label style="font-size:10px">Delegation</label>
+                                                    </div>
+
+
+                                                    <div class="col-md-1" style="padding:0">
+                                                        <label style="font-size:10px">Affix eseal</label>
+                                                    </div>
+                                                    <div class="col-md-1" style="padding:0">
+                                                        <label style="font-size:10px">Preparatory</label>
+                                                    </div>
+
+                                                    
+                                                    <div class="col-md-1" style="padding:0; text-align-last: center;">
+                                                        <label style="font-size:10px">Bulk signer</label>
+                                                    </div>
+
+                                                  
+
+
+                                                    <div class="col-md-2" style="padding:0; text-align-last: center;">
+                                                        <label style="font-size:10px">Designation</label>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label style="font-size:10px">Custom Signature</label>
+                                                    </div>
+                                                </div>
+                                                
+                                            </li>
+                                        </div>
+                                        <ul id="signatory-email-list" style="margin-left: 3px;">
+                                        </ul>
+                                    </div>
+                                </fieldset>
+                            </div>
+                             
+                        </div> *@
+                    </div>
+                    @*@if (!makerCheckerEnabled)
+                    {*@
+                  @*   <div class="form-row">
+                        <div class="col-md-6" style="float:right">
+                            <h5>Verification Checklist</h5>
+                            <partial name="_DocumentListCheckbox" for="DocumentListCheckbox" />
+                        </div>
+                    </div> *@
+                    @*}*@
+                    <br />
+                    <div>
+                        @*@if (!makerCheckerEnabled)
+                        {*@
+                        <div class="d-flex float-left" style="width:50%">
+                           @*  <div class="d-flex float-left" style="height: fit-content; padding-top: 31px;">
+                                <button type="button" class="btn btn-action-outline btn-primary " onclick="generatePdf()">Generate PDF</button>
+                            </div> *@
+                        </div>
+                        @*}*@
+                        <div class="d-flex justify-content-end " style="padding-top: 31px;">
+                            <button type="submit" id="submitBtn" class="btn btn-primary">Save</button>
+                            &nbsp;&nbsp;
+                            <a type="button" asp-action="Index" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+<script>
+    var signatoryEmailIndex = 0;
+    var directorEmailIndex = 0;
+
+    $(document).ready(function () {
+
+        // Run on page load
+        adjustPadding();
+
+        // Run on window resize
+        $(window).resize(function () {
+            adjustPadding();
+        });
+        $("#submitBtn").click(function (e) {
+            e.preventDefault();
+
+            if (formValidation()) {
+                var isValid = true;
+
+                // $("#checkbox-list li").each(function () {
+                //     var text = $(this).find('input[type=text]').val();
+                //     switch (text) {
+                //         case "Incorporation":
+                //             if ($(this).find('input[type=checkbox]').is(':checked')) {
+                //                 var file = $("#Incorporation").get(0).files[0];
+                //                 if (file == undefined || file.size < 0) {
+                //                     $("span[data-valmsg-for='Incorporation']").html("Please select file");
+                //                     isValid = false;
+                //                 }
+                //             }
+                //             break;
+
+                //         case "Tax":
+                //             if ($(this).find('input[type=checkbox]').is(':checked')) {
+                //                 var file = $("#Tax").get(0).files[0];
+                //                 if (file == undefined || file.size < 0) {
+                //                     $("span[data-valmsg-for='Tax']").html("Please select file");
+                //                     isValid = false;
+                //                 }
+                //             }
+                //             break;
+
+                //         case "Additional Legal Document":
+                //             if ($(this).find('input[type=checkbox]').is(':checked')) {
+                //                 var file = $("#AdditionalLegalDocument").get(0).files[0];
+                //                 if (file == undefined || file.size < 0) {
+                //                     $("span[data-valmsg-for='AdditionalLegalDocument']").html("Please select file");
+                //                     isValid = false;
+                //                 }
+                //             }
+                //             break;
+                //     }
+                // });
+                if (!isValid) {
+                    return false;
+                }
+                else {
+                    var subscriberArray = [];
+                    $('#signatory-email-list li').each(function () {
+                        subscriberArray.push($(this).find(".signatoryEmailListInput").val());
+                    });
+
+                    var postData = { values: subscriberArray };
+
+
+
+                    //////////////////////////
+
+                    var model = new FormData($('Form').get(0));
+                    //var a = model.get()
+
+                    // $("#checkbox-list li").each(function () {
+                    //     var a = $(this).find('input[type=checkbox]').is(':checked');
+                    // });
+
+                    // $('.checkList').each(function () {
+                    //     var sThisVal = (this.checked ? $(this).val() : "");
+                    // });
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Add", "ESealRegistration")',
+                        headers: {
+                            "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        data: model,
+                        processData: false,
+                        contentType: false,
+                        error: ajaxErrorHandler,
+                        beforeSend: function () {
+                            $('#overlay2').show();
+                        },
+                        complete: function () {
+                            $('#overlay2').hide();
+                        },
+                        success: function (data) {
+                            if (data.status == "Success") {
+                                swal({
+                                    type: 'success', title: "Success", text: data.message
+                                }, function (isConfirm) {
+                                    if (isConfirm) {
+                                        window.location.href = '@Url.Action("Index", "ESealRegistration")'
+                                    }
+                                });
+                            }
+                            if (data.status == "Failed") {
+                                swal({ type: 'error', title: "Error", text: data.message });
+                            }
+                        }
+                    });
+
+                    ////////////////////////////////
+
+                    //$.ajax({
+                    //    url: '@Url.Action("ValidateSignatoryEmailList", "ESealRegistration")', //add atthraet
+                    //    headers: {
+                    //        "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                    //    },
+                    //    type: "POST",
+                    //    data: postData,
+                    //    dataType: "json",
+                    //    traditional: true,
+                    //    error: ajaxErrorHandler,
+                    //    beforeSend: function () {
+                    //        $('#overlay').show();
+                    //    },
+                    //    complete: function () {
+                    //        $('#overlay').hide();
+                    //    },
+                    //    success: function (data) {
+                    //        if (data.status == "Failed") {
+                    //            $('#signatory-email-list li').each(function () {
+                    //                var email = $(this).find(".signatoryEmailListInput").val();
+                    //                if ($.inArray(email, data.result) > -1) {
+                    //                    $(this).find(".signatoryEmailListInput").addClass("text-danger");
+                    //                }
+                    //            });
+                    //            swal({ type: 'error', title: "Error", text: data.message });
+                    //        }
+                    //        else {
+                    //            $.ajax({
+                    //                url: '@Url.Action("ValidateSignatoryEmailList", "ESealRegistration")',
+                    //                headers: {
+                    //                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                    //                },
+                    //                type: "POST",
+                    //                data: { values: $('#SpocUgpassEmail').val() },
+                    //                dataType: "json",
+                    //                traditional: true,
+                    //                error: ajaxErrorHandler,
+                    //                beforeSend: function () {
+                    //                    $('#overlay1').show();
+                    //                },
+                    //                complete: function () {
+                    //                    $('#overlay1').hide();
+                    //                },
+                    //                success: function (data) {
+                    //                    if (data.status == "Success") {
+                    //                        var model = new FormData($('Form').get(0));
+
+                    //                        $.ajax({
+                    //                            type: "POST",
+                    //                            url: '@Url.Action("Add", "ESealRegistration")',
+                    //                            headers: {
+                    //                                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                    //                            },
+                    //                            data: model,
+                    //                            processData: false,
+                    //                            contentType: false,
+                    //                            error: ajaxErrorHandler,
+                    //                            beforeSend: function () {
+                    //                                $('#overlay2').show();
+                    //                            },
+                    //                            complete: function () {
+                    //                                $('#overlay2').hide();
+                    //                            },
+                    //                            success: function (data) {
+                    //                                if (data.status == "Success") {
+                    //                                    swal({
+                    //                                        type: 'success', title: "Success", text: data.message
+                    //                                    }, function (isConfirm) {
+                    //                                        if (isConfirm) {
+                    //                                            window.location.href = 'Url.Action("Index", "ESealRegistration")'
+                    //                                        }
+                    //                                    });
+                    //                                }
+                    //                                if (data.status == "Failed") {
+                    //                                    swal({ type: 'error', title: "Error", text: data.message });
+                    //                                }
+                    //                            }
+                    //                        });
+                    //                    }
+                    //                    else if (data.status == "Failed") {
+                    //                        swal({ type: 'error', title: "Error", text: "Inactive SPOC MyTrust email" });
+                    //                    }
+                    //                }
+                    //            });
+                    //        }
+                    //    }
+                    //});
+                }
+            }else{
+
+                return swal({ type: 'error', title: "Error", text: errorMessage });
+            }
+        });
+
+
+        $('#SignatureTemplate').change(function () {
+            var preview = $('option:selected', this).attr('data-preview');
+
+            $("#signatureTemplatePreviewImage").attr("src", "data:image/png;base64,"+preview);
+        });
+
+        // $('#ESealTemplate').change(function () {
+        //     var preview = $('option:selected', this).attr('data-preview');
+
+        //     $("#eSealTemplatePreviewImage").attr("src", "data:image/png;base64," + preview);
+        // });
+
+        // $("#eSealAddForm").on("submit", function (event) {
+        //     event.preventDefault();
+        // });
+
+        $("#SignatoryEmail").typeahead({
+            minLength: 3,
+            items: 5,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetActiveSubscribersEmailList", "ESealRegistration")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+        });
+
+        $("#SpocUgpassEmail").typeahead({
+            minLength: 3,
+            items: 5,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetActiveSubscribersEmailList", "ESealRegistration")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+        });
+
+        $('#SignedPdf').change(function () {
+            $(this).next('label').text("");
+            $(this).prev('label').text('Upload Signed Document');
+            var i = $(this).prev('label').clone();
+            var file = $('#SignedPdf')[0].files[0].name;
+            $(this).next('label').text(file);
+        });
+
+        $('#OrganizationName').keypress(function (e) {
+            var keyCode = e.keyCode || e.which;
+            $("span[data-valmsg-for='OrganizationName']").text("");
+            var alphanumericRegex = /^[A-Za-z0-9 ]+$/;
+
+            var isValid = alphanumericRegex.test(String.fromCharCode(keyCode));
+            if (!isValid) {
+                $("span[data-valmsg-for='OrganizationName']").text("Only Alphabets and Numbers allowed");
+            }
+
+            return isValid;
+        });
+
+        $('#Pincode').keypress(function (e) {
+            var keyCode = e.keyCode || e.which;
+            $("span[data-valmsg-for='Pincode']").text("");
+            var numRegex = /^[0-9]+$/;
+
+            var isValid = numRegex.test(String.fromCharCode(keyCode));
+            if (!isValid) {
+                $("span[data-valmsg-for='Pincode']").text("Only Numbers allowed");
+            }
+
+            return isValid;
+        });
+
+        $('.optional-checkbox').on('click', function () {
+            $("#" + $(this).attr('data-id')).val('');
+            if ($(this).prop('checked')) {
+                $("#" + $(this).attr('data-id')).show();
+            } else {
+                $("#" + $(this).attr('data-id')).hide();
+            }
+        });
+
+        $('input[type=text]:not([readonly]),input[type=email]:not([readonly]),input[type=file]:not([readonly]),select:not([readonly])').each(function () {
+            var req = $(this).attr('data-val-required');
+            var exclude = $(this).attr('data-exclude');
+            if (undefined != req && undefined == exclude) {
+                var label = $('label[for="' + $(this).attr('id') + '"]');
+                var text = label.text();
+                if (text.length > 0) {
+                    label.append(' <span style="color:#ff0000b3;">*</span>');
+                }
+            }
+        });
+
+
+    });
+
+    //function addSignatoryEmail(value, isUploaded, arr, signData) {
+    //{ //add attheRAte
+    //    Model.OrganizationUsersList.Add(new OrganizationUser());
+    //}
+
+    //var maxSize = 20;
+    //    var signatory = "";
+    //    var eSealSignatory = "";
+    //    var eSealPrepatory = "";
+    //    var template = "";
+    //    var bulksign = "";
+    //    var designation = "";
+    //    var signaturePhoto = "";
+    //    var isSignPhotoAvailable = "none";
+    //    if (isUploaded) {
+    //        //signatory = (arr[0] == "1") ? "checked" : "checked";
+    //        eSealSignatory = (arr[0] == "1") ? "checked" : "";
+    //        eSealPrepatory = (arr[1] == "1") ? "checked" : "";
+    //        template = (arr[2] == "1") ? "checked" : "";
+    //        bulksign = (arr[3] == "1") ? "checked" : "";
+    //        designation = signData[0];
+    //        signaturePhoto = signData[1];
+
+    //        if (signaturePhoto != "") {
+    //            //var stringLength = 0;
+    //            //if(signaturePhoto.includes("base64,")){
+    //            //    var image = signaturePhoto.split("base64,")[1];
+    //            //    stringLength = image.length;
+    //            //}else
+    //            //{
+    //            //    stringLength = signaturePhoto.length;
+    //            //}
+
+
+    //            //var sizeInBytes = 4 * Math.ceil((stringLength / 3)) * 0.5624896334383812;
+    //            //var sizeInKb = sizeInBytes / 1000;
+
+    //            //if(sizeInKb > maxSize){
+    //            //    $('#signatory-email-list').empty();
+    //            //    $('#addSignatoryEmailFieldset').hide();
+    //            //    return swal({ type: 'error', title: "Max size exceeded", text: "Signature file must be less than 20 Kb for "+value });
+    //            //}
+    //            isSignPhotoAvailable = "block";
+    //        }else{
+    //            isSignPhotoAvailable = "none";
+    //        }
+    //    }
+
+    //    var li = "<li style='margin-top: 2px;margin-bottom: 2px; display:flex'>" +
+    //        "<div class='form-row col-md-12' style='height:25px'>" +
+    //        "<input name='OrganizationUsersList.index' value='" + signatoryEmailIndex + "' style='display: none;' />" +
+    //        "<div class='col-md-3'>" +
+    //        "<textarea type='text' style='resize: none;white-space: nowrap;width:100%;' class='signatoryEmailListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__Email' name='OrganizationUsersList[" + signatoryEmailIndex + "].Email' value='" + value + "' readonly>" + value + "</textarea>" +
+    //        "</div>" +
+
+    //        //"<div class='col-md-1' style='padding-left: 2%;'>" +
+    //        //"<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Signatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].Signatory' value='true' checked  onclick='return false;'/>" +
+    //        //"</div>" +
+
+    //        "<div class='col-md-1' style='padding-left: 2%;'>" +
+    //        "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__ESealSignatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].ESealSignatory' value='true' " + eSealSignatory + "/>" +
+    //        "</div>" +
+    //        "<div class='col-md-1' style='padding-left: 2%;'>" +
+    //        "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__ESealPrepatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].ESealPrepatory' value='true' " + eSealPrepatory + "/>" +
+    //        "</div>" +
+
+    //        "<div class='col-md-1' style='padding-left: 3%;'>" +
+    //        "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Template' name='OrganizationUsersList[" + signatoryEmailIndex + "].Template' value='true' " + template + "/>" +
+    //        "</div>" +
+    //        "<div class='col-md-1' style='padding-left: 3%;'>" +
+    //        "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Bulksign' name='OrganizationUsersList[" + signatoryEmailIndex + "].Bulksign' value='true' " + bulksign + "/>" +
+    //        "</div>" +
+
+    //        "<div class='col-md-3' style='padding-left: 2%;'>" +
+    //        "<input type='text' style='height:23px' class='form-control designationListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "Designation' name='OrganizationUsersList[" + signatoryEmailIndex + "].Designation' value='"+ designation +"'/>" +
+    //        "</div>" +
+    //        "<div class='col-md-1' style='padding-left: 1%;'>" +
+    //        "<div class='form-group' style='display: flex;align-items: center;'>" +
+    //        "<label for='OrganizationUsersList_" + signatoryEmailIndex + "' class='btn btn-info custom-file-upload' style='height:23px;width:40px;margin-left:2px'>" +
+    //        "<i class='fa fa-file'></i>" +
+    //        "</label>" +
+    //        "<i class='fa fa-check-circle fa-lg text-success' id='OrganizationUsersList_" + signatoryEmailIndex + "_check' style='display:" + isSignPhotoAvailable + "'></i>" +
+    //        "<input type='file' class='form-control' onchange='encodeImageFileAsURL(this)' id='OrganizationUsersList_" + signatoryEmailIndex + "' name='OrganizationUsersList[" + signatoryEmailIndex + "]' accept='.jpg, .png, .jpeg' hidden/>" +
+    //        "<input type='text' class='form-control signatureFile' id='OrganizationUsersList_" + signatoryEmailIndex + "SignaturePhoto' name='OrganizationUsersList[" + signatoryEmailIndex + "].SignaturePhoto' value='"+ signaturePhoto +"'  hidden/>" +
+    //        "</div>" +
+    //        "</div>"+
+    //        "<div class='col-md-1' style='padding-left: 5%;'>" +
+    //        "<button class='clearliSignatory' type='button' style='margin-left:8px'>x</button>" +
+    //        "</div>"+
+    //        "</li>";
+    //    $('#signatory-email-list').append(li);
+    //    signatoryEmailIndex++;
+    //    $('#SignatoryEmail').val('');
+    //    $('#addSignatoryEmailFieldset').show();
+    //    $('#signatoryLable').show();
+    //    $("span[data-valmsg-for='SignatoryEmail']").html('');
+    //}
+
+
+
+    function addSignatoryEmail(value, isUploaded, arr, signData) {
+    @{
+            Model.OrganizationUsersList.Add(new OrganizationUser());
+    }
+
+
+
+        var maxSize = 20;
+        var signatory = "";
+        var nin = "";
+        var passportNumber = "";
+        var ugPassEmail = "";
+        var mobileNumber = "";
+        var designation = "";
+        var signaturePhoto = "";
+        var initalImage = "";
+        var affixEseal = "";
+        var prepatory = "";
+        var delegation = "";
+        //var template = "";
+        var bulksigner = "";
+        var digitalforms = "";
+        var isSignPhotoAvailable = "none";
+        var isInitialImageAvailable = "none";
+
+        if (!isUploaded) {
+            // signatory = (arr[0] == "1") ? "checked" : "checked";
+            affixEseal = (arr[0] == "checked") ? "checked" : "";
+            prepatory = (arr[1] == "checked") ? "checked" : "";
+            //template = (arr[2] == "checked") ? "checked" : "";
+            bulksigner = (arr[2]== "checked") ? "checked" : "";
+            delegation = (arr[3] == "checked") ? "checked" : "";
+            digitalforms = (arr[4] == "checked") ? "checked" : "";
+
+            ugPassEmail = signData[0];
+            nin = signData[1];
+            passportNumber = signData[2];
+
+            mobileNumber = signData[3];
+            designation = signData[4];
+            signaturePhoto = signData[5];
+            initalImage = signData[6];
+
+
+        }else{
+            delegation = (arr[0] == "1") ? "checked" : "";
+            affixEseal = (arr[1] == "1") ? "checked" : "";
+            prepatory = (arr[2] == "1") ? "checked" : "";
+            bulksigner = (arr[3] == "1") ? "checked" : "";
+            digitalforms = (arr[4] == "1") ? "checked" : "";
+
+            ugPassEmail = ugpassEmail;
+            designation = signData[0];
+            signaturePhoto = signData[1];
+            initalImage = signData[2];
+            nin = signData[3];
+            mobileNumber = signData[4];
+            passportNumber = signData[5];
+        }
+        if (signaturePhoto != "") {
+            isSignPhotoAvailable = "block";
+        } else {
+            isSignPhotoAvailable = "none";
+        }
+        if (initalImage != "") {
+            isInitialImageAvailable = "block";
+        } else {
+            isInitialImageAvailable = "none";
+        }
+
+        var li = "<li style='margin-top: 2px;margin-bottom: 2px; display:flex'>" +
+            "<div class='form-row col-md-12' style='height:25px'>" +
+            "<input name='OrganizationUsersList.index' value='" + signatoryEmailIndex + "' style='display: none;' />" +
+
+            "<div>" +
+            "<textarea type='text' style='display:none' class='ugpassEmailListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__Ugpassemail' name='OrganizationUsersList[" + signatoryEmailIndex + "].Ugpassemail' value='" + ugPassEmail + "' readonly>" + ugPassEmail + "</textarea>" +
+            "</div>" +
+
+
+            //"<div class='col-md-1' style='padding-left: 2%;'>" +
+            //"<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Signatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].Signatory' value='true' checked  onclick='return false;'/>" +
+            //"</div>" +
+
+            "<div>" +
+            "<input type='text' /*style='height:23px'*/ class='form-control ninListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__NationalIdNumber' name='OrganizationUsersList[" + signatoryEmailIndex + "].NationalIdNumber' value='" + nin + "' hidden/>" +
+            "</div>" +
+            "<div>" +
+            "<input type='text' /*style='height:23px'*/ class='form-control passportNumberListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__PassportNumber' name='OrganizationUsersList[" + signatoryEmailIndex + "].PassportNumber' value='" + passportNumber + "' hidden/>" +
+            "</div>" +
+
+            "<div>" +
+            "<input type='text' /*style='height:23px'*/ class='form-control mobileNumberListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__MobileNumber' name='OrganizationUsersList[" + signatoryEmailIndex + "].MobileNumber' value='" + mobileNumber + "' hidden/>" +
+            "</div>" +
+
+            "<div class='col-md-3'>" +
+            "<textarea type='text' style='resize: none;white-space: nowrap;width:100%;' class='signatoryEmailListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__EmployeeEmail' name='OrganizationUsersList[" + signatoryEmailIndex + "].EmployeeEmail' value='" + value + "' readonly>" + value + "</textarea>" +
+            "</div>" +
+
+            // "<div class='col-md-4'>" +
+            //"<textarea type='text' style='resize: none;white-space: nowrap;width:100%;' class='signatoryEmailListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "__OrganizationEmail' name='OrganizationUsersList[" + signatoryEmailIndex + "].OrganizationEmail' value='" + organizationEmail + "' readonly>" + organizationEmail + " hidden/</textarea>" +
+            //"</div>" +
+
+
+            //"<div>" +
+            //"<input type='text' /*style='height:23px'*/ class='form-control' id='OrganizationUsersList_" + signatoryEmailIndex + "__OrganizationEmail' name='OrganizationUsersList[" + signatoryEmailIndex + "].OrganizationEmail' value='" + organizationEmail + "' hidden/>" +
+            //"</div>" +
+
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Delegate' name='OrganizationUsersList[" + signatoryEmailIndex + "].Delegate' onclick='return false' value='true' " + delegation + "/>" +
+            "</div>" +
+
+
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__ESealSignatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].ESealSignatory' onclick='return false' value='true' " + affixEseal + "/>" +
+            "</div>" +
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__ESealPrepatory' name='OrganizationUsersList[" + signatoryEmailIndex + "].ESealPrepatory' onclick='return false' value='true' " + prepatory + "/>" +
+            "</div>" +
+
+            "<div class='col-md-1' style='display: none'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Digitalforms' name='OrganizationUsersList[" + signatoryEmailIndex + "].Digitalforms' onclick='return false' value='true' " + digitalforms + "/>" +
+            "</div>" +
+
+            //"<div class='col-md-1' style='padding-left: 3%;'>" +
+            //"<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Template' name='OrganizationUsersList[" + signatoryEmailIndex + "].Template' onclick='return false' value='true' " + template + "/>" +
+            //"</div>" +
+            "<div class='col-md-1' style='padding-left: 3.5%;'>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Template' name='OrganizationUsersList[" + signatoryEmailIndex + "].Template' onclick='return false' value='true' " + prepatory + " hidden/>" +
+            "<input type='checkbox' class='custom-check-box' id='OrganizationUsersList_" + signatoryEmailIndex + "__Bulksign' name='OrganizationUsersList[" + signatoryEmailIndex + "].Bulksign' onclick='return false' value='true' " + bulksigner + "/>" +
+            "</div>" +
+
+            "<div class='col-md-2' style='padding-left: 2%;'>" +
+            "<input type='text' style='height:23px;padding-left: 5px;' class='form-control designationListInput' id='OrganizationUsersList_" + signatoryEmailIndex + "Designation' name='OrganizationUsersList[" + signatoryEmailIndex + "].Designation' value='" + designation + "'readonly='readonly'/>" +
+            "</div>" +
+            "<div class='col-md-1' style='padding-left: 2%;'>" +
+            "<div class='form-group' style='display: flex;align-items: center;'>" +
+            "<label for='OrganizationUsersList_" + signatoryEmailIndex + "' class='btn btn-info custom-file-upload' style='height:23px;width:40px;margin-left:2px'>" +
+            "<i class='fa fa-file'></i>" +
+            "</label>" +
+            "<i class='fa fa-check-circle fa-lg text-success' id='OrganizationUsersList_" + signatoryEmailIndex + "_check' style='display:" + isSignPhotoAvailable + "'></i>" +
+            "<input type='file' class='form-control' /*onchange='encodeImageFileAsURL(this)'*/ onchange='FileToBase64(this)' onclick='return false'  id='OrganizationUsersList_" + signatoryEmailIndex + "' name='OrganizationUsersList[" + signatoryEmailIndex + "]' accept='.jpg, .png, .jpeg' hidden/>" +
+            "<input type='text' class='form-control signatureFile' id='OrganizationUsersList_" + signatoryEmailIndex + "SignaturePhoto' name='OrganizationUsersList[" + signatoryEmailIndex + "].SignaturePhoto'  value='" + signaturePhoto + "'   hidden/>" +
+            "</div>" +
+            "</div>" +
+
+            "<div class='col-md-1' style='padding-left: 2%; display: none;'>" +
+            "<div class='form-group' style='display: flex;align-items: center;'>" +
+            "<label for='OrganizationUsersList_" + signatoryEmailIndex + "' class='btn btn-info custom-file-upload greenButton'onclick='return false' style='height:23px;width:40px;margin-left:2px'>" +
+            "<i class='fa fa-file'></i>" +
+            "</label>" +
+            "<i class='fa fa-check-circle fa-lg text-success' id='OrganizationUsersList_" + signatoryEmailIndex + "_check1' style='display:" + isInitialImageAvailable + "'></i>" +
+            "<input type='file' class='form-control' /*onchange='encodeImageFileAsURL(this)'*/ onchange='FileToBase64(this)' onclick='return false'  id='OrganizationUsersList_" + signatoryEmailIndex + "' name='OrganizationUsersList[" + signatoryEmailIndex + "]' accept='.jpg, .png, .jpeg' hidden/>" +
+            "<input type='text' class='form-control signatureFile' id='OrganizationUsersList_" + signatoryEmailIndex + "Initial' name='OrganizationUsersList[" + signatoryEmailIndex + "].Initial'  value='" + initalImage + "'   hidden/>" +
+            "</div>" +
+            "</div>" +
+
+            "<div class= 'col-md-1' style='padding-left: " + liEditViewButtonPadding +"%; '>" +
+            "<button class= 'btn btn-xs btn-primary liEditButton' type='button'  style='  width: 50px; height: 25px;'>edit</button>" +
+            "</div>"+
+
+
+            "<div class='col-md-1' style='padding-left: 5%;'>" +
+            "<button class='clearliSignatory' type='button' style='margin-left:8px'>x</button>" +
+            "</div>"+
+
+            "</li>";
+        $('#signatory-email-list').append(li);
+        signatoryEmailIndex++;
+        $('#SignatoryEmail').val('');
+        $('#addSignatoryEmailFieldset').show();
+        //$('#addSignatoryEmailFieldset').style.display = "block";
+        $('#signatoryLable').show();
+        $("span[data-valmsg-for='SignatoryEmail']").html('');
+
+        adjustPadding();
+    }
+
+    var liEditViewButtonPadding = 5;
+    function adjustPadding() {
+        if ($(window).width() <= 768) {
+            $(".liEditViewButton").closest("div").css("padding-left", "1%");
+            liEditViewButtonPadding = 1;
+        } else {
+            $(".liEditViewButton").closest("div").css("padding-left", "5%");
+            liEditViewButtonPadding = 5;
+        }
+    }
+
+
+</script>

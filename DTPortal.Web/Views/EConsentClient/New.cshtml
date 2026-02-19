@@ -1,0 +1,269 @@
+﻿@model DTPortal.Web.ViewModel.EConsent.EConsentClientNewViewModel
+
+@{
+    ViewData["Title"] = "Services New";
+}
+
+<style>
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+        .select2-container .select2-selection--single {
+            height: 35px !important;
+        }
+
+    .selection {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #555555b3;
+        font-size: 14px;
+        font-family: inherit;
+    }
+
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+    i {
+        color: #808080e0;
+    }
+
+    .popup {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        float: right;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        margin-bottom: 35px;
+        margin-top: -60px;
+    }
+    /* The actual popup */
+    .popup .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        /* top: -43%; */
+        /* bottom: -28%; */
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+    .popup:hover + .popuptext {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s;
+    }
+
+    .custom-check-box:hover {
+        outline: auto;
+        outline-color: #5d9ceca3;
+    }
+</style>
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="OrganizationUid" class="col-form-label s3"></label>
+                                <select asp-for="OrganizationUid" class="form-control"
+                                        asp-items="Model.OrganizationList">
+                                    <option value="">-- Select Organization --</option>
+                                </select>
+                                <span asp-validation-for="OrganizationUid" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="ApplicationName" class="col-form-label s3"></label>
+                                <input asp-for="ApplicationName" class="form-control" />
+                                <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PurposesList" class="col-form-label"></label>
+                                <input type="hidden" id="Purposes" name="Purposes" value="@Model.Purposes" />
+                                <fieldset style="padding: 5px; border: groove 2px;">
+                                    <div class="card-default" style="margin-left: 10px; margin-top: 5px;">
+                                        @foreach (var item in Model.PurposesList)
+                                        {
+                                            <label>
+                                                <input type="checkbox"
+                                                       class="custom-check-box"
+                                                       name="PurposesList"
+                                                       value="@item"
+                                                @(Model.Purposes.Split(" ").Contains(item) ? "checked" : "") />
+                                                @item
+                                            </label>
+                                            <br />
+                                        }
+                                    </div>
+                                </fieldset>
+                                <span asp-validation-for="PurposesList" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="ScopesList" class="col-form-label"></label>
+                                <input type="hidden" id="Scopes" name="Scopes" value="@Model.Scopes" />
+                                <fieldset style="padding: 5px; border: groove 2px;">
+                                    <div class="card-default" style="margin-left: 10px; margin-top: 5px;">
+                                        @foreach (var item in Model.ScopesList)
+                                        {
+                                            <label>
+                                                <input type="checkbox"
+                                                       class="custom-check-box"
+                                                       name="ScopesList"
+                                                       value="@item"
+                                                @(Model.Scopes.Split(" ").Contains(item) ? "checked" : "") />
+                                                @item
+                                            </label>
+                                            <br />
+                                        }
+                                    </div>
+                                </fieldset>
+                                <span asp-validation-for="ScopesList" class="text-danger"></span>
+                            </div>
+                            
+                            <div class="form-group signing">
+                                <label asp-for="PublicKeyCert" class="col-form-label"></label>
+                                <div class="popup"><i class="fa fa-info-circle"></i></div>
+                                <div class="popuptext">upload certificate for request signing purpose</div>
+                                <input asp-for="PublicKeyCert" accept=".crt,.cer" class="form-control" />
+                                <span asp-validation-for="PublicKeyCert" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            <button class="btn btn-primary" type="submit">
+                                Save
+                            </button>
+                            &nbsp;&nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+
+            $('#eConsentMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#eConsentCleintsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('E-Consent Service');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Clients');
+            $('#subMenu').addClass('breadcrumb-item active').append('Add');
+            /*For Beadcrum End*/
+
+            $("input[name=ScopesList]").change(function () {
+                let scopesField = $("#Scopes");
+                let scopesArray = scopesField.val().split(" ").filter(Boolean);
+
+                if (this.checked) {
+                    if (!scopesArray.includes(this.value)) {
+                        scopesArray.push(this.value);
+                    }
+                } else {
+                    scopesArray = scopesArray.filter(scope => scope !== this.value);
+                }
+
+                scopesField.val(scopesArray.join(" "));
+            });
+
+            $("#OrganizationId").select2();
+
+            $("input[name=PurposesList]").change(function () { // Updated selector
+                let purposesField = $("#Purposes");
+                let purposesArray = purposesField.val().split(" ").filter(Boolean);
+
+                if (this.checked) {
+                    if (!purposesArray.includes(this.value)) {
+                        purposesArray.push(this.value);
+                    }
+                } else {
+                    purposesArray = purposesArray.filter(purpose => purpose !== this.value);
+                }
+
+                purposesField.val(purposesArray.join(" "));
+            });
+        });
+    </script>
+}

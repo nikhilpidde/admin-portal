@@ -1,0 +1,32 @@
+﻿@model DTPortal.Core.DTOs.ServiceProviderAccountBalanceDTO
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label asp-for="TotalSigningCredits"></label>
+                        <input asp-for="TotalSigningCredits" class="form-control" readonly />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label asp-for="TotalSigningDebits"></label>
+                        <input asp-for="TotalSigningDebits" class="form-control" readonly />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label asp-for="TotalEsealCredits"></label>
+                        <input asp-for="TotalEsealCredits" class="form-control" readonly />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label asp-for="TotalEsealDebits"></label>
+                        <input asp-for="TotalEsealDebits" class="form-control" readonly />
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label asp-for="LastTransactionTime"></label>
+                        <input asp-for="LastTransactionTime" class="form-control" readonly />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,169 @@
+﻿@model DTPortal.Web.ViewModel.TrustedSpoc.TrustedUserNewList
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+}
+@{
+    ViewData["Title"] = "Add";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row" style="display: flex; align-items: center; padding-bottom: 0px;">
+                    
+                        <div style="margin-right:10px">
+                            <div class="btn-group">
+                                <a class="btn btn-primary" asp-controller="TrustedSpoc" asp-action="Add" style="background-color: #15294B;">
+                                    <i class="fa fa-plus"></i>Add User
+                                </a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="btn-group">
+                                <a class="btn btn-primary" asp-controller="TrustedSpoc" asp-action="List" style="background-color: #15294B;">
+                                    <i class="fa fa-refresh"></i>Refresh
+                                </a>
+                            </div>
+                        </div>
+
+                    @* <div class="form-group" style="margin-left: auto; margin-right: 3%;">
+                        <label for="approvalStatusFilter">Filter by Approval Status:</label>
+                        <select id="approvalStatusFilter" class="form-control">
+                            <option value="">All</option>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INVITED">INVITED</option>
+                            <option value="SUSPENDED">SUSPENDED</option>
+                        </select>
+                    </div> *@
+
+                </div>
+
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th hidden>Id</th>
+                            <th>SPOC Name</th>
+                            <th>SPOC Email</th>
+                            <th>Mobile Number</th>
+                            <th>Created On</th>
+                            @* <th>SPOC @clientName Email</th> *@
+                            @* <th>Action</th> *@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TrustedSpocList)
+                        {
+                            <tr class="odd gradeX">
+                                <td hidden>@item.Id</td>
+                                <td>@item.Name</td>
+                                <td>@item.Email</td>
+                                <td>@item.MobileNumber</td>
+                                <td>@item.CreatedOn</td>
+                                 
+                                @* <td>@item.SpocUgpassEmail</td> *@
+                                @* <td class="valigntop" align="center">
+                                    <div class="btn-group">
+                                        <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown" aria-expanded="false">
+                                            Actions
+                                            <i class="fa fa-angle-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu pull-left" role="menu">
+                                            <li>
+                                                <a asp-action="ViewSpoc" asp-route-id="@item.Id">
+                                                    <i class="icon-pencil"></i> View
+                                                </a>
+                                            </li>
+                                            @if (item.Status == "ACTIVE")
+                                            {
+                                                <li>
+                                                    <a asp-action="SuspendSpoc" asp-route-id="@item.Id">
+                                                        <i class="icon-pencil"></i> Suspend
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (item.Status == "INVITED" && item.ReInvite == true)
+                                            {
+                                                <li>
+                                                    <a asp-action="ReInviteSpoc" asp-route-id="@item.Id">
+                                                        <i class="icon-pencil"></i> Invite
+                                                    </a>
+                                                </li>
+                                            }
+                                            @if (item.Status == "SUSPENDED")
+                                            {
+                                                <li>
+                                                    <a asp-action="ActiveSpoc" asp-route-id="@item.Id">
+                                                        <i class="icon-pencil"></i> Activate
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </td> *@
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#selfServiceConfigMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#TrustedSpocMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Trusted User');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            $.fn.dataTable.ext.order['string-pre'] = function (data) {
+                switch (data) {
+                    case "ACTIVE":
+                        return 0;
+                    case "INVITED":
+                        return 1;
+                    case "SUSPENDED":
+                        return 2;
+                    default:
+                        return 3;
+                }
+            };
+
+            // Initialize the DataTable with lengthChange option set to false
+            var table = $('.table').DataTable({
+                lengthChange: false // This disables the "Show x entries" dropdown
+            });
+
+            sessionStorage.removeItem('approvalStatusFilter');
+
+            // Add event listener for filtering
+            $('#approvalStatusFilter').on('change', function () {
+                var selectedValue = $(this).val();
+                table.column(5).search(selectedValue).draw();
+
+                // Store the selected value in sessionStorage
+                sessionStorage.setItem('approvalStatusFilter', selectedValue);
+            });
+
+            // Retrieve and set the selected value from sessionStorage
+            var storedValue = sessionStorage.getItem('approvalStatusFilter');
+            if (storedValue) {
+                $('#approvalStatusFilter').val(storedValue).change();
+            }
+        });
+    </script>
+}
+

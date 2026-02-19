@@ -1,0 +1,81 @@
+﻿@model DTPortal.Web.ViewModel.PriceSlabDefinition.PriceSlabDefinitionDetailsViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Price Slab Details";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<style>
+    label {
+        text-align: right;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6" style="float:left;">
+                        <div class="form-group col-md-12">
+                            <label>Service Name</label>
+                            <input asp-for="@Model.ServiceDisplayName" class="form-control" readonly />
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label>Stakeholder</label>
+                            <input asp-for="@Model.Stakeholder" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <partial name="_DiscountVolumeRange" for="@Model.DiscountVolumeRanges"></partial>
+                    </div>
+                </div>
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                            Approve
+                        </button>
+                        &nbsp; &nbsp;
+                        <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                            Reject
+                        </button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Approvals" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+<script>
+    $(document).ready(function () {
+        //$('#homeMenu').addClass('breadcrumb-item').append('Details');
+        //$('#mainMenu').removeClass('breadcrumb-item');
+        /*For Beadcrum End*/
+
+        $('#dashboardMenu').addClass('active');
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+        $('#subMenu').addClass('breadcrumb-item').append('Generic Price Slab > Details');
+    });
+</script>
+}
+
+

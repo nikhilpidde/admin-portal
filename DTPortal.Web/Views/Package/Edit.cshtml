@@ -1,0 +1,137 @@
+﻿@model DTPortal.Web.ViewModel.Package.PackageEditViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Edit">
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="PackageCode" class="col-form-label"></label>
+                            <input asp-for="PackageCode" class="form-control" readonly />
+                            <span asp-validation-for="PackageCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="PackageDescription" class="col-form-label"></label>
+                            <input asp-for="PackageDescription" class="form-control" readonly />
+                            <span asp-validation-for="PackageDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="ServiceFor" class="col-form-label"></label>
+                            <input asp-for="ServiceFor" class="form-control" readonly />
+                            <span asp-validation-for="ServiceFor" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="TotalSigningTransactions" class="col-form-label"></label>
+                            <input asp-for="TotalSigningTransactions" class="form-control" readonly />
+                            <span asp-validation-for="TotalSigningTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="TotalESealTransactions" class="col-form-label"></label>
+                            <input asp-for="TotalESealTransactions" class="form-control" readonly />
+                            <span asp-validation-for="TotalESealTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="DiscounOnSigningTransactions" class="col-form-label"></label>
+                            <input asp-for="DiscounOnSigningTransactions" class="form-control" readonly />
+                            <span asp-validation-for="DiscounOnSigningTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="DiscounOnESealTransactions" class="col-form-label"></label>
+                            <input asp-for="DiscounOnESealTransactions" class="form-control" readonly />
+                            <span asp-validation-for="DiscounOnESealTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="TaxPercentage" class="col-form-label"></label>
+                            <input asp-for="TaxPercentage" class="form-control" readonly />
+                            <span asp-validation-for="TaxPercentage" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="Status" class="col-form-label"></label>
+                            <input asp-for="Status" class="form-control" readonly />
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <input asp-for="CreatedBy" hidden />
+                    <input asp-for="UpdatedBy" hidden />
+                    <input asp-for="ApprovedBy" hidden />
+
+                    <div class="d-flex justify-content-end ">
+                        @if (Model.Status == Status.Active.GetValue())
+                        {
+                            <input type="submit" name="action" class="btn btn-primary" value="Disable"
+                                onclick="return confirm('This package is currently active. \nAre you sure you want to disable the package?');" />
+                            @*<input type="submit" name="action" class="btn btn-primary" value="Disable" />*@
+                        }
+                        else
+                        {
+                            @:&nbsp; &nbsp;
+                            <input type="submit" name="action" class="btn btn-primary" value="Enable" />
+                        }
+                        &nbsp; &nbsp;
+                        <input type="submit" name="action" class="btn btn-primary" value="Delete"
+                            onclick="return confirm('Are you sure you want to delete the package?');" />
+                        @*<input type="submit" name="action" class="btn btn-primary" value="Delete" />*@
+                        &nbsp; &nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#packageMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Package');
+            $('#subMenu').addClass('breadcrumb-item active').append('Edit');
+            /*For Beadcrum End*/
+
+            @*if ("@isReadOnly" == "True") {
+               // $('form *').prop('disabled', true);
+                $(":input:not([type=button]):not([type=submit]):not([type=reset])").prop('disabled', true);
+            }*@
+        });
+    </script>
+}
+
+

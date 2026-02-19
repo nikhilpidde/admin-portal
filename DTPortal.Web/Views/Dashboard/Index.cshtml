@@ -1,0 +1,340 @@
+﻿@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+@{
+    ViewData["Title"] = "Dashboard Overview";
+}
+
+<div class="row">
+    <div class="col-xl-7 dashboard-cards">
+
+        <!--Cumulative Count-->
+        <div class="col-xl-12" style="padding: 0;">
+            @await Html.PartialAsync("_CumulativeCount")
+        </div>
+
+        <!--Graph-->
+        <div class="col-xl-12" style="padding: 0;">
+            @await Html.PartialAsync("_Statistics")
+        </div>
+
+    </div>
+
+    <div class="col-xl-5">
+        <!--Admin Activity Timeline-->
+        <div class="col-xl-12" style="padding: 0;">
+            <div class="panel panel-default h-100">
+                <div class="panel-heading">
+                    <i class="fa fa-clock-o" aria-hidden="true"></i>
+                    &nbsp;&nbsp; Activity Timeline
+                </div>
+                <div id="overlayAdminTimeline" style="padding:20px;">
+                    <div class="cv-spinner center">
+                        <span class="spinner">
+                        </span>
+                    </div>
+                </div>
+                <div id="AdminTimelineDiv">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Service Health Check-->
+    <div class="col-xl-12" style="padding: 0;">
+        <div class="container-fluid">
+            <div class="col-md-12" style="padding: 0;">
+                <div class="panel panel-default">
+                    <div class="panel-heading" style="border:white !important">
+                        <div>
+                            <div style="float: left;">
+                                <i class="fa fa-stethoscope" aria-hidden="true"></i> &nbsp;&nbsp; Service Status &nbsp;&nbsp;<i class="fa fa-refresh" title="Refresh" onclick="getServiceHealthCheck();"></i>
+                            </div>
+                            @* <div class="d-flex justify-content-end">
+                                <label style="float: left; margin-right: 8px; margin-top: 5px">PKI Timestamp Service :</label>
+                               <button id="pkiTimeStampHealthCheck" class="btn btn-primary" style="float:right; height:30px">Check</button> 
+                            </div> *@
+                        </div>
+                    </div>
+                    <div id="overlayServiceHealthCheck" style="padding:20px;">
+                        <div class="cv-spinner">
+                            <span class="spinner">
+                            </span>
+                        </div>
+                    </div>
+                    <div id="serviceHealthCheckDiv">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+
+<script>
+
+        $(document).ready(function () {
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').removeClass('breadcrumb-item')
+            $('#subMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            $.when(getCumulativeCount(), getAdminTimelineActivities(), getServiceHealthCheck());
+
+            setInterval(function () {
+                $.when(getCumulativeCount(), getAdminTimelineActivities(), getServiceHealthCheck(), getLicensesAvailable());
+            }, @Json.Serialize(@Configuration.GetSection("DashboardRefreshTime").Value));
+
+            $("#pkiTimeStampHealthCheck").click(function () {
+                getPkiTimeStampHealth();
+            });
+        });
+
+        function getCumulativeCount() {
+           
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCumulativeCount", "Dashboard")',
+                datatype: "json",
+                beforeSend: function () {
+                    $('#spinner1').show();
+                    $('#spinner2').show();
+                    $('#spinner3').show();
+                    $('#spinner4').show();
+
+                    $('#subscribersTotalCount').text("");
+                    $('#subscribersActiveCount').text("");
+                    $('#subscribersInactiveCount').text("");
+
+                    $('#TotalorganizationCount').text("");
+                    $('#RegisteredorganizationCount').text("");
+                    $('#InactiveorganizationCount').text("");
+                    $('#activeorganizationCount').text("");
+
+                    $('#serviceProvidersTotalCount').text("");
+                    $('#serviceProvidersActiveCount').text("");
+                    $('#serviceProvidersInactiveCount').text("");
+
+                    $('#digitalAuthenticationsTotalCount').text("");
+                    $('#digitalAuthenticationsSuccessCount').text("");
+                    $('#digitalAuthenticationsFailedCount').text("");
+
+                    $('#signaturesTotalCount').text("");
+                    $('#signaturesWithPadesSuccessCount').text("");
+                    $('#signaturesWithPadesFailedCount').text("");
+                    $('#signaturesWithXadesSuccessCount').text("");
+                    $('#signaturesWithXadesFailedCount').text("");
+                    $('#signaturesWithCadesSuccessCount').text("");
+                    $('#signaturesWithCadesFailedCount').text("");
+                    //$('#signaturesWithDataSuccessCount').text("");
+                    //$('#signaturesWithDataFailedCount').text("");
+                    $('#signaturesWithESealSuccessCount').text("");
+                    $('#signaturesWithESealFailedCount').text("");
+                },
+                complete: function () {
+                    $('#spinner1').hide();
+                    $('#spinner2').hide();
+                    $('#spinner3').hide();
+                    $('#spinner4').hide();
+                },
+                success: function (data) {
+                   if (data != null)
+                   {
+                        $('#subscribersTotalCountOrginal').text(data['countOfSubscribers']);
+                        $('#subscribersActiveCountOriginal').text(data['countOfActiveSubscribers']);
+                        $('#subscribersInactiveCountOriginal').text(data['countOfInactiveSubscribers']);
+
+                        $('#serviceProvidersTotalCountOriginal').text(data['countOfActiveServiceProviders'] + data['countOfInactiveServiceProviders']);
+                        $('#serviceProvidersActiveCountOriginal').text(data['countOfActiveServiceProviders']);
+                        $('#serviceProvidersInactiveCountOriginal').text(data['countOfInactiveServiceProviders']);
+
+                        $('#digitalAuthenticationsTotalCountOriginal').text(data['countOfAuthenticationsSuccess'] + data['countOfAuthenticationsFailed']);
+                        $('#digitalAuthenticationsSuccessCountOriginal').text(data['countOfAuthenticationsSuccess']);
+                        $('#digitalAuthenticationsFailedCountOriginal').text(data['countOfAuthenticationsFailed']);
+
+                        $('#signaturesTotalCountOriginal').text(data['countOfSignaturesWithPadesSuccess'] + data['countOfSignaturesWithPadesFailed']
+                            + data['countOfSignaturesWithXadesSuccess'] + data['countOfSignaturesWithXadesFailed']
+                            + data['countOfSignaturesWithCadesSuccess'] + data['countOfSignaturesWithCadesFailed']
+                            + data['countOfSignaturesWithESealSuccess'] + data['countOfSignaturesWithESealFailed']);
+                        $('#signaturesWithPadesSuccessCountOriginal').text(data['countOfSignaturesWithPadesSuccess']);
+                        $('#signaturesWithPadesFailedCountOriginal').text(data['countOfSignaturesWithPadesFailed']);
+                        $('#signaturesWithXadesSuccessCountOriginal').text(data['countOfSignaturesWithXadesSuccess']);
+                        $('#signaturesWithXadesFailedCountOriginal').text(data['countOfSignaturesWithXadesFailed']);
+                        $('#signaturesWithCadesSuccessCountOriginal').text(data['countOfSignaturesWithCadesSuccess']);
+                        $('#signaturesWithCadesFailedCountOriginal').text(data['countOfSignaturesWithCadesFailed']);
+                        //$('#signaturesWithDataSuccessCountOriginal').text(data['countOfSignaturesWithDataSuccess']);
+                        //$('#signaturesWithDataFailedCountOriginal').text(data['countOfSignaturesWithDataFailed']);
+                        $('#signaturesWithESealSuccessCountOriginal').text(data['countOfSignaturesWithESealSuccess']);
+                        $('#signaturesWithESealFailedCountOriginal').text(data['countOfSignaturesWithESealFailed']);
+                                var activeOrganizations = data['activeOrganizations'] || 0;
+        var registeredOrganizations = data['registeredOrganizations'] || 0;
+
+         
+        var ActiveOrganizationCount = activeOrganizations + registeredOrganizations;
+                        $('#activeorganizationCountOriginal').text(ActiveOrganizationCount);
+                         $('#InactiveorganizationCountOriginal').text(data['inactiveOrganizations']);
+                          $('#RegisteredorganizationCountOriginal').text(data['registeredOrganizations']);
+                           $('#TotalorganizationCountOriginal').text(data['totalOrganizations']);
+                        //shorten number
+                        $('#subscribersTotalCount').text(shorten_number(data['countOfSubscribers']));
+                        $('#subscribersActiveCount').text(shorten_number(data['countOfActiveSubscribers']));
+                        $('#subscribersInactiveCount').text(shorten_number(data['countOfInactiveSubscribers']));
+
+                        $('#serviceProvidersTotalCount').text(shorten_number(data['countOfActiveServiceProviders'] + data['countOfInactiveServiceProviders']));
+                        $('#serviceProvidersActiveCount').text(shorten_number(data['countOfActiveServiceProviders']));
+                        $('#serviceProvidersInactiveCount').text(shorten_number(data['countOfInactiveServiceProviders']));
+
+                        $('#activeorganizationCount').text(shorten_number(data['activeOrganizations'] +data['registeredOrganizations']))  ;
+                         $('#InactiveorganizationCount').text(shorten_number(data['inactiveOrganizations'])) ;
+                          $('#RegisteredorganizationCount').text(shorten_number(data['registeredOrganizations']));
+
+                           $('#TotalorganizationCount').text(shorten_number(data['totalOrganizations']));
+
+                        $('#digitalAuthenticationsTotalCount').text(shorten_number(data['countOfAuthenticationsSuccess'] + data['countOfAuthenticationsFailed']));
+                        $('#digitalAuthenticationsSuccessCount').text(shorten_number(data['countOfAuthenticationsSuccess']));
+                        $('#digitalAuthenticationsFailedCount').text(shorten_number(data['countOfAuthenticationsFailed']));
+
+                        $('#signaturesTotalCount').text(shorten_number(data['countOfSignaturesWithPadesSuccess'] + data['countOfSignaturesWithPadesFailed']
+                            + data['countOfSignaturesWithXadesSuccess'] + data['countOfSignaturesWithXadesFailed']
+                            + data['countOfSignaturesWithCadesSuccess'] + data['countOfSignaturesWithCadesFailed']
+                            + data['countOfSignaturesWithESealSuccess'] + data['countOfSignaturesWithESealFailed']));
+                        $('#signaturesWithPadesSuccessCount').text(shorten_number(data['countOfSignaturesWithPadesSuccess']));
+                        $('#signaturesWithPadesFailedCount').text(shorten_number(data['countOfSignaturesWithPadesFailed']));
+                        $('#signaturesWithXadesSuccessCount').text(shorten_number(data['countOfSignaturesWithXadesSuccess']));
+                        $('#signaturesWithXadesFailedCount').text(shorten_number(data['countOfSignaturesWithXadesFailed']));
+                        $('#signaturesWithCadesSuccessCount').text(shorten_number(data['countOfSignaturesWithCadesSuccess']));
+                        $('#signaturesWithCadesFailedCount').text(shorten_number(data['countOfSignaturesWithCadesFailed']));
+                        //$('#signaturesWithDataSuccessCount').text(shorten_number(data['countOfSignaturesWithDataSuccess']));
+                        //$('#signaturesWithDataFailedCount').text(shorten_number(data['countOfSignaturesWithDataFailed']));
+                        $('#signaturesWithESealSuccessCount').text(shorten_number(data['countOfSignaturesWithESealSuccess']));
+                        $('#signaturesWithESealFailedCount').text(shorten_number(data['countOfSignaturesWithESealFailed']));
+                    }
+                },
+                error: dashboardAjaxErrorHandler
+            });
+        }
+
+        function getAdminTimelineActivities() {
+            $('#AdminTimelineDiv').empty();
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetAdminTimeLine", "Dashboard")',
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlayAdminTimeline').show();
+                },
+                complete: function () {
+                    $('#overlayAdminTimeline').hide();
+                },
+                success: function (data) {
+                    $('#AdminTimelineDiv').html(data);
+                },
+                error: dashboardAjaxErrorHandler
+            });
+        }
+
+        function getServiceHealthCheck() {
+            $('#serviceHealthCheckDiv').empty();
+             $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetServiceHealth", "Dashboard")',
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlayServiceHealthCheck').show();
+                },
+                complete: function () {
+                    $('#overlayServiceHealthCheck').hide();
+                },
+                success: function (data) {
+                     $('#serviceHealthCheckDiv').html(data);
+
+                    if ($(window).width() < 768) { // Ensure it runs for smaller screens
+
+                        if (!$('.table').parent().hasClass('table-responsive')) {
+                            // Wrap the table inside two divs
+                            $('.table').wrap('<div class="table-wrap"><div class="table-responsive" style="scrollbar-width: thin;"></div></div>');
+                        }
+                    }
+                },
+                error: dashboardAjaxErrorHandler
+             });
+        }
+
+        function getPkiTimeStampHealth() {
+            $('#timeStampServiceHelthCheck').empty();
+             $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPKITimestampServiceHealth", "Dashboard")',
+                datatype: "json",
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                 },
+                 success: function (data) {
+                     $('#modalDialogContentDiv').css("margin-top", "15%");
+                     $('#modalDialogContentDiv').html(data);
+                     $('#modalDialogDiv').modal('show');
+                },
+                error: ajaxErrorHandler
+             });
+        }
+
+        function shorten_number(value) {
+            return Intl.NumberFormat('en-US', {
+                notation: "compact",
+                maximumFractionDigits: 1
+            }).format(value);
+        }
+
+        function dashboardAjaxErrorHandler(xhr, status, error) {
+                switch (xhr.status) {
+                    case 400:
+                        break;
+                    case 401:
+                        swal({ type: 'info', title: "Session Expired", text: "Click on 'Ok' button to login again!" }, function (isConfirm) {
+                            if (isConfirm) {
+                                window.location.href = '@Url.Action("Index", "Login")'
+                            }
+                        });
+                        break;
+                    case 403:
+                        break;
+                    case 404:
+                        break;
+                    case 500:
+                        break;
+                    case 502:
+                        break;
+                    case 503:
+                        break;
+                    default:
+                        errors = ["Bad Request", "Bad Gateway", "Not Found", "Internal Server Error", "Forbidden", "Unauthorized", "Service Unavailable"]
+                        if (xhr.readyState == 0 && xhr.status == 0 && xhr.responseJSON == undefined) {
+                            if (!errors.includes(error)) {
+                                if (window.navigator.onLine) {
+                                    if (error == "") {
+                                    }
+                                }
+                                else {
+                                    swal({ type: 'info', title: "No Internet", text: "Check your network connection!" }, function (isConfirm) {
+                                        if (isConfirm) {
+                                            window.location.reload();
+                                        }
+                                    });
+                                }
+                            }
+                            else {
+                            }
+                        }
+                        break;
+                }
+            }
+</script>
+}

@@ -1,0 +1,406 @@
+﻿@model DTPortal.Web.ViewModel.IPAddressFilter.IPAddressFilterNewViewModel
+@{ ViewData["Title"] = "IPAddressFilter Edit"; }
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+@*@{
+        var roleList = string.Join(", ", Model.RolesList.ToArray());
+        var applicatbleRole = Model.ApplicableRole;
+        var ischecked = (string.Equals(roleList, applicatbleRole) ? "checked" : "");
+
+    }*@
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form id="Ipform" asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-form-label s3"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="IpType" class="col-form-label"></label>
+                                <div class="form-control" style="border:none">
+                                    <label class="c-radio">
+                                        <input asp-for="IpType" type="radio" value="SINGLE_IP" checked>
+                                        <span class="fa fa-circle"></span> Single IP
+                                    </label>
+                                    <label class="c-radio">
+                                        <input asp-for="IpType" type="radio" value="MASKED_IP" />
+                                        <span class="fa fa-circle"></span> Masked IP
+                                    </label>
+                                    <!-- <div id="gender-errors"></div> -->
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="IpAddress" class="col-form-label s3"></label>
+                                    <textarea asp-for="IpAddress" class="form-control"></textarea>
+                                    <span id="info">Add IP Address With Comma(,) seperated</span>
+                                    <span id="ipAddress-errors" class="text-danger" style="display:none"></span>
+                                    <span asp-validation-for="IpAddress" class="text-danger"></span>
+
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+                        <div class="form-group col-md-6">
+
+                            <div class="form-group">
+                                <label asp-for="Permission" class="control-label s3"></label>
+                                <div class="form-control" style="border:none">
+                                    <label class="c-radio">
+                                        <input asp-for="Permission" type="radio" value="1" checked />
+                                        <span class="fa fa-check"></span> Allow
+                                    </label>
+                                    <label class="c-radio">
+                                        <input asp-for="Permission" type="radio" value="0" />
+                                        <span class="fa fa-times"></span> Deny
+                                    </label>
+                                    <span asp-validation-for="Permission" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Description" class="col-form-label s3"></label>
+                                <input asp-for="Description" class="form-control" />
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+
+                            <button class="btn btn-primary" type="button" onclick="validateIP()">
+                                Save
+                            </button>
+
+                            &nbsp; &nbsp;
+
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+
+    .c-radio {
+        margin-right: 4px;
+    }
+
+
+        .c-radio * {
+            cursor: pointer;
+        }
+
+
+        .c-radio input {
+            opacity: 0;
+            position: absolute;
+            margin-left: 0 !important;
+        }
+
+
+        .c-radio span {
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+            text-align: center;
+        }
+
+
+            .c-radio span:before {
+                margin-left: 1px;
+            }
+
+
+        .c-radio:hover span {
+            border-color: #5d9cec;
+        }
+
+    .form-inline
+    .c-radio span {
+        margin-left: 0;
+    }
+
+    .c-checkbox.c-checkbox-rounded span, .c-checkbox.c-radio-rounded span,
+    .c-radio.c-checkbox-rounded span,
+    .c-radio.c-radio-rounded span {
+        border-radius: 500px;
+    }
+
+    /* override for radio */
+    .c-radio span {
+        border-radius: 500px;
+    }
+
+        /* the icon */
+        .c-checkbox span:before,
+        .c-radio span:before {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            text-align: center !important;
+            font-size: 12px;
+            line-height: 18px;
+            vertical-align: middle;
+        }
+
+    /* Checked state */
+    .c-checkbox,
+    .c-radio {
+        /* override for radio */
+        /* Disable state */
+        /* override for radio */
+    }
+
+        .c-checkbox input[type=checkbox]:checked + span:before,
+        .c-checkbox input[type=radio]:checked + span:before,
+        .c-radio input[type=checkbox]:checked + span:before,
+        .c-radio input[type=radio]:checked + span:before {
+            color: #fff;
+            opacity: 1;
+            transition: color .3s ease-out;
+        }
+
+        .c-checkbox input[type=checkbox]:checked + span,
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=checkbox]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            border-color: #5d9cec;
+            background-color: #5d9cec;
+        }
+
+        .c-checkbox input[type=radio]:checked + span,
+        .c-radio input[type=radio]:checked + span {
+            background-color: #fff;
+        }
+
+            .c-checkbox input[type=radio]:checked + span:before,
+            .c-radio input[type=radio]:checked + span:before {
+                color: #5d9cec;
+            }
+
+        .c-checkbox input[type=checkbox]:disabled + span,
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=checkbox]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            border-color: #ddd !important;
+            background-color: #ddd !important;
+        }
+
+        .c-checkbox input[type=radio]:disabled + span,
+        .c-radio input[type=radio]:disabled + span {
+            background-color: #fff !important;
+        }
+
+            .c-checkbox input[type=radio]:disabled + span:before,
+            .c-radio input[type=radio]:disabled + span:before {
+                color: #ddd;
+            }
+
+        .c-radio.c-radio-nofont {
+            /* override for radio */
+            /* Disable state */
+            /* override for radio */
+        }
+
+            .c-radio.c-radio-nofont span:before {
+                content: "";
+                width: 10px;
+                height: 10px;
+                top: 50%;
+                left: 50%;
+                margin-top: -5px;
+                margin-left: -5px;
+                border-radius: 500px;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                color: #fff;
+                opacity: 1;
+                transition: color .3s ease-out;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                border-color: #5d9cec;
+                background-color: #5d9cec;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:checked + span {
+                background-color: #fff;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:checked + span:before {
+                    background-color: #5d9cec;
+                }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                border-color: #ddd !important;
+                background-color: #ddd !important;
+            }
+
+            .c-radio.c-radio-nofont input[type=radio]:disabled + span {
+                background-color: #fff !important;
+            }
+
+                .c-radio.c-radio-nofont input[type=radio]:disabled + span:before {
+                    background-color: #ddd;
+                }
+</style>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+@section Scripts {
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+        $('#administrationSidebarElement').addClass('active');
+         $('#AccessFilterSidebarElement').addClass('active');
+             $('#IpAddFilterSidebarElement').addClass('active');
+
+             $('#adminSubmenu').addClass('show');
+         $('#AccessFilterSubmenu').addClass('show');
+
+             $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+         $("li#AccessFilterSidebarElement a:first").attr('aria-expanded', 'true');
+
+
+         /*For Beadcrum Start*/
+         $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('AccessFilter > IPAddress Filter > New');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            @*var isCheker = "@User.IsInRole("Users Checker")";
+            if (isCheker == "True") {
+                $('form *').prop('disabled', true);
+
+            }*@
+
+
+            $("#IpAddress").change(function () {
+                ipvalidate();
+            });
+
+            $("input[name='IpType']").change(function () {
+                var IpType = $("input[name='IpType']:checked").val();
+                if (IpType == "SINGLE_IP") {
+                    $('#info').html("Add IP Address With Comma(,) seperated");
+                } else {
+                    $('#info').html("Add IPMask in specific format (Ex :- 255.255.255.255 ; 255.255.255.255) with Comma(,) seperated");
+                }
+                ipvalidate();
+            });
+
+        });
+
+        function validateIP() {
+            var IpAddress = $("#IpAddress").val();
+            if (IpAddress == "") {
+                $("#Ipform").submit();
+                return true;
+            }
+            if (ipvalidate()) {
+                var f = $("#Ipform");
+                f.submit();
+                return true;
+            } else
+                return false;
+        }
+
+        function ipvalidate() {
+            var IpAddress = $("#IpAddress").val();
+            if (IpAddress == undefined)
+                return true;
+
+            var IpType = $("input[name='IpType']:checked").val();
+            var IpList = IpAddress.split(",");
+            var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            var ipRangFormat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\;(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            var specificField = $('#ipAddress-errors');
+            var isValid = true;
+            if (IpType == "SINGLE_IP") {
+                for (var i in IpList) {
+                    if (IpList[i].match(ipformat)) {
+                        specificField.html("");
+                        specificField.css("display", "none");
+                    } else {
+                        specificField.css("display", "block");
+                        specificField.html("invalid IP address");
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (isValid)
+                    return true;
+                else
+                    return false;
+            }
+            else {
+                for (var i in IpList) {
+                    if (IpList[i].match(ipRangFormat)) {
+                        specificField.html("");
+                        specificField.css("display", "none");
+
+                    } else {
+                        specificField.css("display", "block");
+                        specificField.html("Invalid IP address");
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (isValid)
+                    return true;
+                else
+                    return false;
+            }
+        }
+    </script>
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

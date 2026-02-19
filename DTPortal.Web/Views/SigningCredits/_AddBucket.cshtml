@@ -1,0 +1,132 @@
+﻿@model DTPortal.Web.ViewModel.SigningCredits.AddBucketViewModel
+@{
+    ViewData["Title"] = "Exclusive Apps";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<style>
+    .select2-container {
+        width: 100% !important;
+    }
+
+        .select2-container .select2-selection--single {
+            height: 35px !important;
+        }
+
+    .selection {
+        width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #555555b3;
+        font-size: 14px;
+        font-family: inherit;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" style="display: none;">
+                                <input asp-for="OrganizationName" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="OrganizationId" class="col-form-label s3"></label>
+                                <div class="dropdown-container">
+                                    <select asp-for="OrganizationId" class="form-control custom-dropdown-select"
+                                            asp-items="Model.organizationList">
+                                        <option value="">-- Select Organization --</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="OrganizationId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="clientId" class="col-form-label s3"></label>
+                                <div class="dropdown-container">
+                                    <select asp-for="clientId" class="form-control custom-dropdown-select"
+                                            asp-items="Model.clientsList">
+                                        <option value="">-- Select Application --</option>
+                                    </select>
+                                </div>
+                                <span asp-validation-for="clientId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="label" class="col-form-label s3"></label>
+                                <input asp-for="label" class="form-control" />
+                                <span asp-validation-for="label" class="text-danger"></span>
+                            </div>
+
+                        </div>
+                    </div>
+                    @if (!User.IsInRole("Exclusive Apps Checker"))
+                    {
+                        <div style="padding-right: 10px">
+                            <div class="d-flex justify-content-end ">
+                                <button class="btn btn-primary" type="submit">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    &nbsp; &nbsp;
+                    <a asp-action="List" class="btn btn-danger">
+                        Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script>
+
+        $(document).ready(function () {
+            $('#activityReportsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#signingCreditsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $('#homeMenu').addClass('breadcrumb-item').append('Exclusive Apps');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Add');
+            $('#subMenu').removeClass('breadcrumb-item');
+            $("#clientId").select2();
+            $("#OrganizationId").select2();
+
+            $("#OrganizationId").on('change', function () {
+                var selectedOrganizationId = $(this).val();
+                var selectedOrganizationText = $(this).find("option:selected").text();
+                $("#OrganizationName").val(selectedOrganizationText);
+                $.ajax({
+                    url: '@Url.Action("GetApplications", "SigningCredits")',
+                    data: { "ordId": selectedOrganizationId },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        $("#clientId").empty();
+
+                        $("#clientId").append('<option value="">-- Select Application --</option>');
+
+                        data.forEach(function (item) {
+                            var parts = item.split(',');
+                            var id = parts[1];
+                            var name = parts[0];
+                            $("#clientId").append('<option value="' + id + '">' + name + '</option>');
+                        });
+                    }
+                });
+            });
+        });
+
+    </script>
+}

@@ -1,0 +1,51 @@
+﻿@model IEnumerable<DTPortal.Core.DTOs.SubscriberBalanceSheetDTO>
+
+@{
+    ViewData["Title"] = "Balance Sheet Details";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <td>Service Name</td>
+                            <td>Total Credits</td>
+                            <td>Total Debits</td>
+                            <td>Credits Available</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Count() > 0)
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.ServiceDefinitions.ServiceDisplayName</td>
+                                    <td>@item.TotalCredits</td>
+                                    <td>@item.TotalDebits</td>
+                                    <td>@(item.TotalCredits - item.TotalDebits)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr class="odd gradeX">
+                                <td colspan="6" align="center">No records found</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        var table = $(".table").DataTable({
+            "bLengthChange": false,
+        });
+    });
+</script>

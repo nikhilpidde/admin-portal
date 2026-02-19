@@ -1,0 +1,147 @@
+﻿@model DTPortal.Web.ViewModel.RateCard.RateCardEditViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@{
+    bool isReadonly = false;
+    //int setMin = 1;
+
+    if (Model.RateEffectiveTo != null && Model.RateEffectiveTo < DateTime.Now)
+    {
+        isReadonly = true;
+    }
+
+    // if(Model.ServiceId==4 || Model.ServiceId == 5 || Model.ServiceId == 6){
+    //     setMin = 0;
+    // }
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Edit">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="ServiceName" class="col-form-label"></label>
+                                <input asp-for="ServiceName" class="form-control" readonly />
+                                <span asp-validation-for="ServiceName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label asp-for="FeePerTransaction" class="col-form-label"></label>
+                                <input asp-for="FeePerTransaction" class="form-control" readonly="@isReadonly" />
+                                @* <input asp-for="FeePerTransaction" class="form-control" min="@setMin" readonly="@isReadonly" /> *@
+                                <span asp-validation-for="FeePerTransaction" class="text-danger"></span>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <label asp-for="RateEffectiveFrom" class="col-form-label"></label>
+                                <input asp-for="RateEffectiveFrom" class="form-control" type="text" readonly />
+                                <span asp-validation-for="RateEffectiveFrom" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="Stakeholder" class="col-form-label"></label>
+                                <input asp-for="Stakeholder" class="form-control" readonly />
+                                <span asp-validation-for="Stakeholder" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-md-12">
+                                <label asp-for="Tax" class="col-form-label"></label>
+                                <input asp-for="Tax" class="form-control" readonly="@isReadonly" />
+                                <span asp-validation-for="Tax" class="text-danger"></span>
+                            </div>
+                            @if (Model.RateEffectiveTo != null)
+                            {
+                                <div class="form-group col-md-12">
+                                    <label asp-for="RateEffectiveTo" class="col-form-label"></label>
+                                    <input asp-for="RateEffectiveTo" class="form-control" type="text" readonly />
+                                    <span asp-validation-for="RateEffectiveTo" class="text-danger"></span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <input asp-for="CreatedBy" hidden />
+                    <input asp-for="UpdatedBy" hidden />
+                    <input asp-for="ApprovedBy" hidden />
+                    <input asp-for="ServiceId" hidden />
+                    <input asp-for="Status" hidden />
+
+                    <div class="d-flex justify-content-end ">
+                        @if (!isReadonly)
+                        {
+                            <input type="submit" name="action" class="btn btn-primary" value="Update" />
+                        }
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" type="text/css" asp-append-version="true"/>
+
+@section Scripts {
+
+    <script src="~/assets/js/jquery-1.12.4.js"></script>
+    <script src="~/assets/js/jquery-ui.js"></script>
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+
+<script>
+    $(document).ready(function () {
+        $('#priceModelMenu').addClass('active');
+        $('#rateCardMenuItem').addClass('active');
+
+        $('#priceModel').addClass('show');
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+        $('#mainMenu').addClass('breadcrumb-item').append('Rate Card');
+        $('#subMenu').addClass('breadcrumb-item active').append('Edit');
+        /*For Beadcrum End*/
+
+        @*if ("@isReadOnly" == "True") {
+                                                   // $('form *').prop('disabled', true);
+                                                    $(":input:not([type=button]):not([type=submit]):not([type=reset])").prop('disabled', true);
+                                                }*@
+
+        var today = new Date();
+        $('.datepicker').datepicker({
+            dateFormat: "yy-mm-dd",
+            changeMonth: true,
+            changeYear: true,
+            minDate: 0
+        });
+    });
+</script>
+<style>
+    #note {
+        padding-right: 10px;
+        display: flex;
+        justify-content: flex-end;
+        padding-bottom: 15px;
+    }
+</style>
+}
+
+

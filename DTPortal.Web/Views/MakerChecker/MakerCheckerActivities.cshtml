@@ -1,0 +1,104 @@
+﻿@model DTPortal.Web.ViewModel.MakerChecker.MakerCheckerActivitiesListViewModel
+
+@{
+    ViewData["Title"] = "Maker Checker Configuration";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<style>
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+    #makerCheckerActivitiesFieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 20px;
+        padding-left: 25px;
+        margin-bottom: 15px;
+        overflow-y: auto;
+        height: 320px;
+        width: 350px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+    /*#incidents:empty {
+        content: "<tr>message foo</tr>";
+    }*/
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="MakerCheckerActivities">
+                    <div class="form-row">
+                        <h4 style="padding:1px">Note: </h4>
+                        <div style="padding-left:5px; font:15px; margin-top:12px">Please select the activities for which the maker-checker activity is required</div>
+                    </div>
+                    <br />
+                    <div class="form-row">
+                        <div class="form-group col-md-5">
+                            <label class="col-form-label">Activities</label>
+                            <fieldset id="makerCheckerActivitiesFieldset">
+                                <ul>
+                                    @for (int i = 0; i < Model.Activities.Count; i++)
+                                    {
+                                        <li style="list-style: none;">
+                                            @*<input asp-for="@Model.OnboardingSteps[i].Id" hidden />
+                                    <input asp-for="@Model.OnboardingSteps[i].DisplayName" />
+                                    <input type="checkbox" asp-for="@Model.OnboardingSteps[i].IsSelected" />*@
+                                            <input asp-for="@Model.Activities[i].Id" hidden />
+                                            <label>
+                                                <input type="checkbox" class="custom-check-box" asp-for="@Model.Activities[i].IsSelected" />@Model.Activities[i].DisplayName
+                                            </label>
+                                        </li>
+                                    }
+                                </ul>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+       $('#administrationSidebarElement').addClass('active');
+            $('#makerCheckerConfigurationMenuItem').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $("li#makerCheckerConfigurationMenuItem a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Maker CHecker');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+
+        $('.custom-file-input').on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).next('.custom-file-label').html(fileName);
+        });
+    });
+</script>

@@ -1,0 +1,145 @@
+﻿<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title s3">
+                <span class="text-capitalize s3" style="font-size: 18px">
+                    Select Export Type
+                </span>
+            </h5>
+            <button type="button"
+                    class="close cross"
+                    data-dismiss="modal">
+                &times;
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="well">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="exportTypeOptions" id="excel" value="excel" checked>
+                    <label class="form-check-label" for="excel">Excel</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="exportTypeOptions" id="pdf" value="pdf">
+                    <label class="form-check-label" for="pdf">Pdf</label>
+                </div>
+                @*<div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="exportTypeOptions" id="csv" value="csv">
+            <label class="form-check-label" for="csv">Csv</label>
+        </div>*@
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-primary" type="button" id="exportTransactions">Proceed</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $('#exportTransactions').click(function (e) {
+        let exportType = $("input[name='exportTypeOptions']:checked").val();
+        $(this).parents().find('.modal').modal('hide');
+        if (exportType) {
+            let transactionType = $('#ReportsTab li a.active').text();
+            
+            if (transactionType == "Authentication") {
+                exportAuthData(exportType);
+            }
+            if (transactionType == "Signing") {
+                exportSignData(exportType);
+            }
+        }
+        else {
+            swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+        }
+    });
+
+    function exportAuthData(exportType)
+    {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("ExportAuthenticationReports", "Subscriber")',
+            data: { 'exportType': exportType },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                saveByteArray("AuthenticationReport", data, exportType)
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+            }
+        });
+    }
+
+    function exportSignData(exportType)
+    {
+        $.ajax({
+                type: "GET",
+                url: '@Url.Action("ExportSigningReports", "Subscriber")',
+                data: { 'exportType': exportType },
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+            },
+            success: function (data) {
+                saveByteArray("SigningReport", data, exportType)
+            },
+            error: ajaxErrorHandler,
+            failure: function (response) {
+                swal({ type: 'error', title: "Error", text: "Failed to process your request" });
+            }
+        });
+    }
+
+    function saveByteArray(name, byte, exportType) {
+        var myBytes = base64ToArrayBuffer(byte);
+        var blob = new Blob([myBytes]);
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        if (exportType) {
+            let fileName = name + getFileExtension(exportType);
+            link.download = fileName;
+            link.click();
+        }
+        else {
+            swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+        }
+    }
+
+    function base64ToArrayBuffer(base64) {
+        var binaryString = window.atob(base64);
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+            var ascii = binaryString.charCodeAt(i);
+            bytes[i] = ascii;
+        }
+        return bytes;
+    }
+
+    function getFileExtension(exportType) {
+        let extension;
+        switch (exportType) {
+            case 'pdf':
+                extension = '.pdf';
+                break;
+            case 'excel':
+                extension = '.xlsx';
+                break;
+            case 'csv':
+                extension = '.csv';
+                break;
+        }
+
+        return extension;
+    }
+
+</script>

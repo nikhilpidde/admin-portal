@@ -1,0 +1,62 @@
+﻿@model DTPortal.Web.ViewModel.Subscriber.SubscriberCheckerViewModel
+
+@{
+    ViewData["Title"] = "Revoke Certificate";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-group col-md-6">
+                    <label>Subscriber</label>
+                    <input asp-for="Subscriber" class="form-control" readonly />
+                </div>
+                @if (Model.Remarks != null)
+                {
+                    <div class="form-group col-md-6">
+                        <label>Remarks</label>
+                        <textarea asp-for="Remarks" class="form-control" text-wrap:normal" type="text"
+                                  style="height:100px" readonly></textarea>
+                    </div>
+                }
+                <div style="padding-right: 10px">
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                            Approve
+                        </button>
+                        &nbsp; &nbsp;
+                        <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                            Reject
+                        </button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Approvals" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            /*For Beadcrum Start*/
+            //$('#homeMenu').addClass('breadcrumb-item').append('Details');
+            //$('#mainMenu').removeClass('breadcrumb-item');
+            /*For Beadcrum End*/
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals');
+            $('#subMenu').addClass('breadcrumb-item').append('Subscriber > Details');
+        });
+    </script>
+}

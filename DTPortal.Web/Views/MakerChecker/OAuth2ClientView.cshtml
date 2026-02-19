@@ -1,0 +1,212 @@
+﻿@model DTPortal.Core.Domain.Models.Client
+
+@{
+    ViewData["Title"] = "Approvals Request Details";
+}
+
+<style>
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+    i {
+        color: #808080e0;
+    }
+
+    .popup {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        float: right;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+    /* The actual popup */
+    .popup .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        /* top: -43%; */
+        /* bottom: -28%; */
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+    .popup:hover + .popuptext {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s;
+    }
+
+    .custom-check-box:hover {
+        outline: auto;
+        outline-color: #5d9ceca3;
+    }
+
+</style>
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <!-- <div class="card-header">
+                                <h5 class="card-title">Form row</h5>
+                                <h6 class="card-subtitle text-muted">Bootstrap column layout.</h6>
+                            </div> -->
+            <div class="card-body">
+                <form asp-action="Save">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label class="col-form-label s3">Application Type</label>
+                                <input asp-for="ApplicationType" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Application Name</label>
+                                <input asp-for="ApplicationName" class="form-control" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Organization Name</label>
+                                <input asp-for="OrganizationUid" class="form-control" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Application Url</label>
+                                <input asp-for="ApplicationUrl" class="form-control" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Redirect Url</label>
+                                <input asp-for="RedirectUri" class="form-control" readonly/>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Logout Url</label>
+                                <input asp-for="LogoutUri" class="form-control" readonly/>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <div class="form-group">
+                                <label  class="col-form-label s3">Scopes</label>
+                                @*<input asp-for="Scopes" class="form-control" />*@
+                                <fieldset style="padding: 5px;border: groove 2px;">
+                                    <div class="card-default" style="margin-left: 10px; margin-top:5px;">
+                                        @{ 
+                                            var scopeList = Model.Scopes.Split(' ');
+                                        }
+                                        @foreach (var item in scopeList)
+                                        {
+                                            <label>
+                                                <input type="checkbox" class="custom-check-box" name="ScopesList" value="@item" @(Model.Scopes.Contains(item) ? "checked" : "") disabled/>
+                                                @item
+                                            </label><br>
+
+                                        }
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-form-label s3">Authorization Flow</label>
+                                <fieldset style="padding: 5px;border: groove 2px;">
+                                    <div class="card-default c-checkbox" style="margin-left: 10px; margin-top:5px;">
+                                        @{
+                                            var GrantTypes = Model.GrantTypes.Split(' ');
+                                        }
+                                        @foreach (string item in GrantTypes)
+                                        {
+                                            <label>
+                                                <input type="checkbox" class="custom-check-box" name="GrantTypesList" value="@item" @(Model.GrantTypes.Contains(item) ? "checked" : "") disabled />
+                                                @item
+                                            </label><br>
+
+                                        }
+                                    </div>
+                                </fieldset>
+                            </div>
+                            
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end ">
+                             <button type="button" class="btn btn-primary" onclick="CheckerAction(@ViewBag.ApprovalRecordID, true); return false;">
+                                Approve
+                            </button>
+                            &nbsp; &nbsp;
+                            <button type="button" class="btn btn-info" onclick="CheckerAction(@ViewBag.ApprovalRecordID,false); return false;">
+                                Reject
+                            </button>
+                            &nbsp; &nbsp;
+                            <a asp-action="Approvals" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+
+            $('#dashboardMenu').addClass('active');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Approvals > OAuth2/OpenID > Details');
+            $('#subMenu').removeClass('breadcrumb-item');
+        });
+
+    </script>
+}

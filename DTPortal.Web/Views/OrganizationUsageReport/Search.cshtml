@@ -1,0 +1,313 @@
+﻿@model DTPortal.Web.ViewModel.OrganizationUsageReport.OrganizationUsageReportUsageViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    .updateLink:hover {
+        color: blue;
+        text-decoration: underline;
+    }
+
+    #note {
+        padding-right: 10px;
+        display: flex;
+        justify-content: flex-end;
+        padding-bottom: 15px;
+    }
+
+   
+    fieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 5px;
+        margin-bottom: 5px;
+        overflow-y: auto;
+        height: 180px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .sweet-alert fieldset {
+        display: none;
+    }
+
+    .sweet-alert p {
+        font-weight: 400;
+        overflow: auto;
+        max-height: 200px;
+        white-space: break-spaces;
+    }
+
+    a.dropdown-item:hover {
+        color: #212529 !important;
+    }
+
+    
+ 
+</style>
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class=card-body>
+                <form method="post" asp-action="Search">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    <div class="form-row">
+                        <input asp-for="OrganizationUid" hidden />
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="OrganizationName" class="col-form-label"></label>
+                                <input asp-for="OrganizationName" class="form-control " placeholder="Enter Organization Name" />
+                                <span asp-validation-for="OrganizationName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6" style="float:left;">
+                            <div class="form-group col-md-12">
+                                <label asp-for="Year" class="col-form-label"></label>
+                                <select asp-for="Year" class="form-control">
+                                    <option value="">select</option>
+                                </select>
+                                <span asp-validation-for="Year" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button id="downloadBtn" class="btn btn-primary" onclick="currentMonthUsageReport(event)">
+                            Download current month usage
+                        </button>
+                        &nbsp;
+                        &nbsp;
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.OrganizationUsageReports != null)
+{
+    <div id="organizationUsageReportDiv">
+        @await Html.PartialAsync("_OrganizationUsageReport", Model.OrganizationUsageReports)
+    </div>
+}
+
+@section scripts{
+    <script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+
+        var dictionary = {};
+
+        // Get the selected year value from your view model
+        var selectedYear = '@Model.Year';
+        var currentDate = new Date();
+        var currentMonth = currentDate.toLocaleString('en-US', { month: 'long' });
+
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            $('#usageReportsMenuItem').addClass('active');
+            $('#organizationUsageReportsSidebarElement').addClass('active');
+
+            $('#priceModel').addClass('show');
+            $('#usageReportsSubmenu').addClass('show');
+
+            $("li#usageReportsMenuItem a:first").attr('aria-expanded', 'true');
+            $("li#organizationUsageReportsSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Usage Reports');
+            $('#subMenu').addClass('breadcrumb-item active').append('Organization Usage Reports');
+            /*For Beadcrum End*/
+            var orgName = $("#OrganizationName").val();
+            var orgid = $('#OrganizationUid').val();
+            dictionary[orgName] = orgid;
+
+            $("#OrganizationName").typeahead({
+                minLength: 2,
+                items: 10,
+                source: function (request, response) {
+                    $.ajax({
+                        url: '@Url.Action("GetOrganizations", "OrganizationUsageReport")',
+                        data: { "value": request },
+                        type: "GET",
+                        contentType: "json",
+                        error: ajaxErrorHandler,
+                        success: function (data) {
+                            items = [];
+                            map = {};
+                            dictionary = {};
+                            $.each(data, function (i, item) {
+                                var id = i;
+                                var array = item.split(",");
+                                var uid = array[1];
+                                var name = array[0];
+                                map[name] = {
+                                    id: id,
+                                    name: name
+                                };
+                                items.push(name);
+                                dictionary[name] = uid;
+                            });
+                            response(items);
+                        }
+                    });
+                },
+                updater: function (item) {
+                    $('#OrganizationUid').val(dictionary[item]);
+                    return item;
+                }
+            });
+
+            year(selectedYear);
+        });
+
+        function year(selectedYear) {
+            var ddlYears = document.getElementById("Year");
+            var currentYear = (new Date()).getFullYear();
+
+            for (var i = 1; i <= 10; i++) {
+                var option = document.createElement("option");
+                option.innerHTML = currentYear;
+                option.value = currentYear;
+
+                if (currentYear.toString() === selectedYear) {
+                    option.selected = true; // Select the option if its value matches selectedYear
+                }
+
+                ddlYears.appendChild(option);
+                currentYear--;
+            }
+        };
+
+        function currentMonthUsageReport() {
+            event.preventDefault();
+            var value = $("#OrganizationName").val();
+            if (value == '') {
+                swal({ type: 'error', title: "Error", text: "Please enter the organization name" });
+            }
+            else {
+                downloadCurrentMonthUsageReport(dictionary[value]);
+            }
+        }
+
+        function downloadCurrentMonthUsageReport(data) {
+            var dataToSend = { organizationUid: data };
+            if (data) {
+                $.ajax({
+                    url: '@Url.Action("DownloadCurrentMonthOrganizationUsageReport", "OrganizationUsageReport")',
+                    data: dataToSend,
+                    type: "GET",
+                    error: ajaxErrorHandler,
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        if (data.status) {
+                            //var orgName = $("#OrganizationName").val();
+                            //saveByteArray(orgName + '_' + currentMonth, data.result);
+                            if (data.result == null || data.result == "") {
+                                swal({ type: 'error', title: "Error", text: data.message });
+                            }
+                            else {
+                                var orgName = $("#OrganizationName").val();
+                                saveByteArray(orgName + '_' + currentMonth, data.result);
+                            }
+                        }
+                        else {
+                            swal({ type: 'error', title: "Error", text: data.message });
+                        }
+                    }
+                });
+            }
+            else {
+                swal({ type: 'error', title: "Failed", text: "Failed to get organization unique identifier" });
+            }
+        }
+
+        function saveByteArray(name, bytes) {
+            var myBytes = base64ToArrayBuffer(bytes);
+            var blob = new Blob([myBytes], { type: "application/pdf" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            let fileName = name + ".pdf";
+            link.download = fileName;
+            link.click();
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+
+
+
+        function searchOrganizationUsageReport() {
+            var value = $("#OrganizationName").val();
+            if (value == '') {
+                swal({ type: 'error', title: "Error", text: "Please enter the organization name" });
+            }
+            else {
+                getOrganizationUsageReport(dictionary[value]);
+            }
+        }
+
+        function getOrganizationUsageReport(data) {
+            $('#organizationUsageReportDiv').empty();
+            var dataToSend = { organizationUid: data };
+            if (data) {
+                $.ajax({
+                    url: '@Url.Action("GetOrganizationUsageReport", "OrganizationUsageReport")',
+                    data: dataToSend,
+                    type: "GET",
+                    /*contentType: "json",*/
+                    error: ajaxErrorHandler,
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        if (data != null) {
+                            $('#organizationUsageReportDiv').html(data);
+                        }
+                        else {
+                            swal({ type: 'error', title: "Failed", text: "Failed to get organization usage report" });
+                        }
+                    }
+                });
+            }
+            else {
+                swal({ type: 'error', title: "Failed", text: "Failed to get organization unique identifier" });
+            }
+        }
+
+        function resetFields() {
+            $("#OrganizationName").val("");
+            $('#organizationUsageReportDiv').hide();
+            $("#OrganizationName").attr("placeholder", "Enter Organization Name");
+        }
+    </script>
+}

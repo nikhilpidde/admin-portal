@@ -1,0 +1,349 @@
+﻿@model DTPortal.Web.ViewModel.KycDashboard.PrintViewModel
+
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            color: #000;
+        }
+
+        .report-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+
+        /* Header */
+        .report-header {
+            display: table;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .report-logo {
+            display: table-cell;
+            width: 60px;
+            vertical-align: middle;
+        }
+
+            .report-logo div {
+                width: 45px;
+                height: 45px;
+                background-color: #2563eb;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+        .report-title-block {
+            display: table-cell;
+            vertical-align: middle;
+            padding-left: 10px;
+        }
+
+        .report-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .report-subtitle {
+            font-size: 14px;
+            color: #555;
+            margin: 0;
+        }
+
+        .report-header-info {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        hr.divider {
+            border: 0;
+            height: 2px;
+            background-color: #196fdd;
+            margin: 15px 0;
+        }
+
+        /* Section */
+        .section-box {
+            border: 1px solid #e0eaf3;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a6fdd;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .info-table td {
+                padding: 6px 10px;
+                vertical-align: top;
+                width: 50%;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: #6d7f90;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #000;
+        }
+
+        .verification-result {
+            color: #31a337;
+        }
+
+        /* Green box */
+        .green-box {
+            background-color: #f0f7f2;
+            border: 1px solid #d1e2d4;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .green-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #31a337;
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        .report-footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 11px;
+            color: #888;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 10px;
+        }
+    </style>
+    <div class="report-container">
+
+        <!-- Header -->
+        <div style="margin-bottom:25px; text-align:center;">
+            <!-- Report Title -->
+            <h1 style="font-size:2rem;font-weight:700;color:#000;margin:0;">
+                Emirates ID Validation Report
+            </h1>
+            <p style="font-size:1.1rem;color:#555;margin:2px 0 0 0;">
+                By Emirates ID Validation Platform
+            </p>
+
+        <!-- Report Info (ID + Date) -->
+        <table style="width:100%;font-size:0.95rem;color:#666;margin-top:15px;margin-bottom:-15px;padding:0px 5px;">
+            <tr>
+                <td style="text-align:left;">Report ID: @Model.ReportId</td>
+                <td style="text-align:right;">Generated: @Model.TimeStamp</td>
+            </tr>
+        </table>
+
+        </div>
+
+        <!-- Divider -->
+        <hr style="border:0;height:3px;background-color:#196fdd;margin:15px 0 25px 0;" />
+
+
+
+
+    <!-- Verification Summary -->
+    <div class="section-box" style="padding:20px;border:1px solid #e0eaf3;border-radius:8px;margin-bottom:20px;">
+
+        <table style="width:auto; border:0; margin-bottom:2px;">
+            <tr style="vertical-align:middle;">
+                <td style="padding-right:5px;">
+                    <!-- Shield SVG Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                         fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         style="color:#1a6fdd; display:block;">
+                        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01
+                     C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1
+                     c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0
+                     C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                    </svg>
+                </td>
+                <td>
+                    <span style="font-size:1.25rem;font-weight:600;color:#1a6fdd;">
+                        Verification Summary
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+
+        <table class="info-table"
+               style="width:100%;
+                  border-collapse:separate;
+                  border-spacing:0 12px;
+                  font-size:0.95rem;
+                  table-layout:fixed;">
+            <!-- Customer Name + Request Date -->
+            <tr>
+                <td style="width:50%;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">Customer Name:</span>
+                    <span class="info-value" style="color:#000;font-weight:600;word-break:break-word;overflow-wrap:anywhere;">@Model.Name</span>
+                </td>
+                <td style="width:50%;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">Request Date:</span>
+                    <span class="info-value" style="color:#000;font-weight:600;word-break:break-word;overflow-wrap:anywhere;">@Model.RequestDate</span>
+                </td>
+            </tr>
+
+            <!-- Emirates ID + Processing Time -->
+            <tr>
+                <td style="word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">Emirates ID:</span>
+                    <span class="info-value" style="color:#000;font-weight:600;word-break:break-word;overflow-wrap:anywhere;">@Model.EmirateId</span>
+                </td>
+                <td style="word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">Processing Time:</span>
+                    <span class="info-value" style="color:#000;font-weight:600;word-break:break-word;overflow-wrap:anywhere;">@Model.ProcessingTime</span>
+                </td>
+            </tr>
+
+            <!-- Service Provider + ICP Reference -->
+            <tr>
+                <td style="word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">Service Provider:</span>
+                    <span class="info-value" style="color:#000;font-weight:600;word-break:break-word;overflow-wrap:anywhere;">@Model.ServiceProvider</span>
+                </td>
+                <td style="word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">ICP Reference:</span>
+                    <span class="info-value" style="color:#000;font-weight:600;word-break:break-word;overflow-wrap:anywhere;">@Model.ICPReference</span>
+                </td>
+            </tr>
+
+            <!-- Verification Method + Verification Result -->
+            <tr>
+                <td style="word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">Verification Method:</span>
+                    <span class="info-value" style="color:#000;font-weight:600;word-break:break-word;overflow-wrap:anywhere;">@Model.VerificationMethod</span>
+                </td>
+                <td style="word-break:break-word;overflow-wrap:anywhere;">
+                    <span class="info-label" style="display:block;font-weight:600;color:#6d7f90;">Verification Result:</span>
+
+                    @if (!string.IsNullOrEmpty(Model.VerificationResult) &&
+                                        Model.VerificationResult.Equals("Success", StringComparison.OrdinalIgnoreCase))
+                    {
+
+                        <span class="info-value" style="color:#31a337;font-weight:600;">
+                            @Model.VerificationResult
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="info-value" style="color:#dc3545;font-weight:600;">
+                            @Model.VerificationResult
+                        </span>
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+        <!-- Verification Details -->
+        <div class="section-box">
+            <div class="section-title" style="margin-bottom:10px;">Verification Details</div>
+            <table class="info-table">
+                <tr>
+                    <!-- Left Column: Confidence Metrics -->
+                    <td>
+                        <span class="info-label" style="color:#000; display:block; margin-bottom:6px;">Confidence Metrics</span>
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="color:#6d7f90; font-weight:600;">Overall Confidence:</td>
+                                <td style="text-align:right; font-weight:500; color:#000;">@Model.OverallConfidence</td>
+                            </tr>
+                            <tr>
+                                <td style="color:#6d7f90; font-weight:600;">Verification Cost:</td>
+                                <td style="text-align:right; font-weight:500; color:#000;">@Model.VerificationCost</td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <!-- Right Column: Compliance Information -->
+                    <td>
+                        <span class="info-label" style="color:#000; display:block; margin-bottom:6px;">Compliance Information</span>
+                        <table style="width:100%;">
+                            <tr>
+                                <td style="color:#6d7f90; font-weight:600;">Consent Obtained:</td>
+                                <td style="text-align:right; font-weight:500; color:#000;">@Model.ConsentObtained</td>
+                            </tr>
+                            <tr>
+                                <td style="color:#6d7f90; font-weight:600;">Data Retention:</td>
+                                <td style="text-align:right; font-weight:500; color:#000;">@Model.DataRetention</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Digital Signature -->
+        <div style="padding:20px;border:1px solid #d1e2d4;border-radius:8px;margin-top:20px;background-color:#f0f7f2;">
+        <table style="width:auto; border:0; margin-bottom:5px;">
+            <tr style="vertical-align:middle;">
+                <td style="padding-right:5px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check-icon">
+                        <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                </td>
+                <td>
+                    <span style="font-size:1.25rem;font-weight:600;color:#31a337;">
+                        Digital Signature
+                    </span>
+                </td>
+            </tr>
+        </table>
+
+            <table style="width:100%; font-size:0.95rem; border-collapse:separate; border-spacing:0 12px;">
+                <tr>
+                    <td style="font-weight:600; color:#6d7f90;">Status:</td>
+                    <td style="text-align:right; font-weight:600; color:#000;">@Model.Status</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600; color:#6d7f90;">Certificate Authority:</td>
+                    <td style="text-align:right; font-weight:600; color:#000;">@Model.CertificateAuthority</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600; color:#6d7f90;">Signatory:</td>
+                    <td style="text-align:right; font-weight:600; color:#000;">@Model.Signatory</td>
+                </tr>
+                <tr>
+                    <td style="font-weight:600; color:#6d7f90;">Timestamp:</td>
+                    <td style="text-align:right; font-weight:600; color:#000;">@Model.TimeStamp</td>
+                </tr>
+            </table>
+        </div>
+
+
+
+        <!-- Footer -->
+        <div class="report-footer">
+            This report is generated by the Emirates ID Validation Platform and is digitally signed for authenticity.<br />
+            &copy; 2025 Emirates ID Validation Platform. All rights reserved.
+        </div>
+    </div>

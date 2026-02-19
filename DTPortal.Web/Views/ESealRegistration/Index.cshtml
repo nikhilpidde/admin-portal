@@ -1,0 +1,1846 @@
+﻿@model DTPortal.Web.ViewModel.ESealRegistration.ESealRegistrationListViewModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    var clientName = @Configuration["ProjectName"] as string;
+    var mobileCountryCode = @Configuration["CountryCode"] as string;
+}
+<style>
+    fieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 5px;
+        margin-bottom: 5px;
+        overflow-y: auto;
+        height: 180px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .sweet-alert fieldset {
+        display: none;
+    }
+.sweet-alert p {
+
+        font-weight: 400;
+        overflow: auto;
+        max-height: 200px;
+        white-space: break-spaces;
+    }
+    a.dropdown-item:hover {
+        color: #212529 !important;
+    }
+
+    .signatoryEmailListInput {
+        width: 50%;
+        padding-left: 5px;
+        border: none;
+    }
+
+    .directorEmailListInput {
+        width: 93%;
+        padding-left: 5px;
+        border: none;
+    }
+
+    .clearliSignatory, .clearliDirector {
+        margin-left: 5px;
+        width: 22px;
+        border: 1px;
+        border-radius: 12px;
+    }
+
+    .signatoryEmailListInput:hover, .directorEmailListInput:hover {
+        outline: none !important;
+        border: none !important;
+    }
+
+    .signatoryEmailListInput:focus, .directorEmailListInput:focus {
+        outline: none !important;
+        border: none !important;
+    }
+
+    #signatoriesLegend {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        padding: 0;
+        margin-bottom: -0.3rem;
+        font-size: 1.1rem;
+        line-height: inherit;
+        color: inherit;
+        white-space: normal;
+    }
+
+    #directorLegend {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        padding: 0;
+        margin-bottom: -0.3rem;
+        font-size: 1.1rem;
+        line-height: inherit;
+        color: inherit;
+        white-space: normal;
+    }
+
+    .custom-file-upload {
+        background: #f7f7f7;
+        padding: 3px 10px;
+        border: 1px solid #e3e3e3;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .popup-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .popup-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .preview-container {
+        position: relative;
+        margin-bottom: 20px;
+        height: 250px;
+        overflow: hidden;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+    }
+
+        .button-container button {
+            margin: 0 5px;
+        }
+
+ 
+
+   
+
+</style>
+
+@{
+    ViewData["Title"] = "E-seal Registration";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="height: 70px;z-index:1;">
+            <div class="form-row" style="margin-top: 4px;">
+                <div class="form-group col-md-5">
+                    <input asp-for="SearchOrganizationName" class="form-control " placeholder="Enter Organization Name" />
+                </div>
+                <div class="col-md-2">
+                    <div class="btn-group">
+                        <a class="btn btn-info" value="Search" onclick="searchOrganization();"><i class="fa fa-search"></i>Search</a>
+                        &nbsp;&nbsp;
+                        @if (!User.IsInRole("Organizations Checker"))
+                        {
+                            <a id="add" class="btn btn-primary"><i class="fa fa-plus"></i>Add</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="organizationDiv">
+</div>
+
+@section Scripts {
+
+    <script src="~/assets/js/jquery-ui.js"></script>
+    <script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+    <script src="~/assets/js/cropper.min.js"></script>
+
+    <script>
+        var mobileCountryCode = '@Html.Raw(mobileCountryCode)';
+        var emailRegex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        var allowedImageFileTypes = ['jpg', 'jpeg', 'png'];
+        var allowedCSVFileTypes = ['.csv'];
+
+        //new obj for store  generate eseal data
+        var GenerateEsealData = {
+            "organizationUID":"",
+            "organizationName":"",
+            "transactionId":"",
+            "enablePostPaidOption": ""
+        };
+        var stakeHolderOrgUID = {
+           "referedById":""
+        }
+        var vendorOrgUID = {
+            "referedById": ""
+        }
+
+        $(document).ready(function () {
+            //var eSealImageSize = 1024; // 20kb
+            var pdfSize = 1 * 1024 * 1024; // 1MB
+
+            var errorMessage;
+
+            $('#eSealRegistrationMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#eSeal').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Organizations');
+            $('#mainMenu').removeClass('breadcrumb-item');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            $("#SearchOrganizationName").typeahead({
+                minLength: 2,
+                items: 10,
+                source: function (request, response) {
+                    $.ajax({
+                        url: '@Url.Action("GetOrganizations", "ESealRegistration")',
+                        data: { "value": request },
+                        type: "GET",
+                        contentType: "json",
+                        error: ajaxErrorHandler,
+                        success: function (data) {
+                            items = [];
+                            map = {};
+                            $.each(data, function (i, item) {
+                                var id = i;
+                                var name = item;
+                                map[name] = {
+                                    id: id,
+                                    name: name
+                                };
+                                items.push(name);
+                            });
+                            response(items);
+                        }
+                    });
+                },
+                updater: function (item) {
+                    getOrganizationDetails(item);
+                    return item;
+                }
+            });
+
+            $("#add").click(function () {
+                $('#organizationDiv').empty();
+                $('#SearchOrganizationName').val('');
+                $.ajax({
+                    url: '@Url.Action("Add", "ESealRegistration")',
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        $('#organizationDiv').html(data);
+                    }
+                });
+            });
+
+            $(document).on("change", '.custom-file-input', function () {
+                
+                var id = this.id;
+                $('span[data-valmsg-for=' + id + ']').text("");
+                var file = $(this).get(0).files[0];
+                if (file == undefined) {
+                    fileName = "Choose File...";
+                } else {
+                    fileName = file.name;
+                    var ext = this.value.match(/\.(.+)$/)[1];
+                    if (id == "ESealImage") {
+                        if (!allowedImageFileTypes.includes(ext)) {
+                            $(this).val('');
+                            fileName = "Choose File...";
+                            $('.custom-file #ESealImage-error').text("");
+                            $('span[data-valmsg-for="ESealImage"]').text("Only files with extensions: " + allowedImageFileTypes.join(',') + " are allowed");
+                        } else if (file.size >= 20 * 1024) {
+                            $(this).val('');
+                            fileName = "Choose File...";
+                            swal({ type: 'error', title: "Error", text: "File size cannot be greater than 20 kb" });
+                        } else {
+                            var reader = new FileReader();
+                            reader.onload = function () {
+                                showImagePreview(reader.result);
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                    } else if (id == "AuthorizedLetterForSignatories" || id == "Incorporation" || id == "Tax" || id == "AdditionalLegalDocument") {
+                        if ($.inArray(ext, ['pdf']) == -1) {
+                            $(this).val('');
+                            fileName = "Choose File...";
+                            if (id == "AuthorizedLetterForSignatories") {
+                                $('.custom-file #AuthorizedLetterForSignatories-error').text("");
+                                $('span[data-valmsg-for="AuthorizedLetterForSignatories"]').text("Only files with extensions .pdf are allowed");
+                            }
+                            if (id == "Incorporation") {
+                                $('.custom-file #Incorporation-error').text("");
+                                $('span[data-valmsg-for="Incorporation"]').text("Only files with extensions .pdf are allowed");
+                            }
+                            if (id == "Tax") {
+                                $('.custom-file #Tax-error').text("");
+                                $('span[data-valmsg-for="Tax"]').text("Only files with extensions .pdf are allowed");
+                            }
+                            if (id == "AdditionalLegalDocument") {
+                                $('.custom-file #OtherLegalDocument-error').text("");
+                                $('span[data-valmsg-for="AdditionalLegalDocument"]').text("Only files with extensions .pdf are allowed");
+                            }
+                        } else if (file.size >= pdfSize) { //1MB
+                            $(this).val('');
+                            fileName = "Choose File...";
+                            swal({ type: 'error', title: "Error", text: "File size cannot be greater than 1MB" });
+                        } else {
+                            var reader = new FileReader();
+                            reader.readAsDataURL(file);
+                        }
+                    }
+                }
+                $(this).next('.custom-file-label').html(fileName);
+                $(this).closest('.help-block').remove();
+            });
+
+            // Function to call a POST API using Fetch API and return a Promise
+
+            function ImagePreview(data) {
+                    
+                return new Promise((resolve, reject) => {
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("MakeTransparentImage", "ESealRegistration")',
+                        data: data,
+                        error: ajaxErrorHandler,
+                        success: function (data) {
+                            resolve(data);
+
+                        }
+                    });
+
+
+                });
+            }
+
+
+            function showImagePreview(PrvImageData) {
+            
+                if (PrvImageData) {
+                    var imgEl = document.createElement('img');
+                imgEl.addEventListener('load', function() {
+
+                        //var resizedImage = resizeImage(imgEl);
+                        //var resizedImgElement = document.getElementById('previewImage');
+                        //resizedImgElement.src = resizedImage;
+
+                        //var esealImagePopup = document.getElementById('esealImagePopup');
+                        //esealImagePopup.style.display = 'flex';
+
+
+                        var resizedImage = resizeImage(imgEl);
+                   var base64EsealImage ="";
+                        if (resizedImage.startsWith("data:image/jpg;base64,"))
+                            base64EsealImage = resizedImage.replace("data:image/jpg;base64,", "");
+
+                        else if (resizedImage.startsWith("data:image/jpeg;base64,"))
+                            base64EsealImage = resizedImage.replace("data:image/jpeg;base64,", "");
+
+                        else
+                            base64EsealImage = resizedImage.replace("data:image/png;base64,", "");
+                        const postData = { "base64": base64EsealImage };
+
+                        ImagePreview(postData)
+                            .then(data => {
+                                
+                                if(data.success){
+                                    var resizedImgElement = document.getElementById('previewImage');
+                                      resizedImgElement.src = "data:image/png;base64,"+ data.result;
+
+                                    var esealImagePopup = document.getElementById('esealImagePopup');
+                                    esealImagePopup.style.display = 'flex';
+                                }
+                                else{
+                                    var resizedImgElement = document.getElementById('previewImage');
+                                    resizedImgElement.src = resizedImage;
+
+                                    var esealImagePopup = document.getElementById('esealImagePopup');
+                                    esealImagePopup.style.display = 'flex';
+                                }
+                            })
+                            .catch(error => {
+                                // Handle any errors that occurred during the API call
+                                console.error('Error:', error);
+                            });
+
+
+
+                    });
+
+                    imgEl.src = PrvImageData;
+                }
+            }
+
+            $(document).on("click", '#agreeButton', function (e) {
+                e.preventDefault();
+                var imgSrc = document.getElementById('previewImage').getAttribute('src');
+                handelEsealImagePreview(imgSrc, true);
+            });
+            $(document).on("click", '#uploadAgainButton', function (e) {
+                e.preventDefault();
+                handelEsealImagePreview(false);
+            });
+
+            $(document).on("click", '#hideImagePreview', function (e) {
+                e.preventDefault();
+                handelEsealImagePreview(false);
+            });
+
+
+
+            function handelEsealImagePreview(resizedImage, agreed) {
+                
+                if (agreed) {
+                    var base64EsealImage ="";
+                    if (resizedImage.startsWith("data:image/jpg;base64,"))
+                        base64EsealImage = resizedImage.replace("data:image/jpg;base64,", "");
+
+                    else if (resizedImage.startsWith("data:image/jpeg;base64,"))
+                        base64EsealImage = resizedImage.replace("data:image/jpeg;base64,", "");
+
+                    else
+                        base64EsealImage = resizedImage.replace("data:image/png;base64,", "");
+
+
+
+                    $('#ResizedEsealImage').val(base64EsealImage);
+                    $('#eSealPreviewImage').attr('src', resizedImage);
+                } else {
+                    $('.custom-file-input').val('');
+                    $('#esealFileLable').html('Choose File...');
+                    //$('#eSealPreviewImage').attr('src', '');
+                }
+
+                var esealImagePopup = document.getElementById('esealImagePopup');
+                esealImagePopup.style.display = 'none';
+            }
+
+            // Resize image logic
+            function resizeImage(imgEl) {
+
+                const maxWidth = 250; // Set the desired width for the resized image
+                const maxHeight = 250; // Set the desired height for the resized image
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                let width = imgEl.width;
+                let height = imgEl.height;
+
+                // Calculate the new dimensions while maintaining the aspect ratio
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                var xPadding = 0;
+                var yPadding = 0;
+
+                if (width < 250) {
+                    var widthDiff = 250 - width;
+                    xPadding = widthDiff / 2;
+                }
+                if (height < 250) {
+                    var heightDiff = 250 - height;
+                    yPadding = heightDiff / 2;
+                }
+
+
+                canvas.width = 250;// width;
+                canvas.height = 250;// height;
+
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+
+                ctx.drawImage(imgEl, xPadding, yPadding, width, height);
+
+                return canvas.toDataURL();
+            }
+
+
+            $(document).on("click", '#viewStakeholderForm', function () {
+                
+                $('#StakeHolderList').modal('hide');
+                $.ajax({
+                    url: '@Url.Action("AddStakeHolder", "ESealRegistration")',
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    beforeSend: function () {
+                        $('#overlay2').show();
+                    },
+                    complete: function () {
+                        $('#overlay2').hide();
+                    },
+                    success: function (data) {
+                        $('#modalDialogContentDiv').html(data);
+                        $('#modalDialogDiv').modal('show');
+                    }
+                });
+
+            });
+
+            $(document).on("click", '#viewVendorForm', function () {
+                $('#StakeHolderList').modal('hide');
+                $.ajax({
+                    url: '@Url.Action("AddVendor", "ESealRegistration")',
+                    type: "GET",
+                    contentType: "json",
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        swal({ type: 'error', title: "Error", text: "Cannot process your request" });
+                    },
+                    beforeSend: function () {
+                        $('#overlay2').show();
+                    },
+                    complete: function () {
+                        $('#overlay2').hide();
+                    },
+                    success: function (data) {
+                        $('#modalDialogContentDiv').html(data);
+                        $('#modalDialogDiv').modal('show');
+                    }
+                });
+
+            });
+
+
+            $(document).on("click", '#viewStakeholderFormCSV', function () {
+
+                $('#StakeHolderList').modal('hide');
+                $.ajax({
+                    url: '@Url.Action("AddStakeHoldersCSV", "ESealRegistration")',
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    beforeSend: function () {
+                        $('#overlay').show();
+                    },
+                    complete: function () {
+                        $('#overlay').hide();
+                    },
+                    success: function (data) {
+                        $('#modalDialogContentDiv').html(data);
+                        $('#modalDialogDiv').modal('show');
+                    }
+                });
+
+            });
+
+
+
+
+
+            $(document).on("click", '#addSignatoryEmail', function () {
+                ////signatoryEmailIndex = $('#signatory-email-list li').length;
+                //var email = $('#SignatoryEmail').val();
+                //if (email == "" || !emailRegex.test(email)) {
+                //    $("span[data-valmsg-for='SignatoryEmail']").html("Invalid email address");
+                //    return;
+                //}
+                //var emailExist = false;
+                //$('#signatory-email-list li').each(function () {
+                //    if ($(this).find(".signatoryEmailListInput").val() == email) {
+                //        $('#SignatoryEmail').val('');
+                //        $('span[data-valmsg-for="SignatoryEmail"]').text("Email already present in the list");
+                //        emailExist = true;
+                //        return false;
+                //    }
+                //});
+
+                //if (emailExist == false) {
+                //    addSignatoryEmail(email, false, [], []);
+                //}
+
+                ClearModelDiv();
+
+
+                $('#modal-addBusinessUser').modal('show');
+
+
+            });
+
+            $(document).on('hide.bs.modal', "#modal-addBusinessUser", function () {
+                ClearModelDiv();
+            });
+
+            function ClearModelDiv() {
+                
+                $('#ugpassEmailSpan').text("");
+                $('#ninSpan').text("");
+                $('#passportNumberSpan').text("");
+                $('#employeeEmailSpan').text("");
+                $('#mobileNumberSpan').text("");
+                $('#BusinessUser_ugPassEmail').val("");
+                $('#BusinessUser_NIN').val("");
+                $('#BusinessUser_Passport').val("");
+                $('#employeeEmail').val("");
+                $('#BusinessUser_MobileNumber').val("");
+                $('#BusinessUser_CustomSignature').val("");
+                $('#BusinessUser_Image').val("");
+                $('#BusinessUser_InitialImage').val("");
+
+                $('#BusinessUser_Signature').val("");
+                $('#BusinessUser_CustomSignature').val("");
+                $('#BusinessUser_Designation').val("");
+                $('#BusinessUser_ESealSignatory').prop('checked', false);
+                $('#BusinessUser_ESealPreparatory').prop('checked', false);
+                $('#BusinessUser_Bulksign').prop('checked', false);
+                $('#BusinessUser_Delegation').prop('checked', false);
+                $('#BusinessUser_Digitalforms').prop('checked', false);
+                $('#signatureMessage').text("");
+                $('#initialImageMessage').text("");
+                $('#index').attr('value', signatoryEmailIndex);
+            }
+
+            $(document).on('click', '.liEditButton', function () {
+                
+                $('#ugpassEmailSpan').text("");
+                $('#ninSpan').text("");
+                $('#passportNumberSpan').text("");
+                $('#employeeEmailSpan').text("");
+                $('#mobileNumberSpan').text("");
+                var indexValue = $(this).closest('li').find('div input[name="OrganizationUsersList.index"]').val();
+
+                $('#index').attr('value', indexValue);
+
+                var designation = $('#OrganizationUsersList_' + indexValue + 'Designation').val();
+                var organizationEmail = $('#OrganizationUsersList_' + indexValue + '__EmployeeEmail').val();
+                var nin = $('#OrganizationUsersList_' + indexValue + '__NationalIdNumber').val();
+                var passportNumber = $('#OrganizationUsersList_' + indexValue + '__PassportNumber').val();
+                var ugPassEmail = $('#OrganizationUsersList_' + indexValue + '__Ugpassemail').val();
+                var mobileNumber = $('#OrganizationUsersList_' + indexValue + '__MobileNumber').val();
+
+                var signaturePhoto = $('#OrganizationUsersList_' + indexValue + 'SignaturePhoto').val();
+                var Initial = $('#OrganizationUsersList_' + indexValue + 'Initial').val();
+                var delegation = $('#OrganizationUsersList_' + indexValue + '__Delegate').prop("checked") ? "checked" : "";
+
+                var affixEseal = $('#OrganizationUsersList_' + indexValue + '__ESealSignatory').prop("checked") ? "checked" : "";
+                var prepatory = $('#OrganizationUsersList_' + indexValue + '__ESealPrepatory').prop("checked") ? "checked" : "";
+                var bulksigner = $('#OrganizationUsersList_' + indexValue + '__Bulksign').prop("checked") ? "checked" : "";
+                var digitalforms = $('#OrganizationUsersList_' + indexValue + '__Digitalforms').prop("checked") ? "checked" : "";
+
+                document.getElementById('BusinessUser_Designation').value = designation;
+                document.getElementById('employeeEmail').value = organizationEmail;
+                document.getElementById('BusinessUser_NIN').value = nin;
+                document.getElementById('BusinessUser_Passport').value = passportNumber;
+                document.getElementById('BusinessUser_ugPassEmail').value = ugPassEmail;
+                document.getElementById('BusinessUser_MobileNumber').value = mobileNumber;
+                document.getElementById('BusinessUser_Signature').value = signaturePhoto;
+                document.getElementById('BusinessUser_InitialImage').value = Initial;
+
+                // Check if custom signature is present and display a message
+                if (signaturePhoto !== "") {
+                    $('#signatureMessage').text("Custom signature Uploaded.");
+                } else {
+                    $('#signatureMessage').text("");
+                }
+                if (Initial !== "") {
+                    $('#initialImageMessage').text("Initial signature Uploaded.");
+                } else {
+                    $('#initialImageMessage').text("");
+                }
+                if (delegation == "checked") {
+                    $('#BusinessUser_Delegation').prop("checked", true);
+                } else {
+                    $('#BusinessUser_Delegation').prop("checked", false);
+                }
+                if (affixEseal == "checked") {
+                    $('#BusinessUser_ESealSignatory').prop("checked", true);
+                } else {
+                    $('#BusinessUser_ESealSignatory').prop("checked", false);
+                }
+                if (prepatory == "checked") {
+                    $('#BusinessUser_ESealPreparatory').prop("checked", true);
+                } else {
+                    $('#BusinessUser_ESealPreparatory').prop("checked", false);
+                }
+                if (bulksigner == "checked") {
+                    $('#BusinessUser_Bulksign').prop("checked", true);
+                } else {
+                    $('#BusinessUser_Bulksign').prop("checked", false);
+                }
+                if (digitalforms == "checked") {
+                    $('#BusinessUser_Digitalforms').prop("checked", true);
+                } else {
+                    $('#BusinessUser_Digitalforms').prop("checked", false);
+                }
+
+                $('#modal-addBusinessUser').modal('show');
+            });
+
+            function duplicateValidation(index) {
+                var emailExist = false;
+                var email = $('#employeeEmail').val();
+                var ugPassEmail = $('#BusinessUser_ugPassEmail').val();
+                var nin = $('#BusinessUser_NIN').val();
+                var passportNumber = $('#BusinessUser_Passport').val();
+                //organizationEmail = $('#BusinessUser_OrganizationEmail').val();
+                var mobileNumber = $('#BusinessUser_MobileNumber').val()
+                var designation = $('#BusinessUser_Designation').val();
+                var signaturePhoto = $('#BusinessUser_Signature').val();
+                var Initial = $('#BusinessUser_InitialImage').val();
+                var value = 0;
+                const clientName = '@clientName';
+
+                $('#signatory-email-list li').each(function () {
+                    
+                    if (value != index) {
+
+                        if ($(this).find(".signatoryEmailListInput").val() == email) {
+                            //$('#employeeEmail').val('');
+                            $('#employeeEmailSpan').text("Email already present in the list");
+                            emailExist = true;
+                            return false;
+                        }
+                        if (ugPassEmail != "" && $(this).find(".ugpassEmailListInput").val() == ugPassEmail) {
+                            $('#ugpassEmailSpan').text(clientName + " Email already present in the list");
+                            emailExist = true;
+                            return false;
+                        }
+                        if (nin != "" && $(this).find(".ninListInput").val() == nin) {
+                            //$('#employeeEmail').val('');
+                            $('#ninSpan').text("NIN already present in the list");
+                            emailExist = true;
+                            return false;
+                        }
+                        if (passportNumber != "" && $(this).find(".passportNumberListInput").val() == passportNumber) {
+                            //$('#employeeEmail').val('');
+                            $('#passportNumberSpan').text("Passport number already present in the list");
+                            emailExist = true;
+                            return false;
+                        }
+                        if (!(mobileNumber.length > 13 || mobileNumber.match(/[^+0-9]/g))) {
+                            if (mobileNumber != "" && $(this).find(".mobileNumberListInput").val() == mobileNumber) {
+                                //$('#employeeEmail').val('');
+                                $('#mobileNumberSpan').text("Mobile number already present in the list");
+                                emailExist = true;
+                                return false;
+                            }
+
+                        }
+
+                    }
+                    value++;
+                });
+
+                if (mobileNumber != "") {
+                    var newNumber = ValidateNumber(mobileNumber);
+                    if (newNumber == null) {
+                        $('#mobileNumberSpan').text("Invalid Mobile number");
+                        emailExist = true;
+                    }
+                    else {
+                        $('#BusinessUser_MobileNumber').val(newNumber);
+                    }
+
+                }
+
+                return emailExist;
+            }
+
+            function ValidateNumber(MobNumber) {
+
+                if (MobNumber.startsWith(mobileCountryCode)) {
+                    if (MobNumber.length != 13) {
+                        return null;
+                    }
+                } else if (MobNumber.startsWith("971")) {
+                    if (MobNumber.length != 12) {
+                        return null;
+                    }
+                    MobNumber = "+" + MobNumber;
+
+                } else if (MobNumber.startsWith("+91")) {
+                    if (MobNumber.length != 13) {
+                        return null;
+                    }
+                }
+                else if (MobNumber.startsWith("91")) {
+                    if (MobNumber.length != 12) {
+                        return null;
+                    }
+                    MobNumber = "+" + MobNumber;
+                }
+                else if (MobNumber.startsWith("0")) {
+                    if (MobNumber.length == 10) {
+                        MobNumber = MobNumber.replace("0",  mobileCountryCode);
+                    }
+                    else if (MobNumber.length == 11) {
+                        MobNumber = MobNumber.replace("0", "+91");
+                    } else {
+                        return null;
+                    }
+                }
+                else if (MobNumber.length == 9) {
+                    MobNumber = mobileCountryCode + MobNumber;
+                }
+
+                else if (MobNumber.length == 10) {
+                    MobNumber = "+91" + MobNumber;
+                }
+                else {
+                    return null
+                }
+
+                return MobNumber
+            }
+
+
+            $(document).on("click", '#SaveChanges_BusinessEmail', function () {
+
+                var emailExist = false;
+                var index = $('#index').val();
+                var email = $('#employeeEmail').val();
+                var domain = $('#EmailDomain').val();
+
+                $('#ugpassEmailSpan').text("");
+                $('#ninSpan').text("");
+                $('#passportNumberSpan').text("");
+                $('#employeeEmailSpan').text("");
+                $('#mobileNumberSpan').text("");
+
+                var emailDomainSplit = domain.split(",");
+                var emailDomainTrim = [];
+                for (let i = 0; i < emailDomainSplit.length; i++) {
+                    if (emailDomainSplit[i] != "")
+                        emailDomainTrim.push($.trim(emailDomainSplit[i]));
+                }
+
+
+                if (email == "" || !emailRegex.test(email)) {
+                    $('#employeeEmailSpan').text("Invalid email address");
+                    return;
+                }
+                else if (domain != "") {
+                    if (emailDomainTrim.indexOf(email.split('@Html.Encode("@")')[1]) == -1) {
+                        $("#employeeEmailSpan").html('Please enter a valid domain');
+                        return false;
+                    }
+
+                }
+
+                if (index != signatoryEmailIndex) {
+                    if (!duplicateValidation(index)) {
+                        editElement(index);
+                        ClearModelDiv();
+                        $('#modal-addBusinessUser').modal('hide');
+                        return;
+                    } else {
+                        $('#modal-addBusinessUser').modal('show');
+                        return;
+                    }
+                }
+
+
+                ugPassEmail = $('#BusinessUser_ugPassEmail').val();
+                nin = $('#BusinessUser_NIN').val();
+                passportNumber = $('#BusinessUser_Passport').val();
+                //organizationEmail = $('#BusinessUser_OrganizationEmail').val();
+                mobileNumber = $('#BusinessUser_MobileNumber').val()
+                designation = $('#BusinessUser_Designation').val();
+                signaturePhoto = $('#BusinessUser_Signature').val();
+                initialImage = $('#BusinessUser_InitialImage').val();
+                const clientName = '@clientName';
+                //email, u
+
+                $('#signatory-email-list li').each(function () {
+                   
+                    if ($(this).find(".signatoryEmailListInput").val() == email) {
+                        //$('#employeeEmail').val('');
+                        $('#employeeEmailSpan').text("Email already present in the list");
+                        emailExist = true;
+                        return false;
+                    }
+                    if (ugPassEmail != "" && $(this).find(".ugpassEmailListInput").val() == ugPassEmail) {
+                        $('#ugpassEmailSpan').text(clientName + " Email already present in the list");
+                        emailExist = true;
+                        return false;
+                    }
+                    if (nin != "" && $(this).find(".ninListInput").val() == nin) {
+                        //$('#employeeEmail').val('');
+                        $('#ninSpan').text("NIN already present in the list");
+                        emailExist = true;
+                        return false;
+                    }
+                    if (passportNumber != "" && $(this).find(".passportNumberListInput").val() == passportNumber) {
+                        //$('#employeeEmail').val('');
+                        $('#passportNumberSpan').text("Passport number already present in the list");
+                        emailExist = true;
+                        return false;
+                    }
+                    if (!(mobileNumber.length > 13 || mobileNumber.match(/[^+0-9]/g))) {
+                        if (mobileNumber != "" && $(this).find(".mobileNumberListInput").val() == mobileNumber) {
+                            //$('#employeeEmail').val('');
+                            $('#mobileNumberSpan').text("Mobile number already present in the list");
+                            emailExist = true;
+                            return false;
+                        }
+                    }
+                });
+
+
+                if (mobileNumber != "") {
+                    var newNumber = ValidateNumber(mobileNumber);
+                    if (newNumber == null) {
+                        $('#mobileNumberSpan').text("Invalid Mobile number");
+                        emailExist = true;
+                    }
+                    mobileNumber = newNumber;
+                }
+
+
+
+                affixEseal = $('#BusinessUser_ESealSignatory').prop("checked") ? "checked" : "";
+                prepatory = $('#BusinessUser_ESealPreparatory').prop("checked") ? "checked" : "";
+                //template = $("#BusinessUser_Template").prop("checked") ? "checked" : "";
+                bulksigner = $("#BusinessUser_Bulksign").prop("checked") ? "checked" : "";
+                delegation = $("#BusinessUser_Delegation").prop("checked") ? "checked" : "";
+                digitalforms = $("#BusinessUser_Digitalforms").prop("checked") ? "checked" : "";
+                //addSignatoryEmail(email, false, [], []);
+                arr = new Array();
+                arr.push(affixEseal);
+                arr.push(prepatory);
+                arr.push(bulksigner);
+                arr.push(delegation);
+                arr.push(digitalforms);
+
+                signData = new Array();
+                signData.push(ugPassEmail);
+                signData.push(nin);
+                signData.push(passportNumber);
+
+                signData.push(mobileNumber);
+                signData.push(designation);
+                signData.push(signaturePhoto);
+                signData.push(initialImage);
+
+                if (emailExist == false) {
+
+                    addSignatoryEmail(email, false, arr, signData);
+                    $('#BusinessUser_Signature').attr('value', '');
+                    $('#BusinessUser_InitialImage').attr('value', '');
+                    $('#modal-addBusinessUser').modal('hide');
+                    ClearModelDiv();
+                }
+                else {
+
+                    $('#modal-addBusinessUser').modal('show');
+                }
+
+            });
+
+
+
+
+            $(document).on('click', '.liEditViewButton', function () {
+                $('#ugpassEmailSpan').text("");
+                $('#ninSpan').text("");
+                $('#passportNumberSpan').text("");
+                $('#employeeEmailSpan').text("");
+                $('#mobileNumberSpan').text("");
+                $('#customSignatureMessage').text(""); // Clear any previous custom signature message
+                var indexValue = $(this).closest('li').find('div input[name="OrganizationUsersList.index"]').val();
+
+                $('#index').attr('value', indexValue);
+
+                var designation = $('#OrganizationUsersList_' + indexValue + 'Designation').val();
+                var organizationEmail = $('#OrganizationUsersList_' + indexValue + '__EmployeeEmail').val();
+                var nin = $('#OrganizationUsersList_' + indexValue + '__NationalIdNumber').val();
+                var passportNumber = $('#OrganizationUsersList_' + indexValue + '__PassportNumber').val();
+                var ugPassEmail = $('#OrganizationUsersList_' + indexValue + '__Ugpassemail').val();
+                var mobileNumber = $('#OrganizationUsersList_' + indexValue + '__MobileNumber').val();
+                var signaturePhoto = $('#OrganizationUsersList_' + indexValue + 'SignaturePhoto').val();
+                var initialPhoto = $('#OrganizationUsersList_' + indexValue + 'Initial').val();
+
+                var affixEseal = $('#OrganizationUsersList_' + indexValue + '__ESealSignatory').prop("checked") ? "checked" : "";
+                var prepatory = $('#OrganizationUsersList_' + indexValue + '__ESealPrepatory').prop("checked") ? "checked" : "";
+                var bulksigner = $('#OrganizationUsersList_' + indexValue + '__Bulksign').prop("checked") ? "checked" : "";
+                var delegation = $('#OrganizationUsersList_' + indexValue + '__Delegate').prop("checked") ? "checked" : "";
+                var digitalforms = $('#OrganizationUsersList_' + indexValue + '__Digitalforms').prop("checked") ? "checked" : "";
+
+                document.getElementById('BusinessUser_Designation').value = designation;
+                document.getElementById('employeeEmail').value = organizationEmail;
+                document.getElementById('BusinessUser_NIN').value = nin;
+                document.getElementById('BusinessUser_Passport').value = passportNumber;
+                document.getElementById('BusinessUser_ugPassEmail').value = ugPassEmail;
+                document.getElementById('BusinessUser_MobileNumber').value = mobileNumber;
+                document.getElementById('BusinessUser_Signature').value = signaturePhoto;
+                document.getElementById('BusinessUser_InitialImage').value = initialPhoto;
+
+                if (delegation == "checked") {
+                    $('#BusinessUser_Delegation').prop("checked", true);
+                } else {
+                    $('#BusinessUser_Delegation').prop("checked", false);
+                }
+                if (affixEseal == "checked") {
+                    $('#BusinessUser_ESealSignatory').prop("checked", true);
+                } else {
+                    $('#BusinessUser_ESealSignatory').prop("checked", false);
+                }
+                if (prepatory == "checked") {
+                    $('#BusinessUser_ESealPreparatory').prop("checked", true);
+                } else {
+                    $('#BusinessUser_ESealPreparatory').prop("checked", false);
+                }
+                if (bulksigner == "checked") {
+                    $('#BusinessUser_Bulksign').prop("checked", true);
+                } else {
+                    $('#BusinessUser_Bulksign').prop("checked", false);
+                }
+                if (digitalforms == "checked") {
+                    $('#BusinessUser_Digitalforms').prop("checked", true);
+                } else {
+                    $('#BusinessUser_Digitalforms').prop("checked", false);
+                }
+                // Check if custom signature is present and display a message
+                if (signaturePhoto !== "") {
+                    $('#signatureMessage').text("Custom signature Uploaded.");
+                }else{
+                    $('#signatureMessage').text("");
+                }
+
+                if (initialPhoto !== "") {
+                    $('#initialImageMessage').text("Initial signature Uploaded.");
+                } else {
+                    $('#initialImageMessage').text("");
+                }
+
+                $('#modal-addBusinessUser').modal('show');
+            });
+
+
+
+            $(document).on("click", '#addDirector', function () {
+                directorEmailIndex = $('#director-list li').length;
+                var email = $('#Directors').val();
+                var emailRegex = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+                var pattern = /^[+]?[0-9]+$/;
+
+                if (email != "") {
+                    if (emailRegex.test(email) || pattern.test(email)) {
+                        var emailExist = false;
+                        $('#director-list li').each(function () {
+                            if ($(this).find(".directorEmailListInput").val() == email) {
+                                $('#Directors').val('');
+                                $('span[data-valmsg-for="Directors"]').text("Email/Phone number already present in the list");
+                                emailExist = true;
+                                return false;
+                            }
+                        });
+
+                        if (emailExist == false) {
+                            addDirectorEmail($('#Directors').val())
+                            $('#Directors').val('');
+                            $('#addDirectorFieldset').show();
+                            $("span[data-valmsg-for='Directors']").html('');
+                        }
+                    }
+                    else {
+                        $("span[data-valmsg-for='Directors']").html("Invalid email address/phone number");
+                        return;
+                    }
+                }
+                else {
+                    $("span[data-valmsg-for='Directors']").html("Please enter email address/phone number");
+                    return;
+                }
+            });
+
+            $(document).on('click', '.clearliSignatory', function () {
+                var li = $(this).closest('li').remove();
+                var count = $('.clearliSignatory');
+                if (count.length == 0) {
+                    $('#addSignatoryEmailFieldset').hide();
+                }
+            });
+
+            $(document).on('click', '.clearliDirector', function () {
+                var li = $(this).closest('li').remove();
+                var count = $('.clearliDirector');
+                if (count.length == 0) {
+                    $('#addDirectorFieldset').hide();
+                }
+            });
+
+            $(document).on("click", '#uploadCSV', function () {
+                $(this).prop("value", "")
+            });
+
+            $(document).on("change", '#uploadCSV', function () {
+                // $("#uploadCSVError").html('');
+                var domain = $('#EmailDomain').val();
+
+                var emailDomainSplit = domain.split(",");
+                var emailDomainTrim = [];
+                for (let i = 0; i < emailDomainSplit.length; i++) {
+                    if (emailDomainSplit[i] != "")
+                        emailDomainTrim.push($.trim(emailDomainSplit[i]));
+                }
+
+                const clientName = '@clientName';
+
+                signatoryEmailIndex = $('#signatory-email-list li').length;
+                var file = $(this).get(0).files[0];
+                if (file != undefined) {
+                    var fileExtension = getExtension(file.name);
+                    if (allowedCSVFileTypes.includes(fileExtension)) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            var maxSize = 20;
+                            var rows = e.target.result.split("\n");
+                            for (var i = 0; i < rows.length; i++) {
+                                var cells = rows[i].replace("\r", "").split(",");
+                                var signatureData = cells.slice(7);
+                                var email = cells[1];
+                                var signImage = signatureData[1];
+                                var initialImage = signatureData[2];
+
+                                var stringLength = 0;
+                                var INstringLength = 0;
+                                if (cells.length != 1) {
+                                    if (signImage.includes("base64,")) {
+                                        var image = signImage.split("base64,")[1];
+                                        stringLength = image.length;
+                                    } else {
+                                        stringLength = signImage.length;
+                                    }
+                                }
+                                if (cells.length != 1) {
+                                    if (initialImage.includes("base64,")) {
+                                        var image = initialImage.split("base64,")[1];
+                                        stringLength = image.length;
+                                    } else {
+                                        INstringLength = initialImage.length;
+                                    }
+                                }
+
+
+                                var sizeInBytes = 4 * Math.ceil((stringLength / 3)) * 0.5624896334383812;
+                                var sizeInKb = sizeInBytes / 1000;
+
+                                if (sizeInKb > maxSize) {
+                                    return swal({ type: 'error', title: "Max size exceeded", text: "Signature file must be less than 20 Kb for " + email });
+                                }
+
+                                var sizeInBytes1 = 4 * Math.ceil((INstringLength / 3)) * 0.5624896334383812;
+                                var sizeInKb1 = sizeInBytes / 1000;
+
+                                if (sizeInKb1 > maxSize) {
+                                    return swal({ type: 'error', title: "Max size exceeded", text: "Signature file must be less than 20 Kb for " + email });
+                                }
+                            }
+
+                            var duplicates = [];
+                            for (var i = 0; i < rows.length; i++) {
+                                var cells = rows[i].replace("\r", "").split(",");
+                                var checkboxArr = cells.slice(2, 7);
+                                var signatureData = cells.slice(7);
+
+                                var validArr = checkboxArr.map((x) => {
+                                    return x < 2 && x >= 0;
+                                })
+
+                                if (jQuery.inArray(false, validArr) != -1) {
+                                    continue;
+                                }
+
+                                if (cells.length == 13) {
+                                    var ugpassEmail = cells[0];
+                                    var email = cells[1];
+                                    var nin = cells[10];
+                                    var passportNumber = cells[12];
+                                    var mobileNumber = cells[11];
+
+                                    if (email == "" || !emailRegex.test(email)) {
+                                        continue;
+                                    }
+                                    if (ugpassEmail == "" || !emailRegex.test(ugpassEmail)) {
+                                        continue;
+                                    }
+                                    if (domain != "") {
+                                        if (emailDomainTrim.indexOf(email.split('@Html.Encode("@")')[1]) == -1) {
+                                            return swal({ type: 'error', title: "Invalid email domain", text: "Please enter a valid domain for " + email });
+                                        }
+                                    }
+                                    if (mobileNumber != "") {
+                                        var newNumber = ValidateNumber(mobileNumber);
+                                        signatureData[4] = newNumber;
+                                    }
+                                    var emailExist = false;
+                                    $('#signatory-email-list li').each(function () {
+                                        if (email != "") {
+                                            if ($(this).find(".signatoryEmailListInput").val() == email) {
+                                                emailExist = true;
+                                            }
+                                        }
+                                        if (ugpassEmail != "") {
+                                            if ($(this).find(".ugpassEmailListInput").val() == ugpassEmail) {
+                                                duplicates.push("Duplicate " + clientName + " Email found for email : " + email);
+                                                emailExist = true;
+                                            }
+                                        }
+                                        if (nin != "") {
+                                            if ($(this).find(".ninListInput").val() == nin) {
+                                                duplicates.push("Duplicate NIN found for email : " + email);
+                                                emailExist = true;
+                                            }
+                                        }
+                                        if (passportNumber != "") {
+                                            if ($(this).find(".passportNumberListInput").val() == passportNumber) {
+                                                duplicates.push("Duplicate PassPort Number found for email : " + email);
+                                                emailExist = true;
+                                            }
+                                        }
+
+                                        if (mobileNumber != "" && !(newNumber.length > 13 || newNumber.match(/[^+0-9]/g))) {
+                                            if ($(this).find(".mobileNumberListInput").val() == newNumber) {
+                                                duplicates.push("Duplicate Mobile Number found for email : " + email);
+                                                emailExist = true;
+                                            }
+                                        }
+
+
+                                    });
+                                    if (emailExist == false) {
+                                        addSignatoryEmail(email, true, checkboxArr, signatureData, ugpassEmail);
+                                    }
+
+                                }
+                            }
+
+                            if (duplicates.length != 0) {
+                                var message = duplicates.join(' .\n');
+
+                                swal({
+                                    type: 'info',
+                                    title: "Duplicate Details",
+                                    text: message
+                                });
+                            }
+                            $('#uploadCSV').val('');
+                        }
+                        reader.readAsText($("#uploadCSV")[0].files[0]);
+                    }
+                    else {
+                        swal({ type: 'error', title: "File Not Supported", text: "Files with extensions: " + allowedCSVFileTypes.join(',') + " are only supported" });
+                    }
+                }
+            });
+        });
+
+        function encodeImageFileAsURL(element) {
+            var id = element.id;
+            var name = element.name;
+            var checkId = "#" + element.id + "_check";
+
+            var file = element.files[0];
+
+            var maxSizeKB = 20; //Size in KB
+            var maxSize = maxSizeKB * 1024; //File size is returned in Bytes
+            if (file.size > maxSize) {
+                $(checkId).css("display", "none");
+                return swal({ type: 'error', title: "Max size exceeded", text: "File must be less than 20 Kb" });
+            }
+
+           
+            var reader = new FileReader();
+
+            reader.onloadend = function () {
+                $("input[name='" + name + ".SignaturePhoto']").attr('value', reader.result);
+                $(checkId).css("display", "block");
+            }
+
+
+            reader.readAsDataURL(file);
+        }
+
+        function FileToBase64(element) {
+
+            var file = element.files[0];
+
+            var maxSizeKB = 20;
+            var maxSize = maxSizeKB * 1024;
+            if (file.size > maxSize) {
+                element.value = '';
+                return swal({ type: 'error', title: "Max size exceeded", text: "File must be less than 20 Kb" });
+            }
+
+            var reader = new FileReader();
+
+            reader.onloadend = function () {
+                resizeBase64ImageKeepHeight(reader.result).then(resizedBase64 => {
+                    $("#BusinessUser_Signature").val('');
+                    $("#BusinessUser_Signature").val(resizedBase64);
+                }).catch(error => {
+                    console.error("Error resizing image:", error);
+                    swal({ type: 'error', title: "Error", text: "Error While Resizing Image" });
+                });
+            }
+            reader.readAsDataURL(file);
+
+        }
+
+        function FileToBase64Initial(element) {
+
+
+            var file = element.files[0];
+
+
+            var maxSizeKB = 20;
+            var maxSize = maxSizeKB * 1024;
+            if (file.size > maxSize) {
+                // $(checkId).css("display", "none");
+                element.value = '';
+                return swal({ type: 'error', title: "Max size exceeded", text: "File must be less than 20 Kb" });
+            }
+
+            var reader = new FileReader();
+
+
+
+            reader.onloadend = function () {
+                //$("input[name='"+name+".SignaturePhoto']").attr('value', reader.result);
+                $("#BusinessUser_InitialImage").val('');
+                $("#BusinessUser_InitialImage").val(reader.result);
+
+            }
+            reader.readAsDataURL(file);
+
+        }
+
+        function editElement(index) {
+           
+            var employeeEmail = $('#employeeEmail').val();
+            var ugPassEmail = $('#BusinessUser_ugPassEmail').val();
+            var nin = $('#BusinessUser_NIN').val();
+            var passportNumber = $('#BusinessUser_Passport').val();
+            var mobileNumber = $('#BusinessUser_MobileNumber').val()
+            var designation = $('#BusinessUser_Designation').val();
+            var signaturePhoto = $('#BusinessUser_Signature').val();
+            var InitialImage = $('#BusinessUser_InitialImage').val();
+
+            var affixEseal = $('#BusinessUser_ESealSignatory').prop("checked") ? "checked" : "";
+            var prepatory = $('#BusinessUser_ESealPreparatory').prop("checked") ? "checked" : "";
+            var bulksigner = $("#BusinessUser_Bulksign").prop("checked") ? "checked" : "";
+            var delegation = $("#BusinessUser_Delegation").prop("checked") ? "checked" : "";
+            var digitalforms = $("#BusinessUser_Digitalforms").prop("checked") ? "checked" : "";
+
+            $("#OrganizationUsersList_" + index + "__EmployeeEmail").html(employeeEmail);
+            $("#OrganizationUsersList_" + index + "__Ugpassemail").html(ugPassEmail);
+            $("#OrganizationUsersList_" + index + "__NationalIdNumber").attr("value", nin);
+            $("#OrganizationUsersList_" + index + "__PassportNumber").attr("value", passportNumber);
+            $("#OrganizationUsersList_" + index + "__MobileNumber").attr("value", mobileNumber);
+            $("#OrganizationUsersList_" + index + "Designation").attr("value", designation);
+
+            var signPhoto = $("#OrganizationUsersList_" + index + "SignaturePhoto").val();
+            //var initiailPhoto = $("#OrganizationUsersList_" + index + "Initial").val();
+            var initiailPhoto = InitialImage;
+
+            if (signaturePhoto != "" || signPhoto != "") {
+                if (signaturePhoto != "") {
+                    $("#OrganizationUsersList_" + index + "SignaturePhoto").attr("value", signaturePhoto);
+                }
+                else {
+                    $("#OrganizationUsersList_" + index + "SignaturePhoto").attr("value", signPhoto);
+                }
+
+                $("#OrganizationUsersList_" + index + "SignaturePhoto").attr("value", signaturePhoto);
+                $("#OrganizationUsersList_" + index + "_check").css("display", "block");
+            } else {
+                $("#OrganizationUsersList_" + index + "_check").css("display", "none");
+            }
+
+            if (InitialImage != "" || initiailPhoto != "") {
+                if (InitialImage != "") {
+                    $("#OrganizationUsersList_" + index + "Initial").attr("value", InitialImage);
+                }
+                else {
+                    $("#OrganizationUsersList_" + index + "Initial").attr("value", initiailPhoto);
+                }
+
+                $("#OrganizationUsersList_" + index + "Initial").attr("value", InitialImage);
+                $("#OrganizationUsersList_" + index + "_check1").css("display", "block");
+            } else {
+                $("#OrganizationUsersList_" + index + "_check1").css("display", "none");
+            }
+
+            if (delegation == "checked") {
+                $('#OrganizationUsersList_' + index + '__Delegate').prop("checked", true);
+            }
+            else {
+                $('#OrganizationUsersList_' + index + '__Delegate').prop("checked", false);
+            }
+            if (affixEseal == "checked") {
+                $("#OrganizationUsersList_" + index + "__ESealSignatory").prop("checked", true);
+            }
+            else {
+                $("#OrganizationUsersList_" + index + "__ESealSignatory").prop("checked", false);
+            }
+            if (prepatory == "checked") {
+                $("#OrganizationUsersList_" + index + "__ESealPrepatory").prop("checked", true);
+                $("#OrganizationUsersList_" + index + "__Template").prop("checked", true);
+            }
+            else {
+                $("#OrganizationUsersList_" + index + "__ESealPrepatory").prop("checked", false);
+            }
+            if (bulksigner == "checked") {
+                $("#OrganizationUsersList_" + index + "__Bulksign").prop("checked", true);
+            }
+            else {
+                $("#OrganizationUsersList_" + index + "__Bulksign").prop("checked", false);
+            }
+            if (digitalforms == "checked") {
+                $("#OrganizationUsersList_" + index + "__Digitalforms").prop("checked", true);
+            }
+            else {
+                $("#OrganizationUsersList_" + index + "__Digitalforms").prop("checked", false);
+            }
+        }
+
+        function getOrganizationDetails(name) {
+            $('#organizationDiv').empty();
+            var dataToSend = { name: name };
+            $.ajax({
+                url: '@Url.Action("Edit", "ESealRegistration")',
+                data: dataToSend,
+                type: "GET",
+                /*contentType: "json",*/
+                error: ajaxErrorHandler,
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    if (data != null) {
+                        $('#organizationDiv').html(data);
+                    }
+                    else {
+                        swal({ type: 'error', title: "Failed", text: "Organization details not found" });
+                    }
+                }
+            });
+        }
+
+        function searchOrganization() {
+            
+            var value = $("#SearchOrganizationName").val();
+            if (value == '') {
+                swal({ type: 'error', title: "Error", text: "Please enter the organization name" });
+            }
+            else {
+                getOrganizationDetails(value);
+            }
+        }
+
+        function getExtension(filename) {
+            return '.' + filename.split('.').pop().toLowerCase();
+        }
+
+        function addDirectorEmail(value) {
+            var li = "<li>" +
+                "<input name='DirectorsEmailList.index' value='" + directorEmailIndex + "' style='display: none;' />" +
+                "<input type='text' class='directorEmailListInput' id='DirectorsEmailList_" + directorEmailIndex + "_' name='DirectorsEmailList[" + directorEmailIndex + "]' value='" + value + "' readonly/>" +
+                "<button class='clearliDirector' type='button' style='margin-left:8px'>x</button>" +
+                "</li>";
+            $('#director-list').append(li);
+            directorEmailIndex++;
+        }
+
+        function formValidation() {
+           
+            $("Form").validate();
+
+            if ($("Form").valid()) {
+                var valid = true;
+
+                //if ($('#signatory-email-list li').length == 0) {
+                //    $('span[data-valmsg-for="SignatoryEmail"]').html("Add at least one email");
+                //    valid = false;
+                //}
+
+                //if ($('#director-list li').length == 0) {
+                //    $('span[data-valmsg-for="Directors"]').text("Add at least one email/phone");
+                //    valid = false;
+                //}
+                
+                // if (!ValidateDesignationAndSignFile()) {
+                //     valid = false;
+                // }
+
+                return valid;
+            }
+        }
+
+        // function ValidateDesignationAndSignFile() {
+           
+        //     var valid = true;
+        //     var template = $("#SignatureTemplate").val();
+        //     var domain = $('#EmailDomain').val();
+
+        //     var agentUrl = $("#AgentUrl").val();
+        //     if (agentUrl != "") {
+        //         var urlInput = document.getElementById('AgentUrl').value.replace(/\/$/, '');
+        //         document.getElementById('AgentUrl').value = urlInput;
+        //         var pattern = /^https:/i;
+        //         var isValid = pattern.test(urlInput);
+        //         if (!isValid) {
+        //             errorMessage = "Please enter a valid AgentUrl(only https allowed) ";
+        //             valid = false;
+        //             return valid;
+        //         }
+        //     }
+
+        //     var emailDomainSplit = domain.split(",");
+        //     var emailDomainTrim = [];
+        //     for (let i = 0; i < emailDomainSplit.length; i++) {
+        //         if (emailDomainSplit[i] != "")
+        //             emailDomainTrim.push($.trim(emailDomainSplit[i]));
+        //     }
+
+        //     var subscriberArray = [];
+        //     $('#signatory-email-list li').each(function () {
+        //         var email = $(this).find(".signatoryEmailListInput").val();
+
+        //         if (domain != "") {
+        //             if (emailDomainTrim.indexOf(email.split('@Html.Encode("@")')[1]) == -1) {
+        //                 errorMessage = "Please enter a valid domain for " + email;
+        //                 valid = false;
+        //                 return valid;
+        //             }
+        //         }
+        //     });
+
+        //     if (template == 2) {
+        //         var a = [];
+        //         $('#signatory-email-list li').each(function () {
+        //             if ($(this).find(".designationListInput").val() == null || $(this).find(".designationListInput").val() == "") {
+        //                 errorMessage = "Please enter designation for " + $(this).find(".signatoryEmailListInput").val();
+        //                 valid = false;
+        //                 return valid;
+        //             }
+        //         });
+        //     }
+        //     else if (template == 3) {
+        //         var a = [];
+        //         $('#signatory-email-list li').each(function () {
+        //             if ($(this).find(".signatureFile").val() == null || $(this).find(".signatureFile").val() == "") {
+        //                 errorMessage = "Please select signature file for " + $(this).find(".signatoryEmailListInput").val();
+        //                 valid = false;
+        //                 return valid;
+        //             }
+        //         });
+        //     }
+        //     else if (template == 4) {
+        //         $('#signatory-email-list li').each(function () {
+        //             if ($(this).find(".designationListInput").val() == null || $(this).find(".designationListInput").val() == "") {
+        //                 errorMessage = "Please enter designation for " + $(this).find(".signatoryEmailListInput").val();
+        //                 valid = false;
+        //                 return valid;
+        //             }
+        //             if ($(this).find(".signatureFile").val() == null || $(this).find(".signatureFile").val() == "") {
+        //                 errorMessage = "Please select signature file for " + $(this).find(".signatoryEmailListInput").val();
+        //                 valid = false;
+        //                 return valid;
+        //             }
+        //         });
+        //     }
+        //     return valid;
+        // }
+
+        function generatePdf() {
+            if (formValidation()) {
+                //var subscriberArray = [];
+
+                //$('#signatory-email-list li').each(function () {
+                //    subscriberArray.push($(this).find(".signatoryEmailListInput").val());
+                //});
+
+                var model = preparePdfViewModel();
+                $.ajax({
+                    type: "POST",
+                    headers: {
+                        "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    url: '@Url.Action("GetPDFBytes", "ESealRegistration")',
+                    data: JSON.stringify(model),
+                    contentType: 'application/json',
+                    dataType: "json",
+                    error: ajaxErrorHandler,
+                    beforeSend: function () {
+                        $('#overlay1').show();
+                    },
+                    complete: function () {
+                        $('#overlay1').hide();
+                    },
+                    success: function (data) {
+                        if (data.status == "Success") {
+                            saveByteArray($('#OrganizationName').val(), data.result)
+                        }
+                        if (data.status == "Failed") {
+                            swal({ type: 'error', title: "Error", text: data.message });
+                        }
+                    }
+                });
+
+                //var postData = { values: subscriberArray };
+                //$.ajax({
+                //    url: '@Url.Action("ValidateSignatoryEmailList", "ESealRegistration")',
+                //    headers: {
+                //        "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                //    },
+                //    type: "POST",
+                //    data: postData,
+                //    dataType: "json",
+                //    traditional: true,
+                //    error: ajaxErrorHandler,
+                //    beforeSend: function () {
+                //        $('#overlay').show();
+                //    },
+                //    complete: function () {
+                //        $('#overlay').hide();
+                //    },
+                //    success: function (data) {
+                //        if (data.status == "Failed") {
+                //            $('#signatory-email-list li').each(function () {
+                //                var email = $(this).find(".signatoryEmailListInput").val();
+                //                if ($.inArray(email, data.result) > -1) {
+                //                    $(this).find(".signatoryEmailListInput").addClass("text-danger");
+                //                }
+                //            });
+                //            swal({ type: 'error', title: "Error", text: data.message });
+                //        }
+                //        else {
+                //            var model = preparePdfViewModel();
+                //            $.ajax({
+                //                type: "POST",
+                //                headers: {
+                //                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                //                },
+                //                url: '@Url.Action("GetPDFBytes", "ESealRegistration")',
+                //                data: JSON.stringify(model),
+                //                contentType: 'application/json',
+                //                dataType: "json",
+                //                error: ajaxErrorHandler,
+                //                beforeSend: function () {
+                //                    $('#overlay1').show();
+                //                },
+                //                complete: function () {
+                //                    $('#overlay1').hide();
+                //                },
+                //                success: function (data) {
+                //                    if (data.status == "Success") {
+                //                        saveByteArray($('#OrganizationName').val(), data.result)
+                //                    }
+                //                    if (data.status == "Failed") {
+                //                        swal({ type: 'error', title: "Error", text: data.message });
+                //                    }
+                //                }
+                //            });
+                //        }
+                //    }
+                //});
+            }
+            else {
+                return swal({ type: 'error', title: "Error", text: errorMessage });
+            }
+        }
+
+        function preparePdfViewModel() {
+            var directorArray = [];
+
+            $('#director-list li').each(function () {
+                directorArray.push($(this).find(".directorEmailListInput").val());
+            });
+
+            var pdfViewModel =
+            {
+                "OrganizationName": $('#OrganizationName').val(),
+                "OrganizationEmail": $('#OrganizationEmail').val(),
+                "EmailDomain": $('#EmailDomain').val(),
+                "UniqueRegdNo": $('#UniqueRegdNo').val(),
+                "TaxNo": $('#TaxNo').val(),
+                "CorporateOfficeAddress1": $('#CorporateOfficeAddress1').val(),
+                "CorporateOfficeAddress2": $('#CorporateOfficeAddress2').val(),
+                "Country": $('#Country').val(),
+                "Pincode": $('#Pincode').val(),
+                "DirectorsEmailList": directorArray,
+                "DocumentListCheckbox": prepareCheckboxList(),
+                "OrganizationUsersList": prepareSignatoryCheckboxList(),
+                "SPOCUgPassEmail": $('#SpocUgpassEmail').val(),
+                "EnablePostPaidOption": $('#EnablePostPaidOption').is(":checked"),
+                "SignatureTemplate": $('#SignatureTemplate option:selected').text(),
+                "ESealTemplate": $('#ESealTemplate option:selected').text()
+            };
+
+            return pdfViewModel;
+        }
+
+        function prepareCheckboxList() {
+            var checkboxListArray = [];
+            $("#checkbox-list li").each(function () {
+                var item = { "DisplayName": $(this).find('input[type=text]').val(), "IsSelected": $(this).find('input[type=checkbox]').is(":checked") }
+                checkboxListArray.push(item);
+            });
+
+            return checkboxListArray;
+        }
+
+        function prepareSignatoryCheckboxList() {
+            
+            var signatoriesListArray = [];
+            var i = 0;
+            $('#signatory-email-list li').each(function () {
+                var email = $(this).find(".signatoryEmailListInput").val();
+                var ugpassEmail = $(this).find(".ugpassEmailListInput").val();
+                //var IsOrganizationSignatory = $(this).find('div').children().eq(0).is(':checked'); // by default true
+                var IsOrganizationESealSignatory = $('input[name="OrganizationUsersList[' + i + '].ESealSignatory"]').is(":checked");
+                //var IsOrganizationESealSignatory = $(this).find('div').children().eq(1).is(":checked");
+                var IsOrganizationESealPreparatory = $('input[name="OrganizationUsersList[' + i + '].ESealPrepatory"]').is(":checked");
+
+                var IsOrganizationTemplate = $('input[name="OrganizationUsersList[' + i + '].Template"]').is(":checked");
+                var IsOrganizationPreparatory = $('input[name="OrganizationUsersList[' + i + '].ESealPrepatory"]').is(":checked");
+                var IsOrganizationAffixEseal = $('input[name="OrganizationUsersList[' + i + '].ESealSignatory"]').is(":checked");
+                var IsOrganizationBulksign = $('input[name="OrganizationUsersList[' + i + '].Bulksign"]').is(":checked");
+                var IsOrganizationDelegate = $('input[name="OrganizationUsersList[' + i + '].Delegate"]').is(":checked");
+                var IsOrganizationDigitalforms = $('input[name="OrganizationUsersList[' + i + '].Digitalforms"]').is(":checked");
+
+                //var IsOrganizationESealPreparatory = $(this).find('div').children().eq(2).is(":checked");
+                var designation = $('input[name="OrganizationUsersList[' + i + '].Designation"]').val();
+                var nin = $('input[name="OrganizationUsersList[' + i + '].NationalIdNumber"]').val();
+                var passportNumber = $('input[name="OrganizationUsersList[' + i + '].PassportNumber"]').val();
+                var mobileNumber = $('input[name="OrganizationUsersList[' + i + '].MobileNumber"]').val();
+                var employeeEmail = $('textarea[name="OrganizationUsersList[' + i + '].EmployeeEmail"]').val();
+
+                var signaturePhoto = $('input[name="OrganizationUsersList[' + i + '].SignaturePhoto"]').val();
+
+                var item =
+                {
+                    "UgpassEmail": ugpassEmail,
+                    "Signatory": true,
+                    "NationalIdNumber": nin,
+                    "PassportNumber": passportNumber,
+                    "EmployeeEmail": employeeEmail,
+                    "MobileNumber": mobileNumber,
+                    "Designation": designation,
+                    "SignaturePhoto": signaturePhoto,
+                    "ESealSignatory": IsOrganizationAffixEseal,
+                    "ESealPrepatory": IsOrganizationPreparatory,
+                    "Bulksign": IsOrganizationBulksign,
+                    "Delegate": IsOrganizationDelegate,
+                    "Digitalforms": IsOrganizationDigitalforms
+                }
+                signatoriesListArray.push(item);
+                i++;
+            });
+
+            return signatoriesListArray;
+        }
+
+        function saveByteArray(name, bytes) {
+            var myBytes = base64ToArrayBuffer(bytes);
+            var blob = new Blob([myBytes], { type: "application/pdf" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            let fileName = name + ".pdf";
+            link.download = fileName;
+            link.click();
+            //var myBytes = base64ToArrayBuffer(bytes);
+            //var blob = new Blob([myBytes], { type: "application/pdf" });
+            //var link = window.URL.createObjectURL(blob);
+            //window.open(link, '', 'height=650,width=840');
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+
+        function resizeBase64ImageKeepHeight(base64Str, targetHeight = 100) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = base64Str;
+
+                img.onload = () => {
+                    const aspectRatio = img.width / img.height;
+                    const targetWidth = targetHeight * aspectRatio; // width based on aspect ratio
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+
+                    const ctx = canvas.getContext('2d');
+
+                    // Optional: fill background with white
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw image to fill canvas
+                    ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+                    const resizedBase64 = canvas.toDataURL(); // 'image/png' by default
+                    resolve(resizedBase64);
+                };
+
+                img.onerror = () => reject(new Error("Failed to load image."));
+            });
+        }
+    </script>
+}

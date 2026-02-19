@@ -1,0 +1,71 @@
+﻿@model DTPortal.Web.ViewModel.OnboardingFailedLogReports.OnboardingFailedLogReportPdfViewModel
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    td, th {
+        border: 1px solid gray;
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    table th {
+        background-color: #AEC737;
+        color: white;
+    }
+</style>
+
+<div class="table-wrap">
+    <div class="table-responsive">
+        <table class="table display product-overview mb-30" id="support_table5">
+            <thead>
+                <tr>
+                    <th>Document Number</th>
+                    <th>Subscriber Type</th>
+                    <th>Onboarding Method</th>
+                    <th>Message</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.OnboardingFailedLogReports.Count() > 0)
+                {
+                    @foreach (var item in Model.OnboardingFailedLogReports)
+                    {
+                        <tr>
+                            <td>@item.DocumentNumber</td>
+                            <td>@item.SubscriberType</td>
+                            <td>@item.OnboardingMethod</td>
+                            <td style="width:400px">@item.Message</td>
+                            <td style="white-space:nowrap">@(Convert.ToDateTime(item.Timestamp).ToString("dd-MM-yyyy hh:mm:ss tt"))</td>
+                            @*<td>@(item.IsChecksumValid ? "Valid" : "Invalid")</td>*@
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8" align="center" style="width:200%">No records found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

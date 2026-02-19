@@ -1,0 +1,342 @@
+﻿@model DTPortal.Web.ViewModel.PKIConfiguration.CASettingsEditViewModel
+@using DTPortal.Web.ExtensionMethods
+@using DTPortal.Web.Enums
+@using DTPortal.Core.Domain.Models
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    bool isReadOnly = false;
+    var pluginConfiguration = HttpContextAccessor.HttpContext.Session.Get<PkiPluginDatum>("PKIPluginData");
+    if (pluginConfiguration != null)
+    {
+        //var state = pluginConfiguration.State;
+        var status = pluginConfiguration.Status;
+        //isReadOnly = (state == State.Active.GetValue() && status == Status.Inactive.GetValue()) ? true : false;
+        isReadOnly = status == Status.Active.GetValue();
+    }
+}
+
+<style>
+    .text-danger div {
+        text-align: center;
+    }
+
+    .custom-file-label {
+        display: flex;
+        justify-content: left;
+        white-space: nowrap;
+        padding: 5px 0px 5px 10px;
+        margin-left: 14px;
+    }
+
+    .customDropdown {
+        width: 100%;
+    }
+
+    #CAPluginId option, #CAPluginId optgroup {
+        display: none;
+    }
+
+    .input-box .toggle-password {
+        font-weight: 300;
+        font-size: 15px;
+        margin-right: 5px;
+        padding: 0px 16px 0px 0px;
+    }
+
+    .pwd {
+        -webkit-text-security: disc;
+    }
+</style>
+
+<form asp-action="EditCASettings" asp-controller="PKIConfiguration" enctype="multipart/form-data"
+      data-ajax="true"
+      data-ajax-method="POST"
+      data-ajax-mode="replace"
+      data-ajax-update="#wizardContainer"
+      data-ajax-begin="OnBegin"
+      data-ajax-complete="OnComplete" autocomplete="off">
+    <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-left:41%"></div>
+
+    <div class="form-card">
+        <div class="form-group row ">
+            <label asp-for="Url" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="Url" class="form-control " />
+                @*<span asp-validation-for="Url" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="CertificateAuthority" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="CertificateAuthority" class="form-control " />
+                @*<span asp-validation-for="CertificateAuthority" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="EndEntityProfileName" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="EndEntityProfileName" class="form-control " />
+                @*<span asp-validation-for="EndEntityProfileName" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="CertificateProfileName" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="CertificateProfileName" class="form-control " />
+                @*<span asp-validation-for="CertificateProfileName" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="ClientAuthenticationCertificate" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="ClientAuthenticationCertificate" class="form-control " />
+                @*<span asp-validation-for="ClientAuthenticationCertificate" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="ClientAuthenticationCertificatePassword" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <div class="input-box">
+                    @if (Model.ClientAuthenticationCertificatePassword != null)
+                    {
+                        <input asp-for="ClientAuthenticationCertificatePassword" value="@Model.ClientAuthenticationCertificatePassword" class="form-control pwd" />
+                        <span  class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    }
+                    else
+                    {
+                        <input asp-for="ClientAuthenticationCertificatePassword" class="form-control pwd" />
+                        <span  class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="IssuerDn" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="IssuerDn" class="form-control " />
+                @*<span asp-validation-for="IssuerDn" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="CertificateValidity" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="CertificateValidity" class="form-control " min="0" oninput="validity.valid||(value='');" />
+                @*<span asp-validation-for="CertificateValidity" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="ProcedureId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <select asp-for="ProcedureId" class="form-control  customDropdown"
+                        asp-items="@(new SelectList(Model.Procedures, "Id", "Name"))">
+                    <option>Select</option>
+                </select>
+                @*<span asp-validation-for="ProcedureId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="CAPluginId" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <select asp-for="CAPluginId" class="form-control customDropdown"
+                        asp-items="@(new SelectList(Model.CAPlugins, "Id", "Name"))">
+                    <option>Select</option>
+                </select>
+                @*<span asp-validation-for="CAPluginId" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="StatgingCertificateProcedureRSA256" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="StatgingCertificateProcedureRSA256" class="form-control " />
+                @*<span asp-validation-for="StatgingCertificateProcedureRSA256" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="StatgingCertificateProcedureRSA512" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="StatgingCertificateProcedureRSA512" class="form-control " />
+                @*<span asp-validation-for="StatgingCertificateProcedureRSA512" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="StatgingCertificateProcedureEC256" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="StatgingCertificateProcedureEC256" class="form-control " />
+                @*<span asp-validation-for="StatgingCertificateProcedureEC256" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="StatgingCertificateProcedureEC512" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="StatgingCertificateProcedureEC512" class="form-control " />
+                @*<span asp-validation-for="StatgingCertificateProcedureEC512" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="TestCertificateProcedureRSA256" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="TestCertificateProcedureRSA256" class="form-control " />
+                @*<span asp-validation-for="TestCertificateProcedureRSA256" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="TestCertificateProcedureRSA512" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="TestCertificateProcedureRSA512" class="form-control " />
+                @*<span asp-validation-for="TestCertificateProcedureRSA512" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="TestCertificateProcedureEC256" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="TestCertificateProcedureEC256" class="form-control" />
+                @*<span asp-validation-for="TestCertificateProcedureEC256" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row ">
+            <label asp-for="TestCertificateProcedureEC512" class="col-4 col-form-label"></label>
+            <div class="col-5">
+                <input asp-for="TestCertificateProcedureEC512" class="form-control" />
+                @*<span asp-validation-for="TestCertificateProcedureEC512" class="text-danger"></span>*@
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="SigningCertificateIssuerFile" class="col-4 col-form-label"></label>
+            <div class="col-sm-5" style="padding-left:1px">
+                <div class="custom-file">
+                    <input asp-for="SigningCertificateIssuerFile" class="form-control custom-file-input" accept=".cer, .crt">
+                    <label class="custom-file-label"></label>
+                    @*<span asp-validation-for="SigningCertificateIssuerFile" class="text-danger"></span>*@
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="SigningCertificateRootFile" class="col-4 col-form-label"></label>
+            <div class="col-sm-5" style="padding-left:1px">
+                <div class="custom-file">
+                    <input asp-for="SigningCertificateRootFile" class="form-control custom-file-input" accept=".cer, .crt">
+                    <label class="custom-file-label"></label>
+                    @*<span asp-validation-for="SigningCertificateRootFile" class="text-danger"></span>*@
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="OCSPSignerCertificateFile" class="col-4 col-form-label"></label>
+            <div class="col-sm-5" style="padding-left:1px">
+                <div class="custom-file">
+                    <input asp-for="OCSPSignerCertificateFile" class="form-control custom-file-input" accept=".cer, .crt">
+                    <label class="custom-file-label"></label>
+                    @*<span asp-validation-for="OCSPSignerCertificateFile" class="text-danger"></span>*@
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="SigningCertificateChainFile" class="col-4 col-form-label"></label>
+            <div class="col-sm-5" style="padding-left:1px">
+                <div class="custom-file">
+                    <input asp-for="SigningCertificateChainFile" class="form-control custom-file-input" accept=".cer, .crt">
+                    <label class="custom-file-label"></label>
+                    @*<span asp-validation-for="SigningCertificateChainFile" class="text-danger"></span>*@
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="TimestampingCertificateFile" class="col-4 col-form-label"></label>
+            <div class="col-sm-5" style="padding-left:1px">
+                <div class="custom-file">
+                    <input asp-for="TimestampingCertificateFile" class="form-control custom-file-input" accept=".cer, .crt">
+                    <label class="custom-file-label"></label>
+                    @*<span asp-validation-for="TimestampingCertificateFile" class="text-danger"></span>*@
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label asp-for="TimestampingCertificateChainFile" class="col-4 col-form-label"></label>
+            <div class="col-sm-5" style="padding-left:1px">
+                <div class="custom-file">
+                    <input asp-for="TimestampingCertificateChainFile" class="form-control custom-file-input" accept=".cer, .crt">
+                    <label class="custom-file-label"></label>
+                    @*<span asp-validation-for="TimestampingCertificateChainFile" class="text-danger"></span>*@
+                </div>
+            </div>
+        </div>&nbsp;&nbsp;
+    </div>
+    <div style="padding-right: 10px">
+        <div style="float: left;">
+            <input type="submit" name="prevBtn" class="previous action-button-previous btn btn-primary" value="Previous" />
+        </div>
+        <div class="d-flex justify-content-end ">
+            <input type="submit" name="nextBtn" class="next action-button btn btn-primary" value="Next" />
+            &nbsp;&nbsp;
+            <a asp-action="List" class="btn btn-danger">
+                Cancel
+            </a>
+        </div>
+    </div>
+</form>
+
+@*<form asp-action="CASettings" asp-controller="PKIConfiguration"
+          data-ajax="true"
+          data-ajax-method="POST"
+          data-ajax-mode="replace"
+          data-ajax-update="#wizardContainer">
+        <h4>This is CA Settings</h4>
+        <input type="submit" name="prevBtn" class="previous action-button-previous" value="Previous" />
+        <input type="submit" name="nextBtn" class="next action-button" value="Next" />
+    </form>*@
+
+
+<script>
+    $(document).ready(function () {
+
+        $('.custom-file-input').on("change", function () {
+            var allowedFileTypes = ['cer', 'crt'];
+            if ($.inArray($(this).val().split('.').pop().toLowerCase(), allowedFileTypes) == -1) {
+                swal({ type: 'error', title: "Error", text: "File is not supported.\nFiles with extensions: " + allowedFileTypes.join(',') + " are only supported" });
+            }
+            else {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).next('.custom-file-label').html(fileName);
+            }
+        });
+
+        //Remove class active
+        $("#progressbar li").removeClass("active");
+
+        //Add Class Active
+        $("#progressbar li").eq(0).addClass("active");
+        $("#progressbar li").eq(1).addClass("active");
+
+        $('input[type=text]:not([readonly]),input[type=url]:not([readonly]),input[type=tel]:not([readonly]),input[type=password]:not([readonly]),input[type=radio]:not([readonly]),textarea:not([readonly]),select:not([readonly]),input[type=email]:not([readonly]),input[type=number]:not([readonly])').each(function () {
+            //$('input[type=text],select,input[type=email]').each(function () {
+            var req = $(this).attr('data-val-required');
+            var exclude = $(this).attr('data-exclude');
+            if (undefined != req && undefined == exclude) {
+                var label = $('label[for="' + $(this).attr('id') + '"]');
+                var text = label.text();
+                if (text.length > 0) {
+                    label.append(' <span style="color:#ff0000b3;">*</span>');
+                }
+            }
+        });
+    });
+
+    $(".toggle-password").click(function () {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+            var input = $($(this).attr("toggle"));
+
+            if($("#ClientAuthenticationCertificatePassword").hasClass("pwd")){
+                $("#ClientAuthenticationCertificatePassword").removeClass("pwd");
+            }else{
+                $("#ClientAuthenticationCertificatePassword").addClass("pwd");
+            }
+    });
+
+    function OnBegin() {
+        $('#overlay').show();
+    }
+    function OnComplete() {
+        $('#overlay').hide();
+    }
+</script>

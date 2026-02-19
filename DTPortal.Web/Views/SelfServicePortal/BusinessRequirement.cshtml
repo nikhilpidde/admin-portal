@@ -1,0 +1,155 @@
+﻿@model DTPortal.Web.ViewModel.SelfServicePortal.BusinessRequirementViewModel
+
+@{
+    ViewData["Title"] = "Self Service Portal";
+}
+
+<style>
+    .card-custom {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .question-group {
+        margin-bottom: 15px;
+    }
+
+    .question-label {
+        font-weight: bold;
+    }
+
+    .answer-options label {
+        margin-right: 15px;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form asp-action="SoftwareRecommendation">
+                    <input asp-for="OrganizationFormId" hidden />
+                    @if (Model.QuestionAnswerList != null && Model.QuestionAnswerList.Any())
+                    {
+                        <div class="form-group" style="pointer-events: none; opacity: 0.8">
+                            <h3><u>Business Requirements</u></h3>
+                            @for (var i = 0; i < Model.QuestionAnswerList.Count; i++)
+                            {
+                                <div class="question-group" style="margin-top: 2%;">
+                                    <label class="question-label">@Model.QuestionAnswerList[i].question</label>
+                                    <div class="form-group col-md-6">
+                                        @*<label class="radio-inline">
+                                            <input type="radio" asp-for="@Model.QuestionAnswerList[i].answer" value="true" checked="@(Model.QuestionAnswerList[i].answer == "Yes")"> Yes
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" asp-for="@Model.QuestionAnswerList[i].answer" value="false" checked="@(Model.QuestionAnswerList[i].answer == "No")"> No
+                                        </label>*@
+                                        <label class="col-md-9">
+                                            <input class="form-control" type="text" asp-for="@Model.QuestionAnswerList[i].answer">
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label>No Questions</label>
+                        </div>
+                    }
+
+                    @if (Model.QuestionAnswerList != null && Model.QuestionAnswerList.Any())
+                    {
+                        <div class="form-group form-check col-md-8" style="margin-top:5%">
+                            <input type="checkbox" class="form-check-input" id="verificationAgreement">
+                            <label class="form-check-label" for="verificationAgreement">
+                                I have thoroughly examined and comprehended the shared business use cases. For this reason, I believe the software listed below is ideal for the organization's requirements.
+                            </label>
+                        </div>
+
+                        <div class="form-group col-md-6" style="margin-top: 5%;">
+                            <h5>Recommend Software</h5>
+
+                            <select asp-for="SoftwareRecommended" class="form-control">
+                                <option value="">select a software</option>
+                                @foreach (var software in Model.SoftwareList)
+                                {
+                                    <option value="@software">
+                                        @{
+                                            // Map user-friendly labels to corresponding values
+                                            if (software == "ENTERPRISE_GATEWAY")
+                                            {
+                                                <text>Enterprise Gateway</text>
+                                            }
+                                            else if (software == "LOCAL_SIGNING_SOFTWARE")
+                                            {
+                                                <text>Local Signing Software</text>
+                                            }
+                                        }
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="SoftwareRecommended" class="text-danger"></span>
+                        </div>
+                    }
+
+                    @*<div class="d-flex justify-content-end ">
+                    <button class="btn btn-primary" >Submit</button>
+                    @&nbsp;&nbsp;
+                    <a type="button" asp-action="List" class="btn btn-danger">
+                    Cancel
+                    </a>
+                    </div>*@
+                    <div class="d-flex justify-content-end " style="padding-top: 31px;">
+                        @if (Model.QuestionAnswerList != null && Model.QuestionAnswerList.Any())
+                        {
+                            <button type="submit" id="submitBtn" class="btn btn-primary greenButton" style="pointer-events: none; opacity: 0.8">Submit</button>
+                        }
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-ajax-unobtrusive/jquery.unobtrusive-ajax.min.js" asp-append-version="true"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $('#selfServiceConfigMenu').addClass('active');
+
+        //$('#priceModel').addClass('show');
+
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#organzationsMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+        $('#mainMenu').addClass('breadcrumb-item').append('Business Requirement')
+        $('#subMenu').removeClass('breadcrumb-item active');
+        /*For Beadcrum End*/
+
+        $("#verificationAgreement").on("change", function () {
+            if (this.checked) {
+                $('#submitBtn').css("pointer-events", "auto");
+                $('#submitBtn').css("opacity", "1");
+            }
+            else {
+                $('#submitBtn').css("pointer-events", "none");
+                $('#submitBtn').css("opacity", "0.8");
+            }
+        });
+    });
+</script>

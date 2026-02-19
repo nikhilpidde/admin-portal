@@ -1,0 +1,207 @@
+﻿@model DTPortal.Web.ViewModel.Consent.ConsentAddViewModel
+@using DTPortal.Web.Enums
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form enctype="multipart/form-data" asp-action="Add">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    @*<h3>Consent</h3>*@
+                    <br />
+                    <div class="form-row" style="align-items: center">
+                        <div class="form-group col-md-4">
+                            <label asp-for="ConsentType" class="col-form-label"></label>
+                            <select asp-for="ConsentType" asp-items="@(new SelectList(Enum.GetValues(typeof(ConsentType))))" class="form-control">
+                                <option value="">select</option>
+                            </select>
+                            <span asp-validation-for="ConsentType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-4" style="left:4%">
+                            <label>
+                                <input type="checkbox" class="custom-check-box" asp-for="@Model.ConsentRequired" /> Consent Required
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="DataPrivacy" class="col-form-label"></label>
+                            <div class="custom-file">
+                                <input asp-for="DataPrivacy" class="form-control custom-file-input" accept=".html" />
+                                <label class="custom-file-label" id="dataPrivacyFileLable">Choose File...</label>
+                                <span asp-validation-for="DataPrivacy" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label asp-for="TermsAndConditions" class="col-form-label"></label>
+                            <div class="custom-file">
+                                <input asp-for="TermsAndConditions" class="form-control custom-file-input" accept=".html" />
+                                <label class="custom-file-label" id="termsAndConditionsFileLable">Choose File...</label>
+                                <span asp-validation-for="TermsAndConditions" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-9">
+                            <textarea asp-for="Consent" class="form-control" text-wrap:normal" type="text" placeholder="Type Consent..."
+                                      style="height:250px"></textarea>
+                            <span asp-validation-for="Consent" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-3" style="vertical-align:central">
+                            <div class="custom-file" style=" height: 40px;">
+                                <input type="file" class="form-control custom-file-input"
+                                       onchange='onChooseConsentFile(event, onFileConsentLoad.bind(this, "contents"))' accept=".txt, .rtf">
+                                <label class="custom-file-label">Choose File...</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-9">
+                            <textarea asp-for="PrivacyConsent" class="form-control" text-wrap:normal" type="text" placeholder="Type Privacy Consent..."
+                                      style="height:250px"></textarea>
+                            <span asp-validation-for="PrivacyConsent" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-3" style="vertical-align:central">
+                            <div class="custom-file" style=" height: 40px;">
+                                <input type="file" class="form-control custom-file-input"
+                                       onchange='onChoosePrivacyConsentFile(event, onFilePrivacyConsentLoad.bind(this, "contents"))' accept=".txt, .rtf">
+                                <label class="custom-file-label">Choose File...</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <input type="submit" class="btn btn-primary" value="Save" />
+                        &nbsp;&nbsp;
+                        <a asp-action="List" type="button" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+    {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $('#portalSettingsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#consentMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $("textarea").keydown(function (event) {
+                if (event.which == 13) {
+                    event.preventDefault();
+                    this.value = this.value + "\n";
+                }
+            });
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Mobile App  Settings');
+            $('#mainMenu').addClass('breadcrumb-item').append('Consent');
+            $('#subMenu').addClass('breadcrumb-item active').append('Add');
+            /*For Beadcrum End*/
+
+            $('.custom-file-input').on("change", function () {
+                var fileName = $(this).val().split("\\").pop();
+                $(this).next('.custom-file-label').html(fileName);
+            });
+        });
+        var allowedFileTypes = [".txt", ".rtf"];
+
+        function onFileConsentLoad(elementId, event) {
+            $('#Consent').val(event.target.result);
+        }
+
+        function onFilePrivacyConsentLoad(elementId, event) {
+            $('#PrivacyConsent').val(event.target.result);
+        }
+
+        function onChooseConsentFile(event, onLoadFileHandler) {
+            if (typeof window.FileReader !== 'function')
+                throw ("The file API isn't supported on this browser.");
+            let input = event.target;
+            if (!input)
+                throw ("The browser does not properly implement the event object");
+            if (!input.files)
+                throw ("This browser does not support the `files` property of the file input.");
+            if (!input.files[0])
+                return undefined;
+            let file = input.files[0];
+            var fileExtension = getExtension(file.name);
+            $('#Consent').val("");
+            if (allowedFileTypes.includes(fileExtension)) {
+                if (file.size <= 2097152) { // 2 MB
+                    let fr = new FileReader();
+                    fr.onload = onLoadFileHandler;
+                    fr.readAsText(file);
+                }
+                else {
+                    swal({ type: 'error', title: "Error", text: "File size cannot be greater than 2MB" });
+                }
+            }
+            else {
+                swal({ type: 'error', title: "Error", text: "File is not supported.\nFiles with extensions: " + allowedFileTypes.join(',') + " are only supported" });
+            }
+        }
+
+        function onChoosePrivacyConsentFile(event, onLoadFileHandler) {
+            if (typeof window.FileReader !== 'function')
+                throw ("The file API isn't supported on this browser.");
+            let input = event.target;
+            if (!input)
+                throw ("The browser does not properly implement the event object");
+            if (!input.files)
+                throw ("This browser does not support the `files` property of the file input.");
+            if (!input.files[0])
+                return undefined;
+            let file = input.files[0];
+            var fileExtension = getExtension(file.name);
+            $('#PrivacyConsent').val("");
+            if (allowedFileTypes.includes(fileExtension)) {
+                if (file.size <= 2097152) { // 2 MB
+                    let fr = new FileReader();
+                    fr.onload = onLoadFileHandler;
+                    fr.readAsText(file);
+                }
+                else {
+                    swal({ type: 'error', title: "Error", text: "File size cannot be greater than 2MB" });
+                }
+            }
+            else {
+                swal({ type: 'error', title: "Error", text: "File is not supported.\nFiles with extensions: " + allowedFileTypes.join(',') + " are only supported" });
+            }
+        }
+
+        function getExtension(filename) {
+            return '.' + filename.split('.').pop().toLowerCase();
+        }
+    </script>
+    <style>
+        #note {
+            padding-right: 10px;
+            display: flex;
+            justify-content: flex-end;
+            padding-bottom: 15px;
+        }
+    </style>
+}

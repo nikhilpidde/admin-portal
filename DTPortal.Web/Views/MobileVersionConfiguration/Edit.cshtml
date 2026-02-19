@@ -1,0 +1,94 @@
+﻿@model DTPortal.Web.ViewModel.MobileVersionConfiguration.MobileVersionConfigurationEditViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Edit">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="OSVersion" class="col-form-label"></label>
+                            <input asp-for="OSVersion" class="form-control" readonly/>
+                            <span asp-validation-for="OSVersion" class="text-danger"></span>
+                        </div>
+                    </div>                    
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="LatestVersion" class="col-form-label"></label>
+                            <input asp-for="LatestVersion" class="form-control" />
+                            <span asp-validation-for="LatestVersion" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="MinimumVersion" class="col-form-label"></label>
+                            <input asp-for="MinimumVersion" class="form-control" />
+                            <span asp-validation-for="MinimumVersion" class="text-danger"></span>
+                        </div>
+                    </div>
+                     <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="UpdateLink" class="col-form-label"></label>
+                            <input asp-for="UpdateLink" class="form-control" />
+                            <span asp-validation-for="UpdateLink" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+
+<script>
+        var index;
+        $(document).ready(function () {
+            $('#portalSettingsMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#mobileVersionConfigurationMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Mobile App  Settings');
+            $('#mainMenu').addClass('breadcrumb-item').append('Supported Mobile Versions');
+            $('#subMenu').addClass('breadcrumb-item active').append('Edit');
+            /*For Beadcrum End*/
+
+             // validation for latest version
+            $('form').submit(function (event) {
+                var latestVersion = $('#LatestVersion').val();
+                var minimumVersion = $('#MinimumVersion').val();
+                if (latestVersion < minimumVersion) {
+                    event.preventDefault(); 
+                    $('span[data-valmsg-for="LatestVersion"]').text('Latest version cannot be less than or equal to Minimum version.');
+                }
+            });
+
+           
+        });
+
+</script>
+}
+

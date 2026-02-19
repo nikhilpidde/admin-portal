@@ -1,0 +1,282 @@
+﻿@model DTPortal.Web.ViewModel.Beneficiary.BeneficiaryListViewModel
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+<style>
+
+    fieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 5px;
+        margin-bottom: 5px;
+        overflow-y: auto;
+        height: 180px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .sweet-alert fieldset {
+        display: none;
+    }
+
+    .sweet-alert p {
+        font-weight: 400;
+        overflow: auto;
+        max-height: 200px;
+        white-space: break-spaces;
+    }
+
+    a.dropdown-item:hover {
+        color: #212529 !important;
+    }
+
+    .signatoryEmailListInput {
+        width: 50%;
+        padding-left: 5px;
+        border: none;
+    }
+
+    .directorEmailListInput {
+        width: 93%;
+        padding-left: 5px;
+        border: none;
+    }
+
+    .clearliSignatory, .clearliDirector {
+        margin-left: 5px;
+        width: 22px;
+        border: 1px;
+        border-radius: 12px;
+    }
+
+    .signatoryEmailListInput:hover, .directorEmailListInput:hover {
+        outline: none !important;
+        border: none !important;
+    }
+
+    .signatoryEmailListInput:focus, .directorEmailListInput:focus {
+        outline: none !important;
+        border: none !important;
+    }
+
+    #signatoriesLegend {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        padding: 0;
+        margin-bottom: -0.3rem;
+        font-size: 1.1rem;
+        line-height: inherit;
+        color: inherit;
+        white-space: normal;
+    }
+
+    #directorLegend {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        padding: 0;
+        margin-bottom: -0.3rem;
+        font-size: 1.1rem;
+        line-height: inherit;
+        color: inherit;
+        white-space: normal;
+    }
+
+    .custom-file-upload {
+        background: #f7f7f7;
+        padding: 3px 10px;
+        border: 1px solid #e3e3e3;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .popup-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .popup-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .preview-container {
+        position: relative;
+        margin-bottom: 20px;
+        height: 250px;
+        overflow: hidden;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+    }
+
+        .button-container button {
+            margin: 0 5px;
+        }
+
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="height: 70px;z-index:1;">
+            <div class="form-row" style="margin-top: 4px;">
+                <div class="form-group col-md-5">
+                    <input asp-for="OrganizationName" class="form-control " placeholder="Enter Organization Name" />
+                </div>
+                <div class="col-md-2">
+                    <div class="btn-group">
+                        <a class="btn btn-info" onclick="searchOrganization()"><i class="fa fa-search"></i>Search</a>
+                        @* &nbsp;&nbsp;
+                        @if (!User.IsInRole("Organizations Checker"))
+                        {
+                            <a id="add" class="btn btn-primary"><i class="fa fa-plus"></i>Add</a>
+                        } *@
+                    </div>
+                </div>
+                <div id="orgname" style="display:none">@Model.OrganizationName</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="organizationDiv">
+</div>
+<script src="~/assets/js/jquery-ui.js"></script>
+<script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+<script src="~/assets/js/cropper.min.js"></script>
+
+<script>
+    
+    $(document).ready(function () {
+
+        $('#eSealRegistrationMenu').addClass('active');
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#beneficiaryMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+
+        $('#homeMenu').addClass('breadcrumb-item').append('Organization');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Beneficiaries');
+        $('#subMenu').removeClass('breadcrumb-item');
+        /*For Beadcrum Start*/
+        var orgName = $("#orgname").text();
+        if (orgName != null && orgName != "") {
+            getOrganizationDetails(orgName);
+        }
+
+
+        // if ('@Model.OrganizationName' && '@Model.OrganizationName' !== '') {
+        //     getOrganizationDetails('@Model.OrganizationName');
+        // }
+
+        $("#OrganizationName").typeahead({
+            minLength: 2,
+            items: 10,
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("GetOrganizations", "ESealRegistration")',
+                    data: { "value": request },
+                    type: "GET",
+                    contentType: "json",
+                    error: ajaxErrorHandler,
+                    success: function (data) {
+                        items = [];
+                        map = {};
+                        $.each(data, function (i, item) {
+                            var id = i;
+                            var name = item;
+                            map[name] = {
+                                id: id,
+                                name: name
+                            };
+                            items.push(name);
+                        });
+                        response(items);
+                    }
+                });
+            },
+            updater: function (item) {
+                getOrganizationDetails(item);
+                return item;
+            }
+        });       
+
+        $("#add").click(function () {
+            $('#organizationDiv').empty();
+            $('#SearchOrganizationName').val('');
+            $.ajax({
+                url: '@Url.Action("Add", "Beneficiary")',
+                type: "GET",
+                contentType: "json",
+                error: ajaxErrorHandler,
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    $('#organizationDiv').html(data);
+                }
+            });
+        });        
+       
+    });
+
+    function getOrganizationDetails(name) {
+        $('#organizationDiv').empty();
+        var dataToSend = { orgName: name };
+        $.ajax({
+            url: '@Url.Action("List", "Beneficiary")',
+            data: dataToSend,
+            type: "GET",
+            /*contentType: "json",*/
+            error: ajaxErrorHandler,
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (data) {
+                if (data != null) {
+                    $('#organizationDiv').html(data);
+                }
+                else {
+                    swal({ type: 'error', title: "Failed", text: "Organization details not found" });
+                }
+            }
+        });
+    }
+
+    function searchOrganization() {
+        var orgName = $('#OrganizationName').val();
+        getOrganizationDetails(orgName);
+    }
+    
+</script>

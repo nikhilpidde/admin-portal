@@ -1,0 +1,119 @@
+﻿@model DTPortal.Web.ViewModel.Package.PackageAddViewModel
+@using DTPortal.Web.Enums
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Add">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="PackageCode" class="col-form-label"></label>
+                            <input asp-for="PackageCode" class="form-control" />
+                            <span asp-validation-for="PackageCode" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="PackageDescription" class="col-form-label"></label>
+                            <input asp-for="PackageDescription" class="form-control" />
+                            <span asp-validation-for="PackageDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="ServiceFor" class="col-form-label"></label>
+                            <select asp-for="ServiceFor" asp-items="Html.GetEnumSelectList<UserType>()" class="form-control">
+                                <option value="">select</option>
+                            </select>
+                            <span asp-validation-for="ServiceFor" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="TotalSigningTransactions" class="col-form-label"></label>
+                            <input asp-for="TotalSigningTransactions" class="form-control" />
+                            <span asp-validation-for="TotalSigningTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="TotalESealTransactions" class="col-form-label"></label>
+                            <input asp-for="TotalESealTransactions" class="form-control" />
+                            <span asp-validation-for="TotalESealTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="DiscounOnSigningTransactions" class="col-form-label"></label>
+                            <input asp-for="DiscounOnSigningTransactions" class="form-control" />
+                            <span asp-validation-for="DiscounOnSigningTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="DiscounOnESealTransactions" class="col-form-label"></label>
+                            <input asp-for="DiscounOnESealTransactions" class="form-control" />
+                            <span asp-validation-for="DiscounOnESealTransactions" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="TaxPercentage" class="col-form-label"></label>
+                            <input asp-for="TaxPercentage" class="form-control" />
+                            <span asp-validation-for="TaxPercentage" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#packageMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Package');
+            $('#subMenu').addClass('breadcrumb-item active').append('Add');
+            /*For Beadcrum End*/
+        });
+    </script>
+    <style>
+        #note {
+            padding-right: 10px;
+            display: flex;
+            justify-content: flex-end;
+            padding-bottom: 15px;
+        }
+    </style>
+}
+
+

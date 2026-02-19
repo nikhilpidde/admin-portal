@@ -1,0 +1,295 @@
+﻿@model DTPortal.Web.ViewModel.UserManagement.UserManagementSessionListViewModel
+@using System.Security.Claims;
+
+@{ ViewData["Title"] = "User Sessions"; }
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+@{
+
+    var UserName = @Model.UserName;
+    var UserId = @Model.UserId;
+    var currentUserName = @User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name).Value;
+    var currentUserId = @User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+    var allowDelete = (UserName == currentUserName && UserId == currentUserId ? false : true);
+
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info" id="deletAll" style='@(Model.list == null || Model.list.Count() == 0? "pointer-events: none;color: #ccc;":"")'>
+                                Logout All Session
+                            </button>
+
+                        </div>
+                    </div>
+
+                </div>
+                <table id="sessionTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Client ID</th>
+                            <th>IP Address</th>
+                            <th>Started</th>
+                            <th>Last Access</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.list == null || Model.list.Count() == 0)
+                        {
+                            <tr>
+                                <td style="text-align:center" valign="top" colspan="6" class="dataTables_empty">No record found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.list)
+                            {
+                                <tr class="odd gradeX">
+                                    <td>@item.ClientId</td>
+                                    <td>@item.IpAddress</td>
+                                    <td>@item.LoggedInTime</td>
+                                    <td>@item.LastAccessTime</td>
+                                    <td class="valigntop">
+                                        <div class="btn-group">
+                                            <a class="btn btn-primary js-delete" data-id="@item.GlobalSessionId"><i class="fa fa-trash"></i>Logout</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+
+    <script>
+        var table = "";
+        $(document).ready(function () {
+           $('#administrationSidebarElement').addClass('active');
+            $('#userManagementSidebarElement').addClass('active');
+
+            $('#adminSubmenu').addClass('show');
+            $("li#administrationSidebarElement a:first").attr('aria-expanded', 'true');
+
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Administration');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Users > Session > '+'@Model.UserName');
+            $('#subMenu').removeClass('breadcrumb-item');
+             table = $("#sessionTable").DataTable({
+                "bLengthChange": true,
+            });
+
+            $('#sessionTable').on('click', '.js-delete', function () {
+                var deleteButton = $(this);
+                var id = deleteButton.attr("data-id");
+
+                var deleteAllow = '@allowDelete';
+                if (deleteAllow == "False") {
+                    swal({
+                        title: "Not Allowed!",
+                        text: "Do not have permission to self logout",
+                        button: "Close", // Text on button
+                        type: "info", //built in icons: success, warning, error, info
+                        timer: 4000, //timeOut for auto-close
+                        buttons: {
+                            confirm: {
+                                text: "OK",
+                                value: true,
+                                visible: true,
+                                className: "",
+                                closeModal: true
+                            },
+                            cancel: {
+                                text: "Cancel",
+                                value: false,
+                                visible: true,
+                                className: "",
+                                closeModal: true,
+                            }
+                        }
+                    }, function (isConfirm) {
+                            if (isConfirm) {
+                                return true;
+                        } else {
+                            swal.close();
+                                return true;
+                        }
+                    });
+                    return true;
+                }
+
+                swal({
+                    title: "Are you sure!",
+                    text: "you want to logout this user session",
+                    type: "info",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: 'POST',
+                            cache: false,
+                            dataType: 'json',
+                            url: '@Url.Action("Logout", "UserManagement")',
+                            data: {
+                                id: id
+                            },
+                            beforeSend: function () {
+                                $('#overlay').show();
+                            },
+                            complete: function () {
+                                $('#overlay').hide();
+                            },
+                            success: function (result, status, xhr) {
+                                var title, text, type = "";
+                                if (result.success) {
+                                    title = "Success!";
+                                    type = "success";
+                                    text = "Logout successful"
+                                }
+                                else {
+                                    title = "Error!";
+                                    type = "error";
+                                    text = result.message
+                                }
+                                swal(title, text, type);
+                                $("#sessionTable").DataTable().row(deleteButton.parents("tr")).remove().draw();
+                            },
+                            error: ajaxErrorHandler
+                        });
+                    } else {
+                        return false
+                    }
+                });
+            });
+
+            $("#deletAll").on("click", function (e) {
+
+                var deleteAllow = '@allowDelete';
+                if (deleteAllow == "False") {
+                    swal({
+                        title: "Not Allowed!",
+                        text: "Do not have permission to self logout",
+                        button: "Close", // Text on button
+                        type: "info", //built in icons: success, warning, error, info
+                        timer: 4000, //timeOut for auto-close
+                        buttons: {
+                            confirm: {
+                                text: "OK",
+                                value: true,
+                                visible: true,
+                                className: "",
+                                closeModal: true
+                            },
+                            cancel: {
+                                text: "Cancel",
+                                value: false,
+                                visible: true,
+                                className: "",
+                                closeModal: true,
+                            }
+                        }
+                    }, function (isConfirm) {
+                            if (isConfirm) {
+                                return true;
+                        } else {
+                            swal.close();
+                                return true;
+                        }
+                    });
+                    return true;
+                }
+
+                var data = table.rows({ selected: true }).data().toArray();
+                if (data.length == 0) {
+                    swal("Message", "No record(s) selected", "info");
+                } else {
+                    e.preventDefault();
+                    swal({
+                        title: "Are you sure?",
+                        text: `You are about to delete ${data.length} record(s)!`,
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes",
+                        cancelButtonText: "No",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    }, function (isConfirm) {
+                            if (isConfirm) {
+                                var rows = [];
+                                for (var i = 0; i < data.length; i++){
+                                    rows.push(data[i][3]);
+                                }
+                                fn_custom_delete(rows);
+
+                        } else {
+                            swal("Abort", "Operation aborted :)", "error");
+                            deselectAllRecords()
+                        }
+                    });
+
+                }
+                return false;
+            });
+        });
+
+
+        function fn_custom_delete(data) {
+            try {
+                if (data.length) {
+                    $.ajax(
+                        {
+                            type: 'POST',
+                            url: '@Url.Action("LogoutAll", "UserManagement")',
+                           // contentType: 'application/json',
+                            //dataType: 'json',
+                            //traditional: true,
+                            data: {
+                                id: data
+                            },
+                            beforeSend: function (xhr, opts) {
+                                swal("Processing", "Please wait while we are deleting records", "info")
+                            },
+                            success: function (result, status, xhr) {
+                                var title, text, type = "";
+                                if (result.success) {
+                                    title = "Success!";
+                                    type = "success";
+                                    text = "Logout successful"
+                                }
+                                else {
+                                    title = "Error!";
+                                    type = "error";
+                                    text = result.message
+                                }
+                                swal(title, text, type);
+                                window.location.reload();
+                            },
+                            error: ajaxErrorHandler
+                        }
+                    )
+                } else {
+                    throw "No roles provided to delete"
+                }
+            } catch (error) {
+                alert(error)
+            }
+        }
+
+    </script>
+}

@@ -1,0 +1,52 @@
+﻿@model DTPortal.Web.ViewModel.ControlledOnboarding.ControlledOnboardingSearchViewModel
+
+@{
+    ViewData["Title"] = "Controlled Onboarding";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="height: 70px;z-index:1;">
+            <div class="form-row" style="margin-top: 4px;">
+                <div class="form-group col-md-4">
+                    <input asp-for="Email" class="form-control " placeholder="Enter Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div style="margin-top: 2px;">
+                    <input type="submit" class="btn btn-primary" value="Search" />
+                    &nbsp;&nbsp;
+                    <input type="button" class="btn btn-danger" value="Clear" onclick="resetFields()" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if(Model.TrustedUserDetails != null)
+{
+    <div id="trustedUserDiv">
+    </div>
+}
+
+<script>
+    $(document).ready(function(){
+        $('#registrationAuthorityMenu').addClass('active');
+
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#controlledOnboardingMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Registration Authority');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Controlled Onboarding');
+        $('#subMenu').removeClass('breadcrumb-item');
+        /*For Beadcrum End*/
+    });
+    function resetFields() {
+        $('#trustedUserDiv').empty();
+        $('.text-danger').text('');
+        $("#Email").attr("placeholder", "Enter Email");
+    }
+</script>

@@ -1,0 +1,120 @@
+﻿@model DTPortal.Web.ViewModel.SigningCredits.BucketHistoryListViewModel
+
+@{
+    ViewData["Title"] = "Exclusive Apps";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+    var label = "Document Id" + "(" + Model.Label + ")";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div colspan="4" style="font-size: 20px;">
+                            <span style="font-weight: 500; font-size:large">Application Name:</span> <span style="font-weight: 100;font-size:medium">@Model.appName</span>
+                        </div>
+                    </div>
+                </div>
+                <table id="SignatureCreditsTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>@label</th>
+                            <th>Digital Signatures</th>
+                            <th>Eseal Signatures</th>
+                            <th>Created On</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || Model.bucketHistoryList.Count() == 0)
+                        {
+                            <tr>
+                                <td style="text-align:center" valign="top" colspan="6" class="dataTables_empty">No record found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.bucketHistoryList)
+                            {
+                                <tr class="odd gradeX">
+                                    <td>@item.documentId</td>
+                                    <td>@item.totalDigital</td>
+                                    <td>@item.totalEseal</td>
+                                    <td>@item.createdOn</td>
+                                    <td>@item.status</td>
+                                    <td class="valigntop">
+
+                                        <div class="btn-group">
+                                            <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu pull-left" role="menu">
+                                                <li>
+                                                    <a asp-action="BucketDetails" asp-route-Id="@item.Id" asp-route-appName="@Model.appName" asp-route-Label="@Model.Label">
+                                                        <i class="icon-pencil"></i>View
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                @if (Model != null && Model.bucketHistoryList.Any())
+                {
+                    <div style="padding-right: 10px">
+                        <div class="d-flex justify-content-end">
+                            <a href="@Url.Action("List", "SigningCredits")" id="cancelButton" class="btn btn-primary">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div style="margin-top:100px !important;text-align: right !important;">
+                        <div class="">
+                            <a href="@Url.Action("List", "SigningCredits")" id="cancelButton" class="btn btn-primary">
+                                Back
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+
+        $(document).ready(function () {
+            $('#activityReportsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#signingCreditsMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            $('#homeMenu').addClass('breadcrumb-item').append('Exclusive Apps');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Document List');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            var table = $("#SignatureCreditsTable").DataTable({
+                "bLengthChange": false,
+                "searching": true
+            });
+        });
+
+    </script>
+}

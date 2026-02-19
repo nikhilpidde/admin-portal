@@ -1,0 +1,199 @@
+﻿<div class="backdrop">
+    <div id="myModal" role="dialog">
+        <div class="my_modal-content">
+            <div class="my_modal-header">
+                <button type="button" id="close" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" style="text-align: center;font-size:2vw;">Authentication Required</h4>
+            </div>
+            <div class="my_modal-body" id="sample" style="display: none;">
+            </div>
+            <div class="my_modal-body" id="PASSWORD" style="display: none;">
+                <div class="card-body">
+                    <form action="" method="POST" id="PwdForm" novalidate>
+                        <div class="form-group">
+                            <label class="col-form-label" style="width: 100%; font-size:2vw;">PASSWORD</label>
+                        </div>
+                        <input class="form-control border-right-0" id="userName" name="userName" type="hidden"
+                               @*value="<%=(context.user_profile_data)?context.user_profile_data.userName:''%>"*@>
+                        <input class="form-control border-right-0" id="authscheme_pwd" name="authScheme" type="hidden"
+                               value="PASSWORD">
+                        <div class="form-group">
+                            <div class="input-box">
+                                <input class="form-control border-right-0 passwordInput pwd" id="password" name="password" type="text"
+                                       placeholder="Password" required>
+                                <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-authentication-password"></span>
+                            </div>
+                            
+                        </div>
+                        <button class="btn btn-block btn-primary mt-3 authenticateUser" type="button"
+                                id="checkPassword">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card" id="TOTP" style="display: none;">
+                <div class="card-body">
+                    <form action="" method="POST" id="OtpForm" novalidate>
+                        <div class="form-group">
+                            <label class="col-form-label" style="width: 100%; font-size:2vw;">TOTP </label>
+                        </div>
+                        <input class="form-control border-right-0" id="userName" name="userName" type="hidden"
+                               @*value="<%=(context.user_profile_data)?context.user_profile_data.userName:''%>"*@>
+                        <input class="form-control border-right-0" id="authscheme_totp" name="authScheme" type="hidden"
+                               value="TOTP">
+                        <div class="form-group">
+                            <div class="input-group with-focus">
+                                <input class="form-control border-right-0 passwordInput" id="totp" name="password" type="password"
+                                       placeholder="TOTP" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text text-muted bg-transparent border-left-0">
+                                        <em class="fa fa-lock"></em>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-block btn-primary mt-3 authenticateUser" type="button"
+                                id="checkTOTP">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card" id="PUSH_NOTIFICATION" style="display: none;">
+                <div class="card-body">
+                    <form action="" novalidate>
+                        <div class="form-group" style="text-align: center;">
+                            <label class="col-form-label" style="width: 100%; font-size:2vw;">PUSH_NOTIFICATION </label>
+                        </div>
+                        <input class="form-control border-right-0" id="userName" name="userName" type="hidden"
+                               @*value="<%=(context.user_profile_data)?context.user_profile_data.userName:''%>"*@>
+                        <input class="form-control border-right-0" id="authscheme_totp" name="authScheme" type="hidden"
+                               value="PUSH_NOTIFICATION">
+                        <div style="text-align:center;">
+                            <br />
+                            <span style="font-weight: bold;font-size:2.5vw;" id="PushNotificationCode"></span>
+                            <br />
+                        </div>
+                        <div style="text-align: center;margin-top: 10px;">
+                            <span style="font-weight: bold;font-size:2vw;white-space: nowrap">Check&nbsp;<img src="~/assets/logo-single.png" height="20px" width="20px" style="padding-bottom: 2px;" />IDP Authenticator</span>
+                        </div>
+                        <div style="padding:5px;margin:0px 10px;text-align:center">
+                            <pre style="font-family: 'Source Sans Pro', sans-serif; border:none;padding:0px;white-space: inherit;font-size: .85rem;padding-left: 20px">Check your DTIDP authenticator app,
+                                  Tap the above number to sign in      
+                             </pre>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+            <div class="my_modal-body" id="EMAIL" style="display: none;">
+                <div class="card-body">
+                    <form action="" method="POST" id="emailForm" novalidate>
+                        <div class="form-group">
+                            <label class="col-form-label" style="width: 100%; font-size:2vw;">
+                                EMAIL Autentication
+                            </label>
+                        </div>
+                        <input class="form-control border-right-0" id="userName" name="userName" type="hidden"
+                               @*value="<%=(context.user_profile_data)?context.user_profile_data.userName:''%>"*@>
+                        <input class="form-control border-right-0" id="authscheme_email" name="authScheme" type="hidden"
+                               value="EMAIL">
+                        <div class="form-group">
+                            <div class="input-group with-focus">
+                                <input class="form-control border-right-0 passwordInput" id="emailotp" name="password" type="text"
+                                       placeholder="Password" required>
+                                <div class="input-group-append">
+                                    <span class="input-group-text text-muted bg-transparent border-left-0">
+                                        <em class="fa fa-lock"></em>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-block btn-primary mt-3 authenticateUser" type="button"
+                                id="checkEmail">
+                            Submit
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="my_modal-body" id="VOICE" style="display: none;">
+                <div class="card-body">
+                    <form role="form" name="loginform" id="voiceForm">
+
+                        <div class="page-alert">
+                            <div class="alert alert-info" id="messageBox" style="text-align: center;">
+                                <strong>*</strong>Please click on mic button and say.
+                            </div>
+                        </div>
+                        <div class="form-group loginFormGroup">
+                            <input type="hidden" class="form-control " name="mq_username" id="mq_username"
+                                   @*value="<%=(context.user_profile_data)?context.user_profile_data.userName:''%>"*@
+                                   type="text" disabled="disabled" placeholder="User Name">
+                        </div>
+
+                        <div class="form-group loginFormGroup" id="Login_Button">
+                            <div id='record_box'>
+                                <canvas class='canvas' id="canvas_tag1"
+                                        style="width: 100%;height: 100px;display: none;margin-bottom:5px;"></canvas>
+                                <img id="waveImg" src="~/lib/voiceauthentication/img/images3.jfif"
+                                     style="height: 100px;width:100%;margin-bottom:5px;" />
+
+
+                                <div class="form-group" style="margin-bottom: 0px;">
+                                    <div class="row" style="    width: 100%; margin-left: 0px;height: 54px;">
+
+                                        <button class="record" type="button" id="record_button1" value="Record" style="width: 99px ;background-image: url(vendor/voiceauthentication/img/work-21.png);
+                                    border-radius: 10px; outline: none;margin-right: unset;">
+                                            <!--  <img id="micImg" src="vendor/voiceauthentication/img/work-21.png"> -->
+                                        </button>
+                                        <div class="page-alert" id="page-alert">
+                                            <div class="alert " id="prompt_box">
+                                                <strong>
+                                                    <span id='random_phrase'>
+
+                                                    </span>
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id='select_box' style="display:none">
+                                    <select class="form-control" id='select_tag1'
+                                            style="width: 99%;margin-left: 5px;margin-top: 3px;">
+                                        <option>No Microphone</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-block btn-primary mt-3 authenticateUser"
+                                    id="checkVoice">
+                                Submit
+                            </button>
+                        </div>
+
+                        <div class="row">
+                            <input type="hidden" id="vrvalue" name="vrvalue">
+                            <input type="hidden" name="mq_authscheme" id="mq_authscheme" maxlength="50"
+                                   value="" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    var isAuthenticationRequiredURL = '@Url.Action("IsAuthenticationRequired", "OperationAuthentication")';
+    var VerifyAuthenticationDataURL = '@Url.Action("VerifyAuthenticationData", "OperationAuthentication")';
+    var IsUserVerifiedCodeURL = '@Url.Action("IsUserVerifiedCode", "OperationAuthentication")';
+    var SendPushNotificationURL  = '@Url.Action("SendPushNotification", "OperationAuthentication")';
+    var VerifyAuthenticationDataUrl = '@Url.Action("VerifyAuthenticationData", "OperationAuthentication")';
+    var SessionOutLoginUrl = '@Url.Action("Index", "Login")';
+</script>
+<link rel="stylesheet" href="~/lib/additional-authentication/additional-authentication.css" asp-append-version="true"/>
+<script src="~/lib/voiceauthentication/microphone.js" asp-append-version="true"></script>
+<script src="~/lib/additional-authentication/authenticationHandler.js" asp-append-version="true"></script>
+<script src="~/lib/PasswordLessRegistration/helpers.js" asp-append-version="true"></script>
+<script src="~/lib/additional-authentication/passwordless.login.js" asp-append-version="true"></script> 

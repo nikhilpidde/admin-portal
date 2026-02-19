@@ -1,0 +1,235 @@
+﻿@model DTPortal.Web.ViewModel.Consent.ConsentListViewModel
+
+@{
+    ViewData["Title"] = "Consents";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<!--TABLE CONTENT START-->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card ">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+@*                         <div class="btn-group">
+                            <a class="btn btn-info" asp-action="Add">
+                                <i class="fa fa-plus"></i>Add
+                            </a>
+                        </div> *@
+
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="List">
+                                <i class="fa fa-refresh"></i>Refresh
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+                            <th>Consent Type</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                            <th>Modified Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Consents)
+                        {
+                            <tr class="odd gradeX">
+                                <td>@item.ConsentType</td>
+                                <td>@item.Status</td>
+                                <td>@item.CreatedOn</td>
+                                <td>@item.UpdatedOn</td>
+                                <td class="valigntop">
+                                    <div class="btn-group">
+                                        <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                aria-expanded="false">
+                                            Actions
+                                            <i class="fa fa-angle-down"></i>
+                                        </button>
+                                        <ul class="dropdown-menu pull-left" role="menu">
+                                            <li>
+                                                <a asp-action="Edit" asp-route-id="@item.ConsentId">
+                                                    <i class="icon-docs"></i>Edit
+                                                </a>
+                                            </li>
+                                            @if (item.Status.ToLower() == "active")
+                                            {
+                                                <li>
+                                                    <a class="js-disable" data-id="@item.ConsentId">
+                                                        <i class="icon-docs"></i>Disable
+                                                    </a>
+                                                </li>
+                                            }
+                                            else if (item.Status.ToLower() == "inactive")
+                                            {
+                                                <li>
+                                                    <a class="js-enable" data-id="@item.ConsentId">
+                                                        <i class="icon-docs"></i>Enable
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('#portalSettingsMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#consentMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Mobile App Settings');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Consents');
+            $('#subMenu').removeClass('breadcrumb-item');
+        /*For Beadcrum End*/
+
+            $(".table").DataTable({
+                "bLengthChange": false,
+            });
+
+             $(".table").on('click', '.js-enable', function () {
+                var enableButton = $(this);
+                 var id = enableButton.attr("data-id");
+                swal({
+                    title: "Are you sure?",
+                    text: "Enabling this consent will disable the current active consent",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: 'POST',
+                            cache: false,
+                            url: '@Url.Action("EnableConsent", "Consent")',
+                            headers: {
+                                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            data: { id: id, },
+                            beforeSend: function () {
+                                $('#overlay').show();
+                            },
+                            complete: function () {
+                                $('#overlay').hide();
+                            }
+                        }).done(function (response) {
+                            if (response.status == "Success") {
+                                type = 'success';
+                                text = response.message;
+                            }
+                            else {
+                                type = 'error';
+                                text = response.message;
+                            }
+                            swal({ type: type, title: response.title, text: text }, function (isConfirm) {
+                                if (isConfirm) {
+                                    if (type == 'success') {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        }).fail(ajaxErrorHandler)
+                    }
+                });
+             });
+
+            $(".table").on('click', '.js-disable', function () {
+                var disableButton = $(this);
+                var id = disableButton.attr("data-id");
+                swal({
+                    title: "Are you sure?",
+                    text: "Do you want to disable this consent?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    closeOnConfirm: true,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: 'POST',
+                            cache: false,
+                            url: '@Url.Action("DisableConsent", "Consent")',
+                            headers: {
+                                "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            data: { id: id, },
+                            beforeSend: function () {
+                                $('#overlay').show();
+                            },
+                            complete: function () {
+                                $('#overlay').hide();
+                            }
+                        }).done(function (response) {
+                            if (response.status == "Success") {
+                                type = 'success';
+                                text = response.message;
+                            }
+                            else {
+                                type = 'error';
+                                text = response.message;
+                            }
+                            swal({ type: type, title: response.title, text: text }, function (isConfirm) {
+                                if (isConfirm) {
+                                    if (type == 'success') {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        }).fail(ajaxErrorHandler)
+                    }
+                });
+            });
+        });
+
+        function onFileLoad(elementId, event) {
+            //document.getElementById(elementId).textContent = event.target.result;
+            $('#Consent ').val(event.target.result);
+        }
+
+        function onChooseFile(event, onLoadFileHandler) {
+            if (typeof window.FileReader !== 'function')
+                throw ("The file API isn't supported on this browser.");
+            let input = event.target;
+            if (!input)
+                throw ("The browser does not properly implement the event object");
+            if (!input.files)
+                throw ("This browser does not support the `files` property of the file input.");
+            if (!input.files[0])
+                return undefined;
+            let file = input.files[0];
+            let fr = new FileReader();
+            fr.onload = onLoadFileHandler;
+            fr.readAsText(file);
+        }
+    </script>
+}

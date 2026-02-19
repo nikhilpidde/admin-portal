@@ -1,0 +1,191 @@
+﻿@model DTPortal.Web.ViewModel.AuthnPolicies.AuthnPoliciesListViewModel
+
+@{
+    ViewData["Title"] = "List";
+}
+<style>
+    /* Adjust the size of the Swal modal */
+    .custom-swal-popup {
+        width: 550px; /* You can set a specific width */
+        height: auto; /* Height will adjust automatically based on content */
+        font-size: 15px; /* Increase the font size */
+    }
+
+        .custom-swal-popup .swal2-title {
+            font-size: 20px; /* Increase the title font size */
+        }
+
+        .custom-swal-popup .swal2-content {
+            font-size: 15px; /* Adjust content font size */
+        }
+
+</style>
+@{await Html.RenderPartialAsync("_AlertBox");}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+
+                        @* <div class="btn-group">
+                            <button id="addRow1"  class="btn btn-info"><i class="fa fa-plus"></i>Add</button>
+                        </div> *@
+
+                        <div class="btn-group">
+                            <a class="btn btn-info" asp-action="List">
+                                <i class="fa fa-refresh"></i>Refresh
+                            </a>
+
+                        </div>
+
+                    </div>
+                    <table id="authnTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                        <thead>
+                            <tr>
+                                <th>Display Name</th>
+                                <th>Description</th>
+                                @*<th>IsPrimery AuthScheme</th>*@
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.authList == null || Model.authList.Count() == 0)
+                            {
+                                <h2>
+                                    No record found
+                                </h2>
+                            }
+                            else
+                            {
+                                @foreach (var item in Model.authList)
+                                
+                                {
+                                    <tr>
+                                        <td>@item.DisplayName</td>
+                                        <td>@item.Description</td>
+                                        @*<td>@(item.IsPrimaryAuthscheme == true ? "True" : "False" )</td>*@
+                                        <td class="valigntop">
+                                            <div class="btn-group">
+                                                <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                                        aria-expanded="false">
+                                                    Actions
+                                                    <i class="fa fa-angle-down"></i>
+                                                </button>
+                                                <ul class="dropdown-menu pull-left" role="menu">
+                                                    <li>
+                                                        <a asp-action=@(item.IsPrimaryAuthscheme == true ? "EditPrimary" :  "EditMultiModel") asp-route-id="@item.Name">
+                                                            <i class="icon-pencil"></i>Edit
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="js-delete" data-id="@item.Id">
+                                                            <i class="fa fa-trash"></i>Delete
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/assets/js/sweetalert2011.js"></script>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+
+            $('#digitalAuthSidebarElement').addClass('active');
+            $('#authnPoliciesSidebarElement').addClass('active');
+
+            $('#homeSubmenu').addClass('show');
+
+            $("li#digitalAuthSidebarElement a:first").attr('aria-expanded', 'true');
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Digital Authentication');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Authentication Policies ');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            var table = $("#authnTable").DataTable({
+                "bLengthChange": false,
+                "searching": true,
+                "order": []
+            });
+
+            var table = $("#authnTable");
+            $('#authnTable').on('click', '.js-delete', function () {
+                var deleteButton = $(this);
+                var id = deleteButton.attr("data-id");
+                swal({
+                    title: "Are you sure?",
+                    text: "Do you want to delete this record",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                    $.ajax({
+                        type: 'POST',
+                        cache: false,
+                        dataType: 'json',
+                        url: '@Url.Action("Delete", "AuthnPolicies")',
+                        data: {
+                             id: id
+                        },
+                        beforeSend: function () {
+                            $('#overlay').show();
+                        },
+                        complete: function () {
+                            $('#overlay').hide();
+                        },
+                        success: function () {
+                            window.location.reload();
+                        },
+                        error:ajaxErrorHandler
+                    });
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            });
+
+            document.getElementById("addRow1").addEventListener("click", function() {
+        Swal.fire({
+            title: "I am here to Help You!",
+            text: `Choose below options, to create a new authentication policy \neither as a combination of existing ones or a fresh one.`,
+            icon: "info",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonColor: "#EEDC82",
+            confirmButtonText: "No, Create A Fresh One!",
+            cancelButtonText: "Yes, It's A Combination!",
+            showCloseButton: true,
+            allowOutsideClick: false,
+            reverseButtons: true,
+            customClass: {
+                popup: 'custom-swal-popup' // Custom class to modify the size
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.href = '@Url.Action("NewPrimary", "AuthnPolicies")';
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                location.href = '@Url.Action("NewMultiModel", "AuthnPolicies")';
+            }
+        });
+
+        });
+        });
+    </script>
+}

@@ -1,0 +1,611 @@
+﻿@model IList<DTPortal.Core.DTOs.IdValidationResponseDTO>
+
+@* <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"> *@
+
+
+<style>
+    .shimmer-wrapper .shimmer-item {
+        height: 90px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        background: #f3f3f3;
+        position: relative;
+        overflow: hidden;
+    }
+
+    @@media screen and (max-width:1200px) {
+        .shimmer-wrapper .shimmer-item {
+            height: 150px;
+        }
+    }
+
+    /* Shimmer band */
+    .shimmer-wrapper .shimmer-item::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient( to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100% );
+        animation: shimmer-horizontal 1.6s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+
+
+    @@keyframes shimmer-horizontal {
+        0% {
+            left: -100%;
+        }
+
+        100% {
+            left: 100%;
+        }
+    }
+
+    .service-provider-card {
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        color: #212529;
+        border: 1px solid #dee2e6 !important;
+        cursor: pointer;
+    }
+
+        .service-provider-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+    /* Backgrounds by status */
+    .status-active {
+        background-color: #e8f5e9 !important;
+    }
+
+    .status-inactive {
+        background-color: #f8d7da !important;
+    }
+
+    .status-registered {
+        background-color: #fff3cd !important;
+    }
+
+    /* Status badge */
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        min-width: 100px;
+        text-align: center;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        text-transform: capitalize;
+    }
+
+    .status-badge-active {
+        background-color: #28a745;
+        color: #fff;
+    }
+
+    .status-badge-inactive {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+    .status-badge-registered {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .sp-label-heading {
+        font-family: 'Arial', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .custom-modal-body {
+        max-height: 400px;
+        overflow-y: auto;
+        padding: 1rem;
+        word-break: break-word;
+    }
+
+    .signed-response-content {
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 14px;
+        border-radius: 6px;
+        margin-top: 10px;
+        color:#333;
+    }
+
+
+    .custom-modal-width {
+        max-width: 600px; /* Adjust as needed, e.g., 500px, 600px */
+        width: 90%; /* Optional: Responsive width */
+    }
+
+    .modal-header {
+        background-color: #f0f0f0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        font-size: 18px;
+        color: #333;
+    }
+
+</style>
+
+
+<div class="p-4" style="background-color:white;">
+    <div class="d-flex justify-content-between">
+        <h1 class=" mb-4" style="color:#22223b;font-weight:600;font-size:27px !important;">ID Validation</h1>
+        <div class="">
+            <a class="btn btn-info" id="refreshBtn">
+                <i class="fa fa-refresh"></i>Refresh
+            </a>
+        </div>
+    </div>
+    <div class="bg-white pt-2 pb-2 mb-4 ">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+
+            <!-- Search Input with Icon -->
+            <div class="flex-grow-1 d-flex align-items-center bg-light rounded-pill px-3" style="max-width: 70%; border: 1px solid #ced4da;border-radius:12px;">
+                <i class="fa fa-search text-muted me-2"></i>
+                <input type="text"
+                       id="spSearchInput"
+                       class="form-control border-0 bg-transparent shadow-none"
+                       placeholder="Search by ID Number" />
+            </div>
+
+            <!-- Dropdown Filter -->
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa fa-filter text-secondary mr-2" style="font-size: 16px;"></i>
+                <select id="spStatusFilter"
+                        class="form-select py-2 px-2 rounded-pill shadow-sm border border-secondary-subtle">
+                    <option value="" selected>All Status</option>
+                    <option value="SUCCESS">Success</option>
+                    <option value="FAILURE">Failure</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+    <div id="serviceProvidersList" class="space-y-4"></div>
+
+
+    <div class="d-flex justify-content-end w-100">
+        <a href="javascript:void(0);" id="serviceProviderShowMoreBtn" class="toggle-link me-4 mb-3" style="display: none;color:#4e5e6a;font-size:1.1rem;cursor:pointer;">
+            Show More <i class="bi bi-chevron-down"></i>
+        </a>
+    </div>
+
+
+    <div id="noDataMessageServiceProvider" class="text-center mt-2 mb-2" style="display:none;">
+        <div style="color:#4e5e6a;font-size:1.2rem;">No ID Proofing's found.</div>
+    </div>
+
+
+
+    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered custom-modal-width">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="modal-title mr-2 mt-0" style="font-weight:600;font-size:16px !important;">Signed Response</h5>
+                        <div id="verifyResultBadge" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="modal-body custom-modal-body">
+                    <div class="signed-response-content" style="word-break: break-word;"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="verifySignedResponseBtn">Verify</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+
+
+
+<script>
+
+    let currentPage = 0;
+    let totalServiceProviders = 0;
+    let loadedServiceProviders = [];
+
+    $(document).ready(function () {
+
+         $('#kycServicesMenu').addClass('active');
+
+        $('#idValidationSidebarElement').addClass('active');
+
+        $('#kycService').addClass('show');
+
+        $("li#kycServicesMenu a:first").attr('aria-expanded', 'true');
+
+
+
+            /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('ID Validation Service');
+        $('#mainMenu').addClass('breadcrumb-item').append('ID Validation');
+        $('#subMenu').removeClass('breadcrumb-item');
+
+
+        // Initial load
+        loadServiceProviders();
+
+        // Search input - press Enter to trigger filter
+        $('#spSearchInput').on('keypress', function (e) {
+            if (e.which === 13) {
+                resetAndReload();
+            }
+        });
+
+        // Status filter change
+        $('#spStatusFilter').on('change', function () {
+            resetAndReload();
+        });
+
+
+        $('#serviceProviderShowMoreBtn').on('click', function () {
+            currentPage++;
+            loadServiceProviders(); //Load next page and append new records
+        });
+
+
+       $(document).on('click', '.view-response-btn', function () {
+             const encoded = $(this).data('item');
+            const item = JSON.parse(atob(encoded));
+            currentSignedResponse = item.signedResponse;
+            // Set only signedResponse in modal body
+            $('#responseModal .modal-body').html(`
+                <div class="signed-response-content">
+                    ${item.signedResponse && item.signedResponse.trim() ? item.signedResponse : 'No Data Found'}
+                </div>
+            `);
+
+            // Reset verify badge
+            $('#verifyResultBadge').hide().html('');
+
+            if (!item.signedResponse || item.signedResponse.trim() === '') {
+                $('#verifySignedResponseBtn').hide();
+            } else {
+                $('#verifySignedResponseBtn').show();
+            }
+
+            // Show modal explicitly
+            const modalEl = document.getElementById('responseModal');
+            responseModalInstance = new bootstrap.Modal(modalEl);
+            responseModalInstance.show();
+        });
+
+        // Modal close handler
+        $(document).on('click', '#responseModal .btn-close, #responseModal .btn-secondary', function () {
+            if (responseModalInstance) {
+                responseModalInstance.hide();
+            }
+        });
+
+
+        $('#refreshBtn').on('click', function () {
+            currentPage = 0;
+            loadedServiceProviders = [];
+            $('#serviceProvidersList').empty();
+            $('#noDataMessageServiceProvider').hide();
+            loadServiceProviders();
+        });
+
+    });
+
+
+
+
+     function resetAndReload() {
+        currentPage = 0;
+        loadedServiceProviders = [];
+        $('#serviceProvidersList').empty();
+        loadServiceProviders();
+    }
+
+
+
+
+    function loadServiceProviders() {
+        const search = $('#spSearchInput').val().trim();
+        const status = $('#spStatusFilter').val();
+
+        // Hide the "Show More" button while loading
+        $('#serviceProviderShowMoreBtn').hide();
+
+        const shimmerElement = showShimmer(6);
+
+        $.ajax({
+            url: '@Url.Action("GetPaginatedIdValidations", "IdValidation")',
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                pageNumber: currentPage,
+                status: status,
+                searchValue: search
+            },
+           success: function (response) {
+            shimmerElement.remove();
+
+            const { totalCount, records } = response;
+
+            totalServiceProviders = totalCount;
+            loadedServiceProviders.push(...records);
+
+            renderAndAppendServiceProviders(records);
+
+            // ✅ Dynamically determine how many are shown
+            const shownSoFar = loadedServiceProviders.length;
+            const hasMore = shownSoFar < totalServiceProviders;
+            $('#serviceProviderShowMoreBtn').toggle(hasMore);
+
+            $('#noDataMessageServiceProvider').toggle(totalCount === 0 && currentPage === 0);
+        },
+
+            error: function () {
+                shimmerElement.remove();
+                swal({
+                    title: "Info",
+                    text: `No ID's Fetched.`,
+                    type: "info",
+                    //showCancelButton: true,
+                    confirmButtonText: "Ok",
+                    //cancelButtonText: "Cancel",
+                    closeOnConfirm: true,
+                    //closeOnCancel: true
+                });
+            }
+        });
+    }
+
+
+
+
+
+
+
+    function showSignedResponseModal(signedResponse) {
+        currentSignedResponse = signedResponse;
+        $('.signed-response-content').text(signedResponse);
+        $('#verifyResultBadge').hide().html(""); // reset badge
+        const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+        modal.show();
+    }
+
+         $('#verifySignedResponseBtn').on('click', function () {
+        if (!currentSignedResponse) {
+            alert("No signed response available.");
+            return;
+        }
+        $('#networkOverlay').show();
+
+        $.ajax({
+            url: '@Url.Action("ValidateSignedData", "IdValidation")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ SignedData: currentSignedResponse }),
+            success: function (response) {
+                const badgeContainer = $('#verifyResultBadge');
+                const verifyBtn = $('#verifySignedResponseBtn');
+                badgeContainer.show();
+                $('#networkOverlay').hide();
+                if (response.success) {
+                    badgeContainer.html(`
+                        <span class="p-2" style="background-color:green;color:white;font-size: 0.95rem;padding:5px 10px !important;border-radius:16px;">                            
+                            VERIFIED
+                        </span>
+                    `);
+                    verifyBtn.hide();
+                } else {
+                    badgeContainer.html(`
+                         <span class="p-2" style="background-color:red;color:white;font-size: 0.95rem;padding:5px 10px !important;border-radius:16px;">
+                            FAILED
+                        </span>
+                    `);
+                }
+            },
+            error: function (xhr, status, error) {
+                $('#networkOverlay').hide();
+                alert("❌ Error occurred during verification:\n" + error);
+            }
+        });
+    });
+
+
+
+   
+    function renderAndAppendServiceProviders(data) {
+        const container = $('#serviceProvidersList');
+        const cards = data.map(item => generateServiceProviderCardHtml(item));
+        container.append(cards.join(''));
+        updateDatestamps();
+        updateTimestamps();
+    }
+
+    function showShimmer(count) {
+        let shimmerHtml = `<div class="shimmer-wrapper">`;
+        for (let i = 0; i < count; i++) {
+            shimmerHtml += `<div class="shimmer-item"></div>`;
+        }
+        shimmerHtml += `</div>`;
+        const $shimmer = $(shimmerHtml);
+        $('#serviceProvidersList').append($shimmer);
+
+        // Scroll to the bottom of the shimmer once added
+        if (currentPage != 0) {
+            setTimeout(() => {
+                $shimmer[0]?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 10);
+        }
+
+
+        return $shimmer;
+    }
+
+       function generateServiceProviderCardHtml(item) {
+        const status = item.status.toLowerCase();
+        let cardClass = '', badgeClass = '';
+        const encodedData = btoa(JSON.stringify(item));
+        let base64Image = item.photo || '';
+        let fullDataUrl = '';
+
+        if (base64Image.startsWith('data:image')) {
+            fullDataUrl = base64Image; // Already a complete data URL
+        } else {
+            const imageType = 'png'; // or dynamically detect type
+            fullDataUrl = `data:image/${imageType};base64,${base64Image}`;
+        }
+
+
+        switch (status) {
+            case 'success':
+                cardClass = 'status-active';
+                badgeClass = 'status-badge-active';
+                break;
+            case 'failure':
+                cardClass = 'status-inactive';
+                badgeClass = 'status-badge-inactive';
+                break;
+            
+        }
+
+           const kycMethodsHtml = `
+              <span class="badge bg-success text-white mr-3 mb-1 d-flex justify-content-center align-items-center" style="padding:10px 12px !important;font-size:10px !important;">
+                ${item.kycMethod}
+              </span>
+            `;
+
+
+            const imageHtml = base64Image
+              ? `<img src="${fullDataUrl}" alt="Logo" style="width: 60px; height: 60px; object-fit: contain;" class="rounded border" />`
+              : `<i class="fa fa-user-circle fa-2x" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center; font-size: 40px;"></i>`;
+
+
+           return `
+    <div class="card service-provider-card  mb-3 p-3" id="sp-${item.identifier}">
+        <div class="d-flex flex-column gap-3">
+
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between flex-wrap gap-3">
+
+                <!-- Left: Logo and Org Details -->
+                <div class="d-flex gap-3 align-items-start">
+                    ${imageHtml}
+                    <div class="ml-2">
+                            <h5 class="mb-1 fw-semibold text-dark mt-1" style="font-size:15px !important;"
+                                ${item.name && item.name.length > 40 ? `title="${item.name}"` : ''}>
+                                ${item.name
+                                    ? (item.name.length > 50    
+                                        ? item.name.substring(0, 40) + '...'
+                                        : item.name)
+                                    : 'NA'}
+                            </h5>
+
+
+                        <div class="sp-label-heading mb-1">
+                            ID Number : <span>${item.identifier}</span>
+                        </div>
+                        <div class="sp-label-heading">
+                            Nationality: <span>${item.nationality ? item.nationality : 'NA'}</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right: Status and KYC Info (Neatly Aligned) -->
+                <div class="d-flex flex-wrap gap-3 align-items-center justify-content-end text-end ms-auto">
+
+                    <div class="d-none flex-column mr-5" style="min-width:100px;">
+                        <div style="font-weight:600;">${item.orgName}</div>
+                        <div class="sp-label-heading">Service Provider</div>
+                    </div>
+
+                    <div class="d-none flex-column mr-5" style="min-width:100px;">
+                        <div style="font-weight:600;">${item.date}</div>
+                        <div class="sp-label-heading">Date</div>
+                    </div>
+
+                    <div class="d-none flex-column mr-5" style="min-width:100px;">
+                        <div style="font-weight:600;">${item.time}</div>
+                        <div class="sp-label-heading">Time</div>
+                    </div>
+
+                     <div class="d-flex flex-column mr-5" style="min-width:100px;">
+                        <div style="font-weight:600;">
+                            <span class="mr-2" style="font-weight:600;">${item.date}</span>
+                            <span style="font-weight:600;">${item.time}</span>
+                        </div>
+                        <div class="sp-label-heading">ID Verification Date & Time</div>
+                    </div>
+
+                    <div class="d-flex flex-column justify-content-center" style="min-width:100px;">
+                        <span class="badge ${badgeClass} text-uppercase px-3 py-1 fw-semibold d-flex justify-content-center align-items-center" style="padding:16px 8px !important;">${item.status}</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- KYC Methods Section -->
+            <div class="border-top pt-3 mt-2 d-flex justify-content-between align-items-center">
+                <div>
+                     <div class="text-muted small d-flex align-items-center">
+                        <span class="sp-label-heading mr-2">ID Validation Method : </span>
+                        ${kycMethodsHtml}
+                    </div>
+                     <div class="text-muted small d-flex align-items-center">
+                        <span class="sp-label-heading mr-2 mb-0">Service Provider : </span>
+                        <span style="font-weight:bold;">${item.orgName}</span>
+                    </div>
+                </div>
+               <div class="d-flex">
+                    <div class="d-flex flex-column mr-5" style="min-width:100px;">
+                        <div style="font-weight:600;">
+                          ${item.expiryDate 
+                            ? `<span>${item.expiryDate}</span>` 
+                            : `<span>NA</span>`
+                          }
+                        </div>
+
+
+                        <div class="sp-label-heading">Expiry Date</div>
+                    </div>
+                   <button type="button" style="max-height:40px;" class="btn btn-primary view-response-btn" data-item='${encodedData}'>
+                      Signed Response
+                    </button>
+               </div>
+                
+            </div>
+            </div>
+        </div>
+    </div>
+    `;
+
+    }
+
+</script>

@@ -1,0 +1,287 @@
+﻿@model DTPortal.Web.ViewModel.UserClaims.UserClaimsEditViewModel
+
+@{
+    ViewData["Title"] = "UserClaims Edit";
+}
+
+@using DTPortal.Core.DTOs
+@using DTPortal.Core.Domain.Services
+@using DTPortal.Core.Constants
+@using DTPortal.Web.Enums
+
+<style>
+    .custom-check-box {
+        margin-right: 5px;
+        margin-top: 2px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.4rem;
+        height: 1.4rem;
+        background-color: #fff;
+        border: 0.125rem solid rgba(0,0,0,0.3);
+    }
+
+
+
+    i {
+        color: #808080e0;
+    }
+
+    .popup {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        float: right;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        margin-bottom: 35px;
+        margin-top: -60px;
+    }
+    /* The actual popup */
+    .popup .popuptext {
+        visibility: hidden;
+        min-width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 5px;
+        position: relative;
+        z-index: 1111;
+        right: 3%;
+        /* top: -43%; */
+        /* bottom: -28%; */
+        margin-bottom: 0px;
+        margin-top: -60px;
+    }
+
+        /* Popup arrow */
+        .popup .popuptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
+
+    .popup:hover + .popuptext {
+        visibility: visible;
+        -webkit-animation: fadeIn 1s;
+        animation: fadeIn 1s;
+    }
+
+    .custom-check-box:hover {
+        outline: auto;
+        outline-color: #5d9ceca3;
+    }
+</style>
+<style>
+    /* Tooltip container styling */
+    .info-icon {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        margin-left: 5px;
+    }
+
+    /* Tooltip text styling */
+    .tooltip-text {
+        visibility: hidden; /* Hidden by default */
+        opacity: 0; /* Transparent by default */
+        width: max-content;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 4px;
+        padding: 5px 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 150%; /* Position above the icon */
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        white-space: nowrap;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        /* Smooth visibility transition */
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+        /* Tooltip arrow */
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%; /* Arrow pointing downwards */
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+
+    /* Show tooltip on hover */
+    .info-icon:hover .tooltip-text {
+        visibility: visible; /* Show the tooltip */
+        opacity: 1; /* Fully visible */
+    }
+
+
+</style>
+
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form id="uform" enctype="multipart/form-data" asp-action="Update">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="Id" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Name" class="col-form-label s3"></label>
+                                <input asp-for="Name" class="form-control" readonly />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="DisplayName" class="col-form-label s3"></label>
+                                <input asp-for="DisplayName" class="form-control" />
+                                <span asp-validation-for="DisplayName" class="text-danger"></span>
+                            </div>
+                            
+                        </div>
+                        <div class="form-group col-md-6">
+                            @* <div class="form-group">
+                                <div class="checkbox">
+                                    <label class="col-form-label s3">
+                                        <input class="custom-check-box" asp-for="UserConsent" /> @Html.DisplayNameFor(model => model.UserConsent)
+                                    </label>
+                                </div>
+                            </div> *@
+
+                            <div class="form-group">
+                                <label asp-for="Description" class="col-form-label s3"></label>
+                                <textarea asp-for="Description" class="form-control"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            @* <div class="form-group">
+                                <div class="checkbox">
+                                    <label class="col-form-label s3">
+                                        <input class="custom-check-box" asp-for="DefaultClaim" /> @Html.DisplayNameFor(model => model.DefaultClaim)
+                                    </label>
+                                </div>
+                            </div> *@
+
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label class="col-form-label s3">
+                                        <input class="custom-check-box" asp-for="DefaultClaim" />
+                                        @Html.DisplayNameFor(model => model.DefaultClaim)
+                                    </label>
+
+                                    <!-- Info icon with tooltip -->
+                                    <span class="info-icon">
+                                        <i class="fa fa-info-circle"></i>
+                                        <span class="tooltip-text">It is a default claim which cant be removed</span>
+                                    </span>
+                                </div>
+                            </div>
+
+
+
+
+
+                            @* <div class="form-group">
+                                <div class="checkbox">
+                                    <label class="col-form-label s3">
+                                        <input class="custom-check-box" asp-for="Metadata" /> @Html.DisplayNameFor(model => model.Metadata)
+                                    </label>
+                                </div>
+                            </div> *@
+                        </div>
+                    </div>
+                    <div style="padding-right: 10px">
+                        <div style="float: left;">
+                            <b>NOTE: </b>(*) Mark fields are mandatory.
+                        </div>
+                        <div class="d-flex justify-content-end ">
+                            @if (!User.IsInRole("UserClaims Checker"))
+                            {
+
+                                <button style="margin-left:10px;" id="submit" class="btn btn-primary greenButton" type="submit">
+                                    Update
+                                </button>
+
+                            }
+                            &nbsp; &nbsp;
+                            <a asp-action="List" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        var operationName = "";
+        var operationUrl = "";
+        $(document).ready(function () {
+
+            $('#eConsentMenu').addClass('active');
+
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#UserClaimsConfigMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('E-Consent Service');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Attributes >  Edit');
+            $('#subMenu').removeClass('breadcrumb-item');
+
+            var isCheker = "@User.IsInRole("UserClaims Checker")";
+            if (isCheker == "True") {
+                $('form *').prop('disabled', true);
+            }
+
+
+        });
+
+
+    </script>
+}
+

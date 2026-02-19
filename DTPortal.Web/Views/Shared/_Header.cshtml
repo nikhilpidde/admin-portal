@@ -1,0 +1,104 @@
+﻿@using System.Security.Claims;
+
+@{
+    var IsChekerUser = User.FindFirst("IsUserChecker").Value;
+    var id = User.FindFirst(ClaimTypes.UserData).Value;
+}
+
+<style>
+    .spin {
+        width: 10px !important;
+        height: 10px !important;
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light navbar-default sticky-top">
+    <div class="container-fluid">
+        <div class="navbar-header d-inline">
+            <button type="button" id="sidebarCollapse" class=" navbar-btn">
+                <i class="fa fa-bars fa-lg"></i>
+                <span></span>
+            </button>
+
+           @*  <span style="align-self: center;font-size: 12px; margin-left: 20px;">
+                <strong>Certificates Available: </strong>&nbsp;
+                <span id="licensesAvailableSpan"></span>
+                <div id="spinner" class="cv-spinner" style="display: initial;">
+                    <span class="spinnerSmall spin">
+                    </span>
+                </div>
+            </span>&nbsp;&nbsp; *@
+        </div>
+        <div class="col-6" style="display:contents">
+            <div class="row">
+                <span style="align-self: center;font-size: 12px;"><strong>Last Login: </strong>&nbsp;@User.FindFirst("LastLoginTime").Value</span>&nbsp;&nbsp;
+                <div class="dropdown ">
+                    <a class="nav-link dropdown-toggle custom-profile-dropdown" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: rgba(57, 50, 50, 1); text-transform: capitalize;">
+                        <i class="fa fa-user-circle fa-2x"></i>&nbsp;
+                        @User.Identity.Name
+                    </a>
+                    <!-- Here's the magic. Add the .animate and .slide-in classes to your .dropdown-menu and you're all set! -->
+                    <div class="dropdown-menu dropdown-menu-right animate slideIn profileDropdown" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" asp-controller="userDashboard" asp-action="Profile">Profile</a>
+                        @if (IsChekerUser == "True")
+                        {
+                            <a class="dropdown-item" asp-controller="MakerChecker" asp-action="Approvals">Approvals</a>
+                        }
+                        <a class="dropdown-item" asp-controller="MakerChecker" asp-action="RequestedOperations">Requested Operations</a>
+                        <a class="dropdown-item" asp-controller="UserDashboard" asp-action="ChangePassword" asp-route-id="@id">Change Password</a>
+                        <a class="dropdown-item" asp-controller="UserDashboard" asp-action="ChangeSecurityQuestion">Change Security Question</a>
+                        <hr class="header-hr" />
+                        @*<a class="dropdown-item" href="#">Message</a>*@
+                        <hr class="header-hr" />
+                        <div class="col">
+                            <div style="height:6px"></div>
+                            <span style="padding-left:8px">Select Theme</span>
+                            <li class="pl10 ml10  mt10 theme-changer">
+                                <a class="color-tag clickable mr15 change-theme"  style="background:#c9a44c" name="Brown"> </a>
+                                <a class="color-tag clickable mr15 change-theme"  style="background:#9bbeed" name="LightBlue"> </a>
+                                <a class="color-tag clickable mr15 change-theme" style="background:orange" name="Yellow"> </a>
+                                <a class="color-tag clickable mr15 change-theme" style="background:Blue" name="DarkBlue"> </a>
+
+                            </li>
+                            <div style="height:6px"></div>
+                        </div>
+                        <hr class="header-hr" />
+                        <a class="dropdown-item" asp-controller="Logout" asp-action="Index">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</nav>
+
+<script>
+
+    $(document).ready(function () {
+       getLicensesAvailable();
+    });
+
+       function getLicensesAvailable() {
+        $('#licensesAvailableSpan').text('');
+         $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetAvailableLicenses", "Home")',
+            datatype: "json",
+            beforeSend: function () {
+                $('#spinner').show();
+            },
+            complete: function () {
+                $('#spinner').hide();
+             },
+             success: function (data) {
+                 $('#licensesAvailableSpan').text(data);
+            },
+            error: function()
+            {
+                $('#licensesAvailableSpan').text('N/A');
+            }
+         });
+    }
+
+</script>

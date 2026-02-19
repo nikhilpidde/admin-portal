@@ -1,0 +1,209 @@
+﻿@model DTPortal.Web.ViewModel.OrganizationPaymentHistory.OrganizationPaymentHistoryViewModel
+
+@{
+    ViewData["Title"] = "Organization Payment History";
+}
+<style>
+    fieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 5px;
+        margin-bottom: 5px;
+        overflow-y: auto;
+        height: 180px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .sweet-alert fieldset {
+        display: none;
+    }
+
+    .sweet-alert p {
+        font-weight: 400;
+        overflow: auto;
+        max-height: 200px;
+        white-space: break-spaces;
+    }
+
+    a.dropdown-item:hover {
+        color: #212529 !important;
+    }
+
+    
+</style>
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class=card-body>
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <a class="btn btn-info" id="add">
+                                <i class="fa fa-plus"></i>Add Payment
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-5">
+                        <input asp-for="OrganizationPaymentHistory.OrganizationName" class="form-control " placeholder="Enter Organization Name" />
+                    </div>
+                    <div class="col-md-2">
+                        <div class="btn-group">
+                            <a class="btn btn-info" value="Search" onclick="searchOrganization();"><i class="fa fa-search"></i>Search</a>
+                            &nbsp;&nbsp;
+                            <input type="button" class="btn btn-danger" value="Clear" onclick="resetFields()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="paymentHistoryDiv">
+</div>
+
+@section Scripts {
+<script src="~/assets/js/bootstrap3-typeahead.min.js" asp-append-version="true"></script>
+
+<script>
+    var dictionary = {};
+    $(document).ready(function ()
+    {
+        $('#priceModelMenu').addClass('active');
+        $('#paymentHistoryMenuItem').addClass('active');
+        $('#OrganizationPaymentHistorySidebarElement').addClass('active');
+
+        $('#priceModel').addClass('show');
+        $('#PaymentHistorySubmenu').addClass('show');
+
+        $("li#paymentHistoryMenuItem a:first").attr('aria-expanded', 'true');
+        $("li#OrganizationPaymentHistorySidebarElement a:first").attr('aria-expanded', 'true');
+
+       /*For Beadcrum Start*/
+       $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+       $('#mainMenu').addClass('breadcrumb-item active').append('Payment History');
+       $('#subMenu').addClass('breadcrumb-item active').append('Organization');
+       /*For Beadcrum End*/
+    });
+
+     $("#add").click(function ()
+        {
+           $('#paymentHistoryDiv').empty();
+           $.ajax({
+               url: '@Url.Action("Add", "OrganizationPaymentHistory")',
+               type: "GET",
+               contentType: "json",
+               error: ajaxErrorHandler,
+               beforeSend: function () {
+                   $('#overlay').show();
+               },
+               complete: function () {
+                   $('#overlay').hide();
+               },
+               success: function (data) {
+                   $('#paymentHistoryDiv').html(data);
+               }
+           });
+        });
+
+    $("#OrganizationPaymentHistory_OrganizationName").typeahead({
+        minLength: 2,
+                items: 10,
+                source: function (request, response) {
+                    $.ajax({
+                        url: '@Url.Action("GetOrganizations", "OrganizationPaymentHistory")',
+                        data: {"value": request },
+                        type: "GET",
+                        contentType: "json",
+                        error: ajaxErrorHandler,
+                        success: function (data) {
+                            items = [];
+                            map = {};
+                            dictionary = {};
+                            $('#OrganizationId').val('');
+                            $.each(data, function (i, item) {
+                                var id = i;
+                                var array = item.split(",");
+                                var uid = array[1];
+                                var name = array[0];
+                                map[name] = {
+                                    id: id,
+                                    name: name
+                                };
+                                items.push(name);
+                                dictionary[name] = uid;
+                            });
+                            response(items);
+                        }
+                    });
+                },
+            updater: function (item) {
+                var id = item.orgid;
+                getOrganizationPaymentHistory(item, dictionary[item]);
+                    return item;
+            }
+    });
+
+
+
+    function getOrganizationPaymentHistory(name, uid){
+        $('#paymentHistoryDiv').empty();
+            var dataToSend = { organizationName : name, organizationUid : uid };
+            $.ajax({
+                url: '@Url.Action("GetOrganizationPaymentHistory", "OrganizationPaymentHistory")',
+                data: dataToSend,
+                type: "GET",
+                /*contentType: "json",*/
+                error: ajaxErrorHandler,
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                },
+                success: function (data) {
+                    if (data != null)
+                    {
+                        $('#paymentHistoryDiv').html(data);
+                        $('#paymentHistoryDiv').show();
+                    }
+                    else
+                    {
+                        swal({ type: 'error', title: "Failed", text: "Failed to get organization payment history" });
+                    }
+                }
+           });
+    }
+
+    function searchOrganization() {
+        var value = $("#OrganizationPaymentHistory_OrganizationName").val();
+        if (value == '') {
+            swal({ type: 'error', title: "Error", text: "Please enter the organization name" });
+        }
+        else {
+            getOrganizationPaymentHistory(value, dictionary[value]);
+        }
+    }
+
+    function formValidation() {
+
+       $("Form").validate();
+
+       if ($("Form").valid()) {
+            return true;
+       }
+    }
+
+    function resetFields() {
+            $("input:text").val("");
+            $('#paymentHistoryDiv').empty();
+            $('.text-danger').text('');
+            $("#OrganizationName").attr("placeholder", "Enter Organization Name");
+        }
+
+</script>
+}

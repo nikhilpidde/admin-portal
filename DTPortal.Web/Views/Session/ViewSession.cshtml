@@ -1,0 +1,126 @@
+﻿@model DTPortal.Web.ViewModel.Session.ViewSessionViewModel
+
+<h2 id="title">Session Details</h2>
+
+<div class="row" style="padding-left: 20px; padding-right: 20px">
+    <div class="col-md-12">
+        <form asp-action="">
+
+            <div class="row">
+                <div class="col-md-6">
+
+                    <div class="form-group">
+                        <label asp-for="GlobalSessionId" class="col-form-label s3">Global Session Id</label>
+                        <input asp-for="GlobalSessionId" class="form-control" readonly />
+                        <span asp-validation-for="GlobalSessionId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="UserId" class="col-form-label s3">UUID</label>
+                        <input asp-for="UserId" class="form-control" readonly />
+                        <span asp-validation-for="UserId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ClientId" class="col-form-label s3">Client Id</label>
+                        <select asp-for="ClientId" multiple="multiple" class="form-control multiple-select"
+                                asp-items="Model.Clientlist">
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="AuthenticationScheme" class="col-form-label s3">Authentication Scheme</label>
+                        <input asp-for="AuthenticationScheme" class="form-control" readonly />
+                        <span asp-validation-for="AuthenticationScheme" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="IpAddress" class="col-form-label s3">Ip Address</label>
+                        <input asp-for="IpAddress" class="form-control" readonly />
+                        <span asp-validation-for="IpAddress" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LoggedInTime" class="col-form-label s3">Logged In Time</label>
+                        <input asp-for="LoggedInTime" class="form-control" readonly />
+                        <span asp-validation-for="LoggedInTime" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LastAccessTime" class="col-form-label s3">Last Access Time</label>
+                        <input asp-for="LastAccessTime" class="form-control" readonly />
+                        <span asp-validation-for="LastAccessTime" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TypeOfDevice" class="col-form-label s3">Type Of Device</label>
+                        <input asp-for="TypeOfDevice" class="form-control" readonly />
+                        <span asp-validation-for="TypeOfDevice" class="text-danger"></span>
+                    </div>
+
+
+                    @*<div class="form-group">
+            <label asp-for="UserAgentDetails" class="col-form-label s3">User Agent Details</label>
+            <input asp-for="UserAgentDetails" class="form-control" readonly />
+            <span asp-validation-for="UserAgentDetails" class="text-danger"></span>
+        </div>*@
+                </div>
+            </div>
+
+            <div style="padding-right: 10px">
+               
+                <div style="float: right;">
+
+                    @*<a  asp-action="Logout" asp-route-id="@Model.GlobalSessionId" class="submitButton">
+                            Logout
+                        </a>*@
+                    &nbsp;&nbsp;
+
+                    <a asp-action="Index" class="btn btn-danger">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<style>
+    select[multiple], select[size] {
+        height: 200px;
+        padding: 5px;
+    }
+
+        select[multiple] option, select[size] option {
+            padding: .5rem 1rem;
+            border-radius: .1875rem;
+            border: 1px solid #80808024;
+            background-color: #e4dede24;
+        }
+
+    .multiple-select {
+        display: block !important;
+        width: 100% !important;
+        height: 12.1875rem !important;
+        padding: 0.375rem 1rem;
+        line-height: 1.52857;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #dde6e9;
+        border-radius: 0.25rem;
+        box-shadow: 0 0 0 #000 !important;
+        font-size: 0.875rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+</style>
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+
+
+            $('#sidebarElements li a').removeClass('active');
+            $('#SessionSidebarElement').addClass('active');
+            $('#mainPath').addClass('breadcrumb-item').append('Users');
+            $('#subPath').addClass('breadcrumb-item').append('Edit');
+        });</script>
+
+}

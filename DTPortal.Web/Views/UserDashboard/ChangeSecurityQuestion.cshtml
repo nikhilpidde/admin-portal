@@ -1,0 +1,106 @@
+﻿@model DTPortal.Web.ViewModel.UserDashboard.SequerityQuestionViewModel
+
+@{
+    ViewData["Title"] = "Change Sequerity Question";
+
+}
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form id="securityQue" asp-action="ChangeSecurityQuestion">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <div class="form-group" hidden>
+                                <input asp-for="UserId" class="form-control" />
+                                <input asp-for="Que1Id" class="form-control" />
+                                <input asp-for="Que2Id" class="form-control" />
+                                <input asp-for="Que3Id" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Question1" class="col-form-label"></label>
+                                <select asp-for="Question1" class="form-control"
+                                        asp-items="@Model.SecurityQueList1"></select>
+                                <span asp-validation-for="Question1" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <input asp-for="Answer1" class="form-control" placeholder="Answer for Question One" />
+                                <span asp-validation-for="Answer1" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Question2" class="col-form-label"></label>
+                                <select asp-for="Question2" class="form-control"
+                                        asp-items="@Model.SecurityQueList2"></select>
+                                <span asp-validation-for="Question2" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <input asp-for="Answer2" class="form-control"  placeholder="Answer for Question Two" />
+                                <span id='message'></span>
+                                <span asp-validation-for="Answer2" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Question3" class="col-form-label"></label>
+                                <select asp-for="Question3" class="form-control"
+                                        asp-items="@Model.SecurityQueList3"></select>
+                                <span asp-validation-for="Question3" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <input asp-for="Answer3" class="form-control" placeholder="Answer for Question Three" />
+                                <span id='message'></span>
+                                <span asp-validation-for="Answer3" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="myform-button" style="margin-top: 30px">
+                        <div class="d-flex justify-content-end ">
+
+                            <button id="secQueBtn" class="btn btn-primary" type="submit" style="opacity: 0.5;" disabled>
+                                Update
+                            </button>
+                            &nbsp;&nbsp;
+
+                            <a asp-controller="UserDashboard" asp-action="Profile" class="btn btn-danger">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+               $(document).ready(function () {
+                      /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Dashboard');
+            $('#mainMenu').addClass('breadcrumb-item active').append('Change Security Question');
+            $('#subMenu').removeClass('breadcrumb-item');
+                   $('#Question1, #Question2, #Question3').on('change', validateQuestions);
+        $('#Answer1, #Answer2, #Answer3').on('change', validateQuestions);
+
+        function validateQuestions() {
+            var q1 = $('#Question1').val();
+            var q2 = $('#Question2').val();
+            var q3 = $('#Question3').val();
+
+            if (q1 === q2 || q1 === q3 || q2 === q3) {
+                $('#message').html('All security questions must be different').css('color', 'red');
+                $('#secQueBtn').prop("disabled", true).css('opacity', '0.5');
+            } else {
+                $('#message').html('');
+                $('#secQueBtn').prop("disabled", false).css('opacity', '1');
+            }
+        }
+
+
+        });
+
+
+    </script>
+}

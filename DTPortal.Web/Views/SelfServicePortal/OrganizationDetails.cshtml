@@ -1,0 +1,523 @@
+﻿@model DTPortal.Web.ViewModel.SelfServicePortal.OrgNewDetailsViewModel
+
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+
+@{
+    ViewData["Title"] = "Organization Details";
+    var clientName = Configuration["ProjectName"];
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+
+
+<style>
+    
+    .page-card {
+        border-radius: 16px;
+        box-shadow: 0 12px 30px rgba(0,0,0,.08);
+        border: none;
+    }
+    .section-gap{
+        margin-bottom:28px;
+    }
+    
+    .section-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 26px;
+        background: #fff;
+    }
+
+    .section-header {
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 18px;
+        color: #4e5e6a;
+        /* border-left: 4px solid #4f46e5; */
+       /*  padding-left: 10px; */
+    }
+
+     
+    .form-grid .row {
+        row-gap: 18px;
+    }
+
+    
+    form label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #555555b3;
+        margin-bottom: 4px;
+    }
+
+     
+    .readonly input {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        font-weight: 500;
+    }
+
+    .form-control:disabled, .form-control[readonly] {
+        background-color: #f9fafb !important;
+        opacity: 1;
+    }
+
+    .form-control:focus {
+        /* color: #495057; */
+        background-color: #fff;
+        border-color: #ccc;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    /* ===== Document Pills ===== */
+    .document-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        font-size: .85rem;
+        margin: 6px;
+        transition: .2s ease;
+    }
+
+        .document-pill:hover {
+            background: #2582e6;
+            color: #fff;
+        }
+
+     
+    .status-pill {
+        padding: 6px 16px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #fff;
+    }
+
+        .status-pill.pending {
+            background: #f59e0b;
+        }
+
+        .status-pill.active {
+            background: #10b981;
+        }
+
+        .status-pill.rejected {
+            background: #ec2020c4;
+        }
+
+    
+    .org-modal-footer {
+       /*  border-top: 1px solid #e5e7eb; */
+        padding-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .footer-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+</style>
+
+<div class="card page-card">
+    <div class="card-body">
+        <form method="post">
+
+            
+            <div class="section-card readonly form-grid">
+                <div class="section-header">Organization Details</div>
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <label asp-for="OrgName"></label>
+                        <input asp-for="OrgName" class="form-control" readonly
+                               value="@(string.IsNullOrEmpty(Model.OrgName) ? "N/A" : Model.OrgName)" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="RegNo"></label>
+                        <input asp-for="RegNo" class="form-control" readonly
+                               value="@(string.IsNullOrEmpty(Model.RegNo) ? "N/A" : Model.RegNo)" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Address"></label>
+                        <input asp-for="Address" class="form-control" readonly
+                               value="@(string.IsNullOrEmpty(Model.Address) ? "N/A" : Model.Address.Replace(";", ", "))" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="OrgNo"></label>
+                        <input asp-for="OrgNo" class="form-control" readonly
+                               value="@(string.IsNullOrEmpty(Model.OrgNo) ? "N/A" : Model.OrgNo)" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TaxNumber"></label>
+                        <input asp-for="TaxNumber" class="form-control" readonly
+                               value="@(string.IsNullOrEmpty(Model.TaxNumber) ? "N/A" : Model.TaxNumber)" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="OrgType"></label>
+                        <input asp-for="OrgType" class="form-control" readonly
+                               value="@(string.IsNullOrEmpty(Model.OrgType) ? "N/A" : Model.OrgType)" />
+                    </div>
+                </div>
+            </div>
+ 
+       
+
+            
+            <div class="row section-gap">
+
+               
+                <div class="col-md-6">
+                    <div class="section-card readonly form-grid h-100">
+                        <div class="section-header">SPOC Details</div>
+                        <div class="row">
+
+                            <div class="col-12">
+                                <label asp-for="SpocName"></label>
+                                <input asp-for="SpocName" class="form-control" readonly
+                                       value="@(string.IsNullOrEmpty(Model.SpocName) ? "N/A" : Model.SpocName)" />
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="SpocOfficialEmail"></label>
+                                <input asp-for="SpocOfficialEmail" class="form-control" readonly
+                                       value="@(string.IsNullOrEmpty(Model.SpocOfficialEmail) ? "N/A" : Model.SpocOfficialEmail)" />
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="SpocDocumentNumber"></label>
+                                <input asp-for="SpocDocumentNumber" class="form-control" readonly
+                                       value="@(string.IsNullOrEmpty(Model.SpocDocumentNumber) ? "N/A" : Model.SpocDocumentNumber)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="col-md-6">
+                    <div class="section-card readonly form-grid h-100">
+                        <div class="section-header">Auditor Details</div>
+                        <div class="row">
+
+                            <div class="col-12">
+                                <label asp-for="AuditorName"></label>
+                                <input asp-for="AuditorName" class="form-control" readonly
+                                       value="@(string.IsNullOrEmpty(Model.AuditorName) ? "N/A" : Model.AuditorName)" />
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="AuditorOfficialEmail"></label>
+                                <input asp-for="AuditorOfficialEmail" class="form-control" readonly
+                                       value="@(string.IsNullOrEmpty(Model.AuditorOfficialEmail) ? "N/A" : Model.AuditorOfficialEmail)" />
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="AuditorDocumentNumber"></label>
+                                <input asp-for="AuditorDocumentNumber" class="form-control" readonly
+                                       value="@(string.IsNullOrEmpty(Model.AuditorDocumentNumber) ? "N/A" : Model.AuditorDocumentNumber)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="section-card">
+ 
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <span>Uploaded Documents</span>
+
+                    @if (Model.Documents != null && Model.Documents.Any())
+                    {
+                        <span class="badge bg-success">@Model.Documents.Count document(s)</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">No documents</span>
+                    }
+                </div>
+
+                @if (Model.Documents != null && Model.Documents.Any())
+                {
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var doc in Model.Documents)
+                        {
+                            <a class="btn btn-primary"
+                               href="javascript:void(0);"
+                               onclick="downloadDocument('@doc.DocumentData')" style="margin-right:12px;">
+                                <i class="fa fa-download"></i>
+                                <span>@(string.IsNullOrWhiteSpace(doc.DocumentName) ? "Document" : doc.DocumentName.ToUpper())</span>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-muted small" style="padding:6px 2px; font-size: 15px;
+                text-align: center;">
+                        No documents were uploaded for this organization.
+                    </div>
+                }
+                 
+            </div>
+           
+            <input asp-for="OrgDetailsId" hidden />
+            <input asp-for="Ouid" hidden />
+
+           
+            <div class="org-modal-footer">
+                <div class="footer-left">
+                    <span style="font-size: 15px;
+    font-weight: 500;"> Organization Status:</span>
+                    <span class="status-pill @(Model.Status?.ToLower())">@Model.Status</span>
+                    <span style="font-size: 15px;
+    font-weight: 500;">Created Date: @Model.CreatedOn</span>
+                </div>
+
+                <div>
+                    @if (Model.Status == "PENDING")
+                    {
+                        <button type="button" style="margin-right:12px;" class="btn btn-primary" onclick="modalApprove('@Model.OrgDetailsId')">Approve</button>
+                        <button type="button" style="margin-right:12px;" class="btn  btn-primary" onclick="modalReject('@Model.OrgDetailsId')">Reject</button>
+                    }
+
+                    <a asp-action="List" type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+
+</div>
+
+@section scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+                $(document).ready(function () {
+
+                    $('#selfServiceConfigMenu').addClass('active');
+
+                    if ($('#sidebar ul li.dropdown.active')) {
+                        $('#sidebar ul li.dropdown.active ul').addClass('show');
+                        $('#organzationsMenuItem').addClass('active');
+                        $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+                    }
+                    /*For Beadcrum Start*/
+                    $('#homeMenu').addClass('breadcrumb-item').append('Self Service Portal');
+                    $('#mainMenu').addClass('breadcrumb-item').append('Organization Details')
+                    $('#subMenu').removeClass('breadcrumb-item active');
+                    /*For Beadcrum End*/
+
+                    //if (Model.SpocFaceCaptured.Contains("data:image/png;base64,"))
+
+                });
+                 function downloadDocument(apiUrl) {
+
+            $.ajax({
+                url: '@Url.Action("DownloadDocument", "SelfServicePortal")',
+                type: 'GET',
+                data: { fileUrl: apiUrl },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+
+                success: function (data, status, xhr) {
+
+                    let fileName = "document.pdf";
+                    const disposition = xhr.getResponseHeader('Content-Disposition');
+
+                    if (disposition) {
+                        const match = disposition.match(/filename="([^"]+)"/);
+                        if (match && match.length > 1) {
+                            fileName = match[1];
+                        }
+                    }
+
+                    const blob = new Blob([data]);
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = fileName;
+
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                },
+
+                error: function () {
+                    alert("Document download failed");
+                },
+
+                complete: function () {
+                    $('#overlay').hide();
+                }
+            });
+        }
+
+              function modalApprove(orgId) {
+
+            swal({
+                title: "Approve Organization?",
+                text: "Are you sure you want to approve this organization?",
+                type: "info",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Approve",
+                cancelButtonText: "Cancel",
+                closeOnConfirm: true   
+            }, function () {
+
+                $.ajax({
+                    url: '@Url.Action("ApproveNew", "SelfServicePortal")',
+                    type: 'POST',
+                    data: { OrgDetailsId: orgId },
+
+                    beforeSend: function () {
+                        $('#overlay1').hide();   
+                        $('#overlay').show();    
+                    },
+
+                    complete: function () {
+                        $('#overlay').hide();    
+                    },
+
+                    success: function (res) {
+
+                        swal({
+                            title: "Approved!",
+                            text: res.Message || "Organization approved successfully.",
+                            type: "success"
+                        }, function () {
+
+                             
+                            window.location.href = '@Url.Action("List", "SelfServicePortal")';
+                        });
+                    },
+
+                    error: function () {
+                        swal("Error", "Approval failed. Please try again.", "error");
+                    }
+                });
+            });
+        }
+
+
+
+              function modalReject(orgId) {
+
+            swal({
+                title: "Reject Organization?",
+                text: "Are you sure you want to reject this organization? This action cannot be undone.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, Reject",
+                cancelButtonText: "Cancel",
+                closeOnConfirm: true   
+            }, function () {
+
+                $.ajax({
+                    url: '@Url.Action("RejectNew", "SelfServicePortal")',
+                    type: 'POST',
+                    data: { OrgDetailsId: orgId },
+
+                    beforeSend: function () {
+                        $('#overlay1').hide();   
+                        $('#overlay').show();    
+                    },
+
+                    complete: function () {
+                        $('#overlay').hide();    
+                    },
+
+                    success: function (res) {
+
+                        swal({
+                            title: "Rejected!",
+                            text: res.Message || "Organization has been rejected successfully.",
+                            type: "success"
+                        }, function () {
+
+                             
+                            window.location.href = '@Url.Action("List", "SelfServicePortal")';
+                        });
+                    },
+
+                    error: function () {
+                        swal("Error", "Rejection failed. Please try again.", "error");
+                    }
+                });
+            });
+        }
+         
+
+
+
+                function saveByteArray(name, base64String, exportType) {
+                    var myBytes = base64ToArrayBuffer(base64String);
+                    var blob = new Blob([myBytes]);
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    if (exportType) {
+                        let fileName = name + getFileExtension(exportType);
+                        link.download = fileName;
+                        link.click();
+                    }
+                    else {
+                        swal({ type: 'error', title: "Error", text: "Type cannot be null" });
+                    }
+                }
+
+                function base64ToArrayBuffer(base64) {
+                    var binaryString = window.atob(base64);
+                    var binaryLen = binaryString.length;
+                    var bytes = new Uint8Array(binaryLen);
+                    for (var i = 0; i < binaryLen; i++) {
+                        var ascii = binaryString.charCodeAt(i);
+                        bytes[i] = ascii;
+                    }
+                    return bytes;
+                }
+
+                function getFileExtension(exportType) {
+                    let extension;
+                    switch (exportType) {
+                        case 'jpg':
+                            extension = '.jpg';
+                            break;
+                        case 'pdf':
+                            extension = '.pdf';
+                            break;
+                        case 'excel':
+                            extension = '.xlsx';
+                            break;
+                        case 'csv':
+                            extension = '.csv';
+                            break;
+                    }
+
+                    return extension;
+                }
+    </script>
+}

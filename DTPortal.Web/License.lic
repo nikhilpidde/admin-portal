@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<License licfile="License.lic">
+  <Version>1</Version>
+  <Created>2022-05-05T02:17:21</Created>
+  <Validity>UnLimited</Validity>
+  <ValidFrom>2022-05-05T02:17:21</ValidFrom>
+  <ValidTo>2023-05-05T02:17:21</ValidTo>
+  <LicenseID>2f8aae4e-b7c5-4ecc-9710-6aca65b96067</LicenseID>
+  <Product>
+    <Name>UgPass</Name>
+    <Version>1.0.0</Version>
+  </Product>
+  <Licensor>
+    <Name>DigitalTrust Technologies Pvt Ltd</Name>
+    <Website>www.digitaltrusttech.com</Website>
+  </Licensor>
+  <organization>NITA</organization>
+  <NumberOfSubscribers>500000</NumberOfSubscribers>
+  <NumberOfOnboardings>300000</NumberOfOnboardings>
+  <NumberOfCertificates>500000</NumberOfCertificates>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+<SignedInfo>
+<CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+<SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+<Reference URI="">
+<Transforms>
+<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+</Transforms>
+<DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<DigestValue>744CxtNsDb55IPUOHrKdAWYnPqzHxu2990W/lHcZDiM=</DigestValue>
+</Reference>
+</SignedInfo>
+<SignatureValue>DFtDLlhgEjW/H2g71Xut6mVK3QLQ7o22CVd4xHRcl9nuo4llzrMNpu2T8+hHFVrh
+3GaCGkxIwzeFIEby/cTVYVVx83RomjrK+G642V0fFSzjerMUK5eJnQt0FdS1kflU
+l3r0xxEek35Dwph5ieQe1xx4lytKPS7FmlePO2WJJ3WHwQ2eQ6ygUqWgF9iYPEN3
+quI8jgmRFVHfuUDY6r45el2OO0x3CufCGXoEkwcpYOrXt9IoEL1VAJUIXGSvII30
+Csfd6zM+1lchTp5TXvrioRXQSeoj01/jg303RD2Gr0xdn0E1qAu2E47QS4kJ2Drj
+1S7Du8Q4MLmKNTsYdnFgirMtTT4Ax7UCK0lNEdFMNx3Alm6tCGEGz7AZG0ZlQrMb
+SnifrNpatR7kNKByZeJESuvE1wg9SsbLonlaS/v8qTPVFM4GszbzsvY4Kq7WNwF/
+AGcaY8TQJI1eguwe7cpFK8G1NuI2HEV3AYUcnF7HmtEAIeESFBoryZtQZbL3KYct
+mo3MkTdMQlNtU5q9Fc3OKWCdNevEOp0M8+1o2RRYszmlmi6xuQv3e5RyfRrI+LJw
+DthxdreBVt40w5y9/ODEq8b5mwbUGhdhhI4WY3bXzqluywNHo2HYpWW7YpgWLxhq
+0PcRMsRdqgN3tZsdBBjLAtCGwli61B6GOLNjcT5wNUI=</SignatureValue>
+</Signature></License>

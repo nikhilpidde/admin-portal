@@ -1,0 +1,80 @@
+﻿@model DTPortal.Web.ViewModel.Package.PackageDetailsViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <div style="padding:10px 0px">
+                    Package Code : @Model.Package.PackageCode
+                </div>
+                <div style="padding:10px 0px">
+                    Package Description : @Model.Package.PackageDescription
+                </div>
+                <div style="padding:10px 0px">
+                    Service For : @Model.Package.ServiceFor
+                </div>
+                <div style="padding:10px 0px">
+                    Total Signing Transactions : @Model.Package.TotalSigningTransactions
+                </div>
+                <div style="padding:10px 0px">
+                    Total ESeal Transactions : @Model.Package.TotalESealTransactions
+                </div>
+                <div style="padding:10px 0px">
+                    Discount On Signing Transactions : @Model.Package.DiscountOnSigningTransactions
+                </div>
+                <div style="padding:10px 0px">
+                    Discount On ESeal Transactions : @Model.Package.DiscountOnESealTransactions
+                </div>
+                <div style="padding:10px 0px">
+                    Tax Percentage : @Model.Package.TaxPercentage
+                </div>
+                <div style="padding:10px 0px">
+                    Status : @Model.Package.Status
+                </div>
+                <div style="padding:10px 0px">
+                    Created By : @Model.Package.CreatedBy
+                </div>
+                <div class="d-flex justify-content-end ">
+                    <a class="btn btn-primary js-delete" href=""
+                       onclick="ChangeStatus('@Url.Action("UpdateApprovalStatus", "Package")',@Model.Package.PackageId, true); return false; ">Approve</a>
+                    <a class="btn btn-primary js-delete" style="margin-left:10px;" href=""
+                       onclick="ChangeStatus('@Url.Action("UpdateApprovalStatus", "Package")',@Model.Package.PackageId, false); return false;">Declined</a>
+                    <a type="button" asp-action="List" class="btn btn-danger">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('#priceModelMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#packageMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Price Model');
+            $('#mainMenu').addClass('breadcrumb-item').append('Package');
+            $('#subMenu').addClass('breadcrumb-item active').append('Details');
+            /*For Beadcrum End*/
+        });
+    </script>
+}
+
+

@@ -1,0 +1,178 @@
+﻿@model DTPortal.Web.ViewModel.OnboardingTemplate.OnboardingTemplateAddViewModel
+@using DTPortal.Core.DTOs
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+@{await Html.RenderPartialAsync("_AlertBox");}
+
+<style>
+    .custom-check-box {
+        margin-right: 5px;
+        -webkit-print-color-adjust: exact;
+        /*vertical-align: top;*/
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+    /*#incidents:empty {
+        content: "<tr>message foo</tr>";
+    }*/
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form method="post" asp-action="Add">
+                    <div id="note">
+                        <b>NOTE: </b> (*) Mark fields are mandatory.
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="TemplateName" class="col-form-label"></label>
+                            <input asp-for="TemplateName" class="form-control" />
+                            <span asp-validation-for="TemplateName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label asp-for="MethodName" class="col-form-label"></label>
+                            <select asp-for="MethodName" class="form-control"
+                                    asp-items="@(new SelectList(Model.OnboardingMethods, "OnboardingMethod", "OnboardingMethod"))">
+                                <option value="">Select</option>
+                            </select>
+                            <span asp-validation-for="MethodName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-3">
+                            <partial name="_OnboardingSteps" for="OnboardingSteps" />
+                        </div>
+                        <div class="form-group col-md-9">
+                            <partial name="_SelectedOnboardingSteps" for="SelectedOnboardingSteps" />
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end ">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        &nbsp;&nbsp;
+                        <a type="button" asp-action="List" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script>
+        var index;
+        $(document).ready(function () {
+            $('#registrationAuthorityMenu').addClass('active');
+            if ($('#sidebar ul li.dropdown.active')) {
+                $('#sidebar ul li.dropdown.active ul').addClass('show');
+                $('#onboardingTemplatesMenuItem').addClass('active');
+                $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+            }
+
+            /*For Beadcrum Start*/
+            $('#homeMenu').addClass('breadcrumb-item').append('Registration Authority');
+            $('#mainMenu').addClass('breadcrumb-item').append('Templates');
+            $('#subMenu').addClass('breadcrumb-item active').append('Add');
+            /*For Beadcrum End*/
+
+             index = $("#selectedOnbaordingSteps").children("tr").length;
+
+            var checkedOnboardingSteps = Array.from($(".custom-check-box:checked")).map(e => e.value).length;
+            if (checkedOnboardingSteps > 0) {
+                $("#displayMsgRow").hide();
+            }
+
+            $(".OnboardingSteps").click(function () {
+                var checkedOnboardingSteps = Array.from($(".OnboardingSteps:checked")).map(e => e.value).length;
+                if (checkedOnboardingSteps > 0) {
+                    $("#displayMsgRow").hide();
+                }
+                else {
+                    $("#displayMsgRow").show();
+                }
+            });
+
+          $('input[type=checkbox]').click(function () {
+                var id = $(this).parents('li').children().first().val();
+              var stepName = $(this).parent('label').text().trim();
+              let row = "";
+                if (this.checked) {
+                    @{
+                        Model.SelectedOnboardingSteps.Add(new OnboardingStepDTO());
+                    }
+
+                    if (id == 1) {
+                        row = "<tr>" +
+                            "<td style='display: none;'><input name='SelectedOnboardingSteps.Index' value='" + index + "'/></td>" +
+                            "<td style='display: none;'><input id='SelectedOnboardingSteps_" + index + "__OnboardingStepId' name='SelectedOnboardingSteps[" + index + "].OnboardingStepId' type='text' value='" + id + "'></td>" +
+                            "<td style='display: none;'><input id='SelectedOnboardingSteps_" + index + "__OnboardingStep' name='SelectedOnboardingSteps[" + index + "].OnboardingStep' value='" + stepName + "'></td>" +
+                            "<td><input readonly type='text' id='SelectedOnboardingSteps_" + index + "__OnboardingStepDisplayName' name='SelectedOnboardingSteps[" + index + "].OnboardingStepDisplayName' value='" + stepName + "' class='valid inputWidth' aria-invalid='false'></td>" +
+                            "<td><input type='text' class='inputWidth' id='SelectedOnboardingSteps_" + index + "__IntegrationUrl' name='SelectedOnboardingSteps[" + index + "].IntegrationUrl' value=''></td>" +
+                            //"<td><input type='number' min='70' max='100' class='required inputWidth' id='SelectedOnboardingSteps_" + index + "__OnboardingStepThreshold' name='SelectedOnboardingSteps[" + index + "].OnboardingStepThreshold' value='70'><span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[" + index + "].OnboardingStepThreshold' data-valmsg-replace='true'></span></td>" +
+                            "<td><input type='number' min='70' max='100' class='required inputWidth' id='SelectedOnboardingSteps_" + index + "__AndriodTFliteThreshold' name='SelectedOnboardingSteps[" + index + "].AndriodTFliteThreshold' value='70'><span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[" + index + "].AndriodTFliteThreshold' data-valmsg-replace='true'></span></td>" +
+                            "<td><input type='number' min='70' max='100' class='required inputWidth' id='SelectedOnboardingSteps_" + index + "__AndriodDTTThreshold' name='SelectedOnboardingSteps[" + index + "].AndriodDTTThreshold' value='70'><span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[" + index + "].AndriodDTTThreshold' data-valmsg-replace='true'></span></td>" +
+                            "<td><input type='number' min='70' max='100' class='required inputWidth' id='SelectedOnboardingSteps_" + index + "__IosTFliteThreshold' name='SelectedOnboardingSteps[" + index + "].IosTFliteThreshold' value='70'><span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[" + index + "].IosTFliteThreshold' data-valmsg-replace='true'></span></td>" +
+                            "<td><input type='number' min='70' max='100' class='required inputWidth' id='SelectedOnboardingSteps_" + index + "__IosDTTThreshold' name='SelectedOnboardingSteps[" + index + "].IosDTTThreshold' value='70'><span class='text-danger field-validation-valid' data-valmsg-for='SelectedOnboardingSteps[" + index + "].IosDTTThreshold' data-valmsg-replace='true'></span></td>" +
+                            "</tr>";
+                    }
+                    else {
+                        row = "<tr>" +
+                            "<td style='display: none;'><input name='SelectedOnboardingSteps.Index' value='" + index + "'/></td>" +
+                            "<td style='display: none;'><input id='SelectedOnboardingSteps_" + index + "__OnboardingStepId' name='SelectedOnboardingSteps[" + index + "].OnboardingStepId' type='text' value='" + id + "'></td>" +
+                            "<td style='display: none;'><input id='SelectedOnboardingSteps_" + index + "__OnboardingStep' name='SelectedOnboardingSteps[" + index + "].OnboardingStep' value='" + stepName + "'></td>" +
+                            "<td><input readonly type='text' id='SelectedOnboardingSteps_" + index + "__OnboardingStepDisplayName' name='SelectedOnboardingSteps[" + index + "].OnboardingStepDisplayName' value='" + stepName + "' class='valid inputWidth' aria-invalid='false'></td>" +
+                            "<td><input type='text' class='inputWidth' id='SelectedOnboardingSteps_" + index + "__IntegrationUrl' name='SelectedOnboardingSteps[" + index + "].IntegrationUrl' value=''></td>" +
+                            //"<td></td>" +
+                            "<td></td>" +
+                            "<td></td>" +
+                            "<td></td>" +
+                            "<td></td>" +
+                            "</tr>";
+                    }
+                    $("#selectedOnbaordingSteps").append(row);
+                    index++;
+                }
+                else {
+                    $("#selectedOnbaordingSteps tr td:nth-child(2) input").filter(function () {
+                        return this.value == id;
+                    }).closest('tr').remove();
+                }
+          });
+        });
+</script>
+    <style>
+        .required, .form-group .required {
+            color: black;
+        }
+
+        #note {
+            padding-right: 10px;
+            display: flex;
+            justify-content: flex-end;
+            padding-bottom: 15px;
+        }
+    </style>
+}
+

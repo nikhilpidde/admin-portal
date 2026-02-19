@@ -1,0 +1,155 @@
+﻿@model DTPortal.Web.ViewModel.OrganizationCategories.OrganizationCategoriesListViewModel
+
+@{
+    ViewData["Title"] = "Organization Categories";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <div class="btn-group">
+                            <a id="addRow1" asp-action="New" class="btn btn-info greenButton"><i class="fa fa-plus"></i>Add</a>
+                        </div>
+                        <div class="btn-group">
+                            <a class="btn btn-info greenButton" asp-action="Index">
+                                <i class="fa fa-refresh"></i> Refresh
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <table id="OrgCategoryTable" class="table table-striped table-bordered table-hover table-checkable order-column full-width">
+                    <thead>
+                        <tr>
+
+                            <th>Category Name</th>
+                            <th>Created On</th>
+                            <th>Status</th>
+                            @* <th>Actions</th> *@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model?.OrgCatogeryFieldList == null || !Model.OrgCatogeryFieldList.Any())
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">No record found</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model.OrgCatogeryFieldList)
+                            {
+                                <tr>
+                                    @*  <td>@item.id</td> *@
+                                    <td>@item.categoryName</td>
+                                    <td>@item.createdOn.Split(' ')[0]</td>
+                                    <td>@item.status</td>
+                                   @*  <td class="valigntop">
+
+
+
+                                        <div class="btn-group">
+                                            <button class="btn btn-xs deepPink-bgcolor no-margin greenButton" type="button" data-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu pull-left" role="menu">
+                                                <li>
+                                                    <a asp-action="Edit" asp-route-id="@item.id">
+                                                        <i class="icon-pencil"></i>Edit
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="js-delete" data-id="@item.id">
+                                                        <i class="fa fa-trash"></i>Delete
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td> *@
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+             if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#eSealRegistrationMenu').addClass('active');
+            $('#organizationCategories').addClass('active');
+            $('#eSealRegistration').addClass('show');
+
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Organization');
+        $('#mainMenu').addClass('breadcrumb-item active').append(' Categories');
+        $('#subMenu').removeClass('breadcrumb-item');
+            $('#OrgCategoryTable').DataTable({
+                "bLengthChange": false,
+                "searching": true
+            });
+
+             
+
+
+                        var table = $("#OrgCategoryTable");
+            $('#OrgCategoryTable').on('click', '.js-delete', function () {
+                var deleteButton = $(this);
+                var id = deleteButton.attr("data-id");
+                swal({
+                    title: "Are you sure?",
+                    text: "Do you want to delete this record",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                    closeOnConfirm: false,
+                    closeOnCancel: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        $.ajax({
+                            type: 'POST',
+                            cache: false,
+                            dataType: 'json',
+                            url: '@Url.Action("Delete", "OrganizationCategories")',
+                            data: {
+                                id: id
+                            },
+                            beforeSend: function () {
+                                $('#overlay').show();
+                            },
+                            complete: function () {
+                                $('#overlay').hide();
+                            },
+                            success: function () {
+                                window.location.reload();
+                            },
+                            error: ajaxErrorHandler
+                        });
+                    }
+                    else {
+                        return false;
+                    }
+                });
+            });
+        });
+    </script>
+}

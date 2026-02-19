@@ -1,0 +1,401 @@
+﻿@model DTPortal.Web.ViewModel.OrganizationCategories.OrganizationCategoriesEditViewModel
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+@{
+    ViewData["Title"] = "Categories";
+}
+<style>
+
+    .custom-check-box {
+        margin-right: 5px;
+        margin-top: 4px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+    .custom-check-box2 {
+        margin-right: 5px;
+        margin-top: 4px;
+        -webkit-print-color-adjust: exact;
+        vertical-align: top;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: contain;
+        position: relative !important;
+        width: 1.125rem;
+        height: 1.125rem;
+        background-color: #fff;
+        border: .125rem solid rgba(0,0,0,0.3);
+    }
+
+        .custom-check-box2:hover {
+            outline: auto;
+            outline-color: #5d9ceca3;
+        }
+
+    #Fieldset {
+        padding: 5px;
+        border: groove 2px;
+        padding-top: 20px;
+        padding-left: 25px;
+        margin-bottom: 15px;
+        overflow-y: auto;
+        height: 410px;
+        width: 618px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .custom-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        max-width: 665px;
+        width: 580px;
+        margin-left: 16px;
+        margin-right: 19px;
+    }
+
+        .custom-card .card-body {
+            padding: 20px;
+        }
+
+    #fieldDataTable_wrapper .dataTables_filter input {
+        width: 184px;
+    }
+
+    #fieldDataTable {
+        height: 50%;
+    }
+
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting:before,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_asc:before,
+    table.dataTable thead .sorting_desc:after,
+    table.dataTable thead .sorting_desc:before {
+        display: none !important;
+    }
+
+
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <div class="card-body">
+                <form>
+                    <div class="form-row" style="align-items: center">
+                        <div class="form-group col-md-4">
+                            <label class="col-form-label">Organization Category</label>
+                            <input type="hidden"
+                                   id="categoryIdInput"
+                                   value="@Model.OrgCategoryId" />
+
+                            <input type="text"
+                                   class="form-control mb-3"
+                                   id="categoryInput"
+                                   name="CategoryName"
+                                   placeholder="Enter new category name"
+                                   value="@Model.OrgCategoryName"
+                                   onblur="handleCategoryInput()" />
+                        </div>
+                    </div>
+
+                    <label class="col-form-label">Fields</label>
+                    <div class="form-group row">
+                        <div class="custom-card">
+                            <div class="card-body">
+                                <table id="fieldDataTable" class="table table-striped custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:70%">Field Name</th>
+                                            <th style="width:30%">Mandatory</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fieldDataTableBody">
+                                        <!-- Dynamic rows will be appended here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="d-flex justify-content-end ">
+                        <button type="button" id="submitBtn" class="btn btn-primary" onclick="UpdateFields()">Update</button>
+                        &nbsp; &nbsp;
+                        <a asp-action="Index" class="btn btn-danger">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script> *@
+
+<script>
+
+    var fieldDetails = [];
+    var selectedValueId;
+
+    $(document).ready(function () {
+       // $('#selfServiceConfigMenu').addClass('active');
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#eSealRegistrationMenu').addClass('active');
+            $('#organizationCategories').addClass('active');
+            $('#eSealRegistration').addClass('show');
+
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Organization');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Edit > Categories');
+        $('#subMenu').removeClass('breadcrumb-item');
+
+
+        handleDropdownClick();
+
+        // $('#fieldDataTable').DataTable({
+        //    // lengthChange: false,
+        //     columnDefs: [
+        //         { targets: [0, 1], searchable: true },  // Make 'Field Name' and 'Mandatory' columns searchable
+        //     ],
+        //     info: false,
+        //     scrollY: '255px',
+        //     searching: true,
+        //     sorting: true,
+        //     scrollCollapse: true,
+        //     paging: false,
+        // });
+
+
+    });
+
+
+    function handleDropdownClick() {
+        // var dropdown = document.getElementById("fieldSelect");
+        // selectedValueId = dropdown.options[dropdown.selectedIndex].value;
+        // var selectedText = dropdown.options[dropdown.selectedIndex].text;
+
+        var selectedValueId = document.getElementById("categoryIdInput").value;
+
+
+        $.ajax({
+            url: '@Url.Action("GetCategoryFieldById", "OrganizationCategories")',
+            type: 'POST',
+            data: { id: selectedValueId },
+            beforeSend: function () {
+                $('#overlay').show();
+            },
+            complete: function () {
+                $('#overlay').hide();
+            },
+            success: function (response) {
+
+                if (response.success) {
+                     fieldDetails = response.result;
+
+                    // Check if DataTable is already initialized and destroy it first
+                    if ($.fn.DataTable.isDataTable('#fieldDataTable')) {
+                        $('#fieldDataTable').DataTable().clear().destroy();  // Clear and destroy the previous DataTable
+                    }
+
+                    // var fieldset = document.getElementById('Fieldset');
+                    // var ul = document.createElement('ul');
+                    // ul.style.listStyle = 'none';
+
+                    // fieldset.innerHTML = '';
+
+                    // Assuming fieldDetails is the array containing field details
+
+                    var tbody = document.getElementById('fieldDataTableBody');
+                    tbody.innerHTML = '';
+
+                    // Now append each field detail in table rows
+                    fieldDetails.forEach(function (field, index) {
+                        var tr = document.createElement('tr');
+
+                        // Field name column
+                        var fieldCell = document.createElement('td');
+                        fieldCell.style.width = '70%';
+                        var fieldLabel = document.createElement('label');
+
+                        // Field name checkbox
+                        var fieldCheckbox = document.createElement('input');
+                        fieldCheckbox.type = 'checkbox';
+                        fieldCheckbox.className = 'custom-check-box';
+                        fieldCheckbox.id = `field_${index}`;
+                        fieldCheckbox.value = field.fieldId;
+                        fieldCheckbox.checked = field.visibility;
+
+                        fieldLabel.appendChild(fieldCheckbox);
+                        fieldLabel.appendChild(document.createTextNode(field.labelName));
+                        fieldCell.appendChild(fieldLabel);
+                        tr.appendChild(fieldCell);
+
+                        // Mandatory checkbox column
+                        var mandatoryCell = document.createElement('td');
+                        mandatoryCell.style.width = '30%';
+                        var mandatoryLabel = document.createElement('label');
+
+                        var mandatoryCheckbox = document.createElement('input');
+                        mandatoryCheckbox.type = 'checkbox';
+                        mandatoryCheckbox.className = 'custom-check-box2';
+                        mandatoryCheckbox.id = `mandatory_${index}`;
+                        mandatoryCheckbox.value = field.fieldId;
+                        mandatoryCheckbox.checked = field.mandatory;
+
+                        // Initially hide the mandatory checkbox if field.visibility is false
+                        //mandatoryLabel.style.display = field.visibility ? 'inline' : 'none';
+                        mandatoryCheckbox.disabled = !field.visibility;
+
+                        mandatoryLabel.appendChild(mandatoryCheckbox);
+                        mandatoryCell.appendChild(mandatoryLabel);
+                        tr.appendChild(mandatoryCell);
+
+                        // Make the checkbox readonly if the field name is org_tan_tax_num or org_name
+                        // if (field.fieldName === 'org_tan_tax_num' || field.fieldName === 'org_name') {
+                        //     fieldCheckbox.disabled = true;
+                        //     mandatoryCheckbox.disabled = true;
+                        // }
+
+                        // Make the checkbox uneditable (readonly) if the field name is org_tan_tax_num or org_name
+                        // if (field.fieldName === 'org_tan_tax_num' || field.fieldName === 'org_name') {
+                        //     fieldCheckbox.addEventListener('click', function (e) {
+                        //         e.preventDefault(); // Prevent checkbox state from changing
+                        //     });
+                        //     mandatoryCheckbox.addEventListener('click', function (e) {
+                        //         e.preventDefault(); // Prevent checkbox state from changing
+                        //     });
+                        // }
+
+                        // Add event listener for toggling visibility of mandatory checkbox
+                        fieldCheckbox.addEventListener('change', function () {
+                            if (fieldCheckbox.checked) {
+                                // mandatoryLabel.style.display = 'inline';
+                                // mandatoryCheckbox.checked = false;
+                                mandatoryCheckbox.disabled = false; // Enable mandatory checkbox when field is checked
+                                mandatoryCheckbox.checked = false;
+                            } else {
+                               // mandatoryLabel.style.display = 'none';
+                                mandatoryCheckbox.disabled = true; // Disable mandatory checkbox when field is unchecked
+                                mandatoryCheckbox.checked = false;
+                            }
+                        });
+
+                        tbody.appendChild(tr);
+                    });
+
+
+                    // Reinitialize DataTable after updating the DOM
+                    $('#fieldDataTable').DataTable({
+                        destroy: true, // Ensure any previously initialized table is destroyed
+                        columnDefs: [
+                            { targets: [0, 1], searchable: true },  // Make 'Field Name' and 'Mandatory' columns searchable
+                        ],
+                        info: false,
+                        scrollY: '255px',
+                        searching: true,
+                        //sorting: true,
+                        ordering: false,
+                        scrollCollapse: true,
+                        paging: false,
+                    });
+
+
+                } else {
+
+                    console.error(response.message);
+                }
+            },
+            error: ajaxErrorHandler
+        });
+
+    }
+
+    function UpdateFields(){
+        const fieldObjects = [];
+        const fieldCheckboxes = document.querySelectorAll('.custom-check-box');
+        const mandatoryCheckboxes = document.querySelectorAll('.custom-check-box2');
+        selectedValueId = document.getElementById("categoryIdInput").value;
+        fieldCheckboxes.forEach((fieldCheckbox, index) => {
+
+            const fieldObject = {
+                fieldId: fieldCheckbox.value,
+                visibility: fieldCheckbox.checked,
+                mandatory: mandatoryCheckboxes[index].checked,
+                fieldName: fieldDetails[index].fieldName,
+            };
+
+            fieldObjects.push(fieldObject);
+        });
+
+        var dataToSend = {
+            OrgCategoryId: selectedValueId,
+            orgCategoryName:document.getElementById("categoryInput").value,
+            organisationFieldDtos: fieldObjects
+        };
+        $.ajax({
+            url: '@Url.Action("UpdateCategory", "OrganizationCategories")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(dataToSend),
+            success: function (response) {
+                if (response.success == true) {
+
+                    swal({
+                        type: 'success',
+                        title: "Update",
+                        text: response.message
+                    }, function (result) {
+                        if (result) {
+                             window.location.href = '@Url.Action("Index", "OrganizationCategories")';
+                        }
+                    });
+                }
+                else {
+                    swal({
+                        type: 'error',
+                        title: "Message",
+                        text: response.message,
+                        showCancelButton: false,
+                        closeOnConfirm: true
+                    }, function (result) {
+                        if (result) {
+                             window.location.href = '@Url.Action("Index", "OrganizationCategories")';
+                        }
+                    });
+                }
+
+            },
+            error: ajaxErrorHandler
+        });
+    }
+
+</script>

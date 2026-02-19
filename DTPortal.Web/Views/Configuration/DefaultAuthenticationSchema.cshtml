@@ -1,0 +1,116 @@
+﻿@model DTPortal.Web.ViewModel.Configuration.DefaultAuthenticationSchemaViewModel
+
+@{
+	await Html.RenderPartialAsync("_AlertBox");
+}
+<style>
+	.select2-container {
+		width: 100% !important;
+	}
+
+		.select2-container .select2-selection--single {
+			height: 35px !important;
+		}
+
+	.selection {
+		width: 100% !important;
+	}
+
+	.select2-container--default .select2-selection--single .select2-selection__rendered {
+		color: #555555b3;
+		font-size: 14px;
+		font-family: inherit;
+		margin-top: 3px;
+	}
+</style>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="card-custom">
+			<div class="card-body">
+				<div class="col-md-6">
+					<div class="form-group">
+						<label class="col-form-label s3">Authentication Scheme</label>
+						<select asp-for="AuthSchemeId" class="form-control" asp-items="Model.AuthenticationSchemesList">
+							<option value="">-- Select AuthScheme --</option>
+						</select>
+						<span asp-validation-for="AuthSchemeId" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="d-flex justify-content-end">
+					<button id="add" class="btn btn-primary">
+						Update
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section scripts {
+	<script>
+		$(document).ready(function () {
+			  $('#digitalAuthSidebarElement').addClass('active');
+			$('#ConfigurationSidebarElement').addClass('active');
+			$('#DefaultAuthenticationSidebarElement').addClass('active');
+
+			$('#homeSubmenu').addClass('show');
+			$('#ConfigurationSubmenu').addClass('show');
+
+			$("li#digitalAuthSidebarElement a:first").attr('aria-expanded', 'true');
+			$("li#ConfigurationSidebarElement a:first").attr('aria-expanded', 'true');
+
+			/*For Beadcrum Start*/
+			$('#homeMenu').addClass('breadcrumb-item').append('Digital Authentication');
+			$('#mainMenu').addClass('breadcrumb-item active').append(' Default Authentication Scheme');
+			$('#subMenu').removeClass('breadcrumb-item');
+
+			$("#AuthSchemeId").select2();
+
+			// Pre-select the default Auth Scheme on first load
+			var defaultAuthSchemeId = '@Model.AuthSchemeId';
+			if (defaultAuthSchemeId) {
+				$('#AuthSchemeId').val(defaultAuthSchemeId).trigger('change');
+			}
+		});
+
+		$("#add").click(function () {
+			var AuthSchemeId = $('#AuthSchemeId').val();
+			var dataToSend = { AuthSchemeId: AuthSchemeId };
+
+			$.ajax({
+				url: '@Url.Action("UpdateAuthScheme", "Configuration")',
+				data: dataToSend,
+				type: "GET",
+				contentType: "json",
+				error: ajaxErrorHandler,
+				beforeSend: function () {
+					$('#overlay').show();
+				},
+				complete: function () {
+					$('#overlay').hide();
+				},
+				success: function (data) {
+					if (data.success == true) {
+						swal({
+							type: 'success',
+							title: "Success",
+							text: data.message,
+							showCancelButton: false,
+							closeOnConfirm: true
+						});
+					}
+					else {
+						swal({
+							type: 'error',
+							title: "Failed",
+							text: data.message,
+							showCancelButton: false,
+							closeOnConfirm: true
+						});
+					}
+				}
+			});
+		});
+	</script>
+}

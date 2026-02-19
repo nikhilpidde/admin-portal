@@ -1,0 +1,298 @@
+﻿@model DTPortal.Web.ViewModel.PKIConfiguration.PKIConfigurationListViewModel
+@using DTPortal.Web.Enums
+@using DTPortal.Web.ExtensionMethods
+
+@{
+    ViewData["Title"] = "PKI Configurations";
+}
+
+@{
+    await Html.RenderPartialAsync("_AlertBox");
+}
+
+<!--TABLE CONTENT START-->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body ">
+                <div class="row p-b-20">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        @if (!User.IsInRole("Configuration Checker"))
+                        {
+                            <div class="btn-group">
+                                <a asp-action="Add" id="addRow1" class="btn btn-info">
+                                    <i class="fa fa-plus"></i> Add
+                                </a>
+                            </div>
+                        }
+                        <div class="btn-group">
+                            <a asp-action="List" id="addRow1" class="btn btn-info">
+                                <i class="fa fa-refresh"></i> Refresh
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-striped table-bordered table-hover table-checkable order-column full-width"
+                       id="example4">
+                    <thead>
+                        <tr>
+                            <th>HSM Plugin</th>
+                            <th>CA Plugin</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Configurations)
+                        {
+                            var status = item.Status;
+
+                            <tr class="odd gradeX">
+                                <td>@item.PkiHsmData.HsmPlugin.Name</td>
+                                <td>@item.PkiCaData.CaPlugin.Name</td>
+                                <td>@item.Status</td>
+                                <td class="valigntop" align="center">
+                                    @if (!User.IsInRole("Configuration Checker"))
+                                    {
+                                        <div class="btn-group">
+                                            <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                            aria-expanded="false">
+                                                Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu pull-left" role="menu">
+                                                <li>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id">
+                                                        <i class="icon-pencil"></i>Edit
+                                                    </a>
+                                                </li>
+                                                @if (item.Status.ToLower() == "active")
+                                                {
+                                                    <li>
+                                                        <a class="js-generate-configuration" data-operation="GENERATE_PKI_CONFIGURATION" data-id="@item.Id">
+                                                            <i class="icon-docs"></i>Generate Configuration
+                                                        </a>
+                                                        <a class="js-update-configuration-status" data-operation="UPDATE_PKI_CONFIGURATION_STATUS" data-id="@item.Id" data-status="@item.Status">
+                                                            <i class="icon-docs"></i>Disable
+                                                        </a>
+                                                    </li>
+                                                }
+                                                else
+                                                {
+                                                    <li>
+                                                        <a class="js-update-configuration-status" data-operation="UPDATE_PKI_CONFIGURATION_STATUS" data-id="@item.Id" data-status="@item.Status">
+                                                            <i class="icon-docs"></i>Enable
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="btn-group">
+                                            <button class="btn btn-xs deepPink-bgcolor no-margin" type="button" data-toggle="dropdown"
+                                            aria-expanded="false">
+                                                Actions
+                                                <i class="fa fa-angle-down"></i>
+                                            </button>
+                                            <ul class="dropdown-menu pull-left" role="menu">
+                                                <li>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id">
+                                                        <i class="icon-pencil"></i>View
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!--TABLE CONTENT END-->
+@section scripts{
+<script>
+    var operationName = "";
+    var state = "";
+    var configurationId;
+
+    $(document).ready(function () {
+
+        $('#electronicSignatureMenu').addClass('active');
+
+        if ($('#sidebar ul li.dropdown.active')) {
+            $('#sidebar ul li.dropdown.active ul').addClass('show');
+            $('#pkiConfigurationMenuItem').addClass('active');
+            $('#sidebar ul li.dropdown.active a.nav-link.drop-logo').attr('aria-expanded', 'true');
+        }
+
+        /*For Beadcrum Start*/
+        $('#homeMenu').addClass('breadcrumb-item').append('Electronic Signature');
+        $('#mainMenu').addClass('breadcrumb-item active').append('Configurations');
+        $('#subMenu').removeClass('breadcrumb-item');
+        /*For Beadcrum End*/
+
+        var table = $("#example4").DataTable({
+            "bLengthChange": false,
+        });
+
+        $(".table").on('click', '.js-delete', function () {
+            var deleteButton = $(this);
+            var id = deleteButton.attr("data-id");
+            swal({
+                title: "Are you sure?",
+                text: "Do you want to delete this PKI Configuration?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                cancelButtonText: "No",
+                closeOnConfirm: true,
+                closeOnCancel: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        type: 'POST',
+                        cache: false,
+                        url: '@Url.Action("Delete", "PKIConfiguration")',
+                        headers: {
+                            "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        data: { id: id, },
+                        beforeSend: function () {
+                            $('#overlay').show();
+                        },
+                        complete: function () {
+                            $('#overlay').hide();
+                        }
+                    }).done(function (response) {
+                        if (response.status == "Success") {
+                            type = 'success';
+                            text = response.message;
+                        }
+                        else {
+                            type = 'error';
+                            text = response.message;
+                        }
+                        swal({ type: type, title: response.title, text: text }, function (isConfirm) {
+                            if (isConfirm) {
+                                if (type == 'success') {
+                                    deleteButton.closest('tr').remove();
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    }).fail(ajaxErrorHandler)
+                }
+            });
+        });
+
+        $(".table").on('click', '.js-generate-configuration', function () {
+            configurationId = 0;
+            var generateConfigurationButton = $(this);
+            configurationId = generateConfigurationButton.attr("data-id");
+            operationName = generateConfigurationButton.attr("data-operation");
+            isAuthenticationRequired(false);
+        });        
+
+        $(".table").on('click', '.js-update-configuration-status', function () {
+            configurationId = 0;
+            operationName = "";
+            state = "";
+            var updateConfigurationStateButton = $(this);
+            configurationId = updateConfigurationStateButton.attr("data-id");
+            operationName = updateConfigurationStateButton.attr("data-operation");
+            state = updateConfigurationStateButton.attr("data-status");
+            isAuthenticationRequired(false);
+        });
+    });
+
+    function submitForm() {
+        if (operationName == "GENERATE_PKI_CONFIGURATION") {
+            $.ajax({
+                type: 'POST',
+                cache: false,
+                url: '@Url.Action("GenerateConfiguration", "PKIConfiguration")',
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: { id: configurationId, },
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                     $('#overlay1').hide();
+                }
+            }).done(function (response) {
+                if (response.status == "Success") {
+                    type = 'success';
+                    text = response.message;
+                }
+                else {
+                    type = 'error';
+                    text = response.message;
+                }
+                swal({ type: type, title: response.title, text: text }, function (isConfirm) {
+                    if (isConfirm) {
+                         if (type == 'success') {
+                            window.location.reload();
+                         }
+                    }
+                });
+            }).fail(ajaxErrorHandler)
+        }
+        else if (operationName == "UPDATE_PKI_CONFIGURATION_STATUS")
+        {
+            var actionUrl = "";
+            if (state.toLowerCase() == "active")
+            {
+                actionUrl = '@Url.Action("Disable", "PKIConfiguration")';
+            }
+            else
+            {
+                actionUrl = '@Url.Action("Enable", "PKIConfiguration")';
+            }
+
+             $.ajax({
+                type: 'POST',
+                cache: false,
+                url: actionUrl,
+                headers: {
+                    "XSRF-TOKEN": $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: { id: configurationId, },
+                beforeSend: function () {
+                    $('#overlay').show();
+                },
+                complete: function () {
+                    $('#overlay').hide();
+                     $('#overlay1').hide();
+                }
+            }).done(function (response) {
+                if (response.status == "Success") {
+                    type = 'success';
+                    text = response.message;
+                }
+                else {
+                    type = 'error';
+                    text = response.message;
+                }
+                swal({ type: type, title: response.title, text: text }, function (isConfirm) {
+                    if (isConfirm) {
+                         if (type == 'success') {
+                            window.location.reload();
+                         }
+                    }
+                });
+            }).fail(ajaxErrorHandler)
+        }
+    }
+</script>
+}
+
