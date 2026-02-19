@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 
 namespace DTPortal.Web.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    [Authorize]
     public class CredentialController : Controller
     {
         private readonly ICredentialService _credentialService;
