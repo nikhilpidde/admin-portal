@@ -2851,6 +2851,7 @@
           "Pomelo.EntityFrameworkCore.MySql": "[9.0.0, )",
           "RabbitMQ.Client": "[6.2.4, )",
           "StackExchange.Redis": "[2.5.61, )",
+          "System.Drawing.Common": "[10.0.3, )",
           "System.IdentityModel.Tokens.Jwt": "[8.16.0, )",
           "VaultSharp": "[1.17.5.1, )",
           "iTextSharp": "[5.5.13.4, )"
