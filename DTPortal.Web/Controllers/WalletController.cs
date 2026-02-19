@@ -3,8 +3,10 @@ using DTPortal.Core.Utilities;
 using System.Threading.Tasks;
 using DTPortal.Core.Domain.Services;
 using DTPortal.Core.Domain.Services.Communication;
+using Microsoft.AspNetCore.Authorization;
 namespace DTPortal.Web.Controllers
 {
+    [Authorize]
     public class WalletController : Controller
     {
         private readonly IWalletConfigurationService _walletConfigurationService;
