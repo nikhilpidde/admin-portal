@@ -183,7 +183,7 @@
             if (typeof options.locale.customRangeLabel === 'string'){
                 //Support unicode chars in the custom range name.
                 var elem = document.createElement('textarea');
-                elem.innerHTML = options.locale.customRangeLabel;
+                elem.textContent = options.locale.customRangeLabel;
                 var rangeHtml = elem.value;
                 this.locale.customRangeLabel = rangeHtml;
             }

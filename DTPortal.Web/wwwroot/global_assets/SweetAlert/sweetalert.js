@@ -1122,7 +1122,7 @@ sweetAlert.showInputError = _swal.showInputError = function (errorMessage) {
   var $errorContainer = modal.querySelector('.form-group');
   (0, _handleDom.addClass)($errorContainer, 'has-error');
 
-  $errorContainer.querySelector('.sa-help-text').innerHTML = errorMessage;
+    $errorContainer.querySelector('.sa-help-text').textContent = errorMessage;
 
   setTimeout(function () {
     sweetAlert.enableButtons();

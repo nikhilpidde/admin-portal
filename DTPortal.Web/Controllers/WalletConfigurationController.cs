@@ -7,12 +7,14 @@ using DTPortal.Web.Enums;
 using DTPortal.Web.ViewModel;
 using DTPortal.Web.ViewModel.ESealRegistration;
 using DTPortal.Web.ViewModel.WalletConfiguration;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 namespace DTPortal.Web.Controllers
-{ 
+{
+    [Authorize]
     public class WalletConfigurationController : Controller
     {
         private readonly IWalletConfigurationService _walletConfigurationService;

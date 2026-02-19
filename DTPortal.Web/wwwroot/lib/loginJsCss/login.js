@@ -184,7 +184,7 @@ function authenticate(FormID) {
         document.getElementById(errorDivId).className = "danger";
         document.getElementById(errorDivId).style.visibility = "visible";
         var msg = (id != "email") ? id : id + " otp";
-        document.getElementById(errorDivId).innerHTML = "Please enter " + msg
+        document.getElementById(errorDivId).textContent = "Please enter " + msg
         return false;
 
     } else {
@@ -233,7 +233,7 @@ function authenticate(FormID) {
                     } else {
                         document.getElementById(errorDivId).className = "danger";
                         document.getElementById(errorDivId).style.visibility = "visible"
-                        document.getElementById(errorDivId).innerHTML = result.message;
+                        document.getElementById(errorDivId).textContent = result.message;
                     }
                     return false;
                 }
@@ -254,7 +254,7 @@ function ErrorHandler(xhr, status, error) {
         case 400:
             document.getElementById(errorDivId).className = "danger";
             document.getElementById(errorDivId).style.visibility = "visible"
-            document.getElementById(errorDivId).innerHTML = xhr.responseJSON.message
+            document.getElementById(errorDivId).textContent = xhr.responseJSON.message
             break;
         case 403:
             swal("Forbidden", "You do not have access to this resource", "error");
