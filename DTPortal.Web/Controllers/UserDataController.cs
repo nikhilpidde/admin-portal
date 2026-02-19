@@ -2,9 +2,11 @@
 using DTPortal.Core.Domain.Services.Communication;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DTPortal.Web.Controllers
 {
+    [Authorize]
     public class UserDataController : Controller
     {
         private readonly ICredentialService _credentialService;
