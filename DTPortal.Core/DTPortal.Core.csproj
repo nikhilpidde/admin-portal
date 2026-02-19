@@ -17,7 +17,7 @@
     <Folder Include="Persistence\Contexts\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="4.0.18.3" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.18.6" />
     <PackageReference Include="Confluent.Kafka" Version="2.12.0" />
     <PackageReference Include="Fido2.AspNet" Version="2.0.2" />
     <PackageReference Include="FirebaseAdmin" Version="2.3.0" />
