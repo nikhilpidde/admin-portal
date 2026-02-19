@@ -1,8 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <UserSecretsId>115c1ffd-5ad8-4316-8b97-1c7ceb9e47cf</UserSecretsId>
     <Platforms>AnyCPU;x64</Platforms>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
