@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 namespace DTPortal.Web.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
+    [Authorize]
     public class QrCredentialController : Controller
     {
         private readonly IQrCredentialService _qrCredentialService;
