@@ -922,6 +922,10 @@ namespace DTPortal.Web.Utilities
             string path = Path.Combine(_environment.WebRootPath, FOLDER_PATH);
             if (Directory.Exists(path))
             {
+                if (fileName == null || fileName.Contains("../") || fileName.Contains(@"..\"))
+                {
+                    throw new ArgumentException("Invalid file path");
+                }
                 string filePath = $"{path}//{fileName}";
                 if (File.Exists(filePath))
                 {
