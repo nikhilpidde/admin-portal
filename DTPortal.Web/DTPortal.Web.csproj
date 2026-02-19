@@ -24,6 +24,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <NoWarn>1701;1702</NoWarn>
   </PropertyGroup>
+	<PropertyGroup>
+		<!-- Generate the lock file -->
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
+		<!-- Restore the exact packages as listed in the lock file -->
+		<RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
+	</PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\DTPortal.Common\DTPortal.Common.csproj" />
     <ProjectReference Include="..\DTPortal.Core\DTPortal.Core.csproj" />

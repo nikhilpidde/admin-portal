@@ -2,6 +2,13 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
+	<PropertyGroup>
+		<!-- Generate the lock file -->
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
+		<!-- Restore the exact packages as listed in the lock file -->
+		<RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
+	</PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.12.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
